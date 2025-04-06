@@ -1,0 +1,23 @@
+from setuptools import setup, find_packages
+
+setup(name='AstroPilot',
+      version='0.1.0',
+      packages=find_packages(),
+      install_requires=['langchain',
+                        'langchain-chroma',
+                        'langchain-community',
+                        'langchain-google-vertexai',
+                        'langchain-groq',
+                        'langchain-google-genai',
+                        'langchain-openai',
+                        'langchain-anthropic',
+                        'langgraph',
+                        'langgraph-checkpoint-sqlite',
+                        'pydantic',
+                        'dotenv',
+                        'requests',
+                        'typing-extensions',
+                        'pdflatex',
+                        'tqdm'],
+    include_package_data=True,
+    zip_safe=False)
