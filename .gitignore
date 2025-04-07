@@ -178,3 +178,4 @@ cython_debug/
 .pypirc
 
 AP_env/*
+.DS_Store
