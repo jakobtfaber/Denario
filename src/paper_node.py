@@ -290,6 +290,26 @@ def refine_results(state: GraphState, config: RunnableConfig):
     return {'paper':{**state['paper'],
                      'Results': section_text}}
 
+def keywords_node(state: GraphState, config: RunnableConfig):
+    """
+    This agent is in charge of getting the keywords for the paper
+    """
+
+    PROMPT = keyword_prompt(state)
+    result = llm.invoke(PROMPT).content
+
+    # Extract caption
+    pattern = r"\\begin{keywords}(.*?)\\end{keywords}"
+    match = re.search(pattern, result, re.DOTALL)
+    if match:  keywords = match.group(1).strip()
+    else:
+        print('Failed to get keywords...')
+        raise ValueError("Failed to extract keywords")
+
+    print(f'Selected keywords: {keywords}')
+    
+    return {'paper': {**state['paper'], 'Keywords': keywords}}
+
 
 def LaTeX_node(state: GraphState, config: RunnableConfig):
     """
@@ -337,8 +357,8 @@ def save_paper(state, name=None):
 
 \title{{{state['paper'].get('Title','')}}}
 
-\author{{AI cosmologist}}
-\affiliation{{Groq servers. Planet Earth.}}
+\author{{AstroPilot}}
+\affiliation{{Gemini \& OpenAI servers. Planet Earth.}}
 
 
 
@@ -348,7 +368,7 @@ def save_paper(state, name=None):
 
 \end{{abstract}}
 
-\keywords{{Classical Novae (251) --- Ultraviolet astronomy(1736) --- History of astronomy(1868) --- Interdisciplinary astronomy(804)}}
+\keywords{{{state['paper']['Keywords']}}}
 
 
 \section{{Introduction}}

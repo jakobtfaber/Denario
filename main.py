@@ -24,11 +24,13 @@ builder.add_node("generate_paper",    generate_paper)
 builder.add_node("plots_node",        plots_node)
 builder.add_node("refine_results",    refine_results)
 builder.add_node("LaTeX_node",        LaTeX_node)
+builder.add_node("keywords_node",     keywords_node)
 
 
 # Define edges: these determine how the control flow moves
 builder.add_edge(START,               "reader_node")
-builder.add_edge("reader_node",       "abstract_node")
+builder.add_edge("reader_node",       "keywords_node")
+builder.add_edge("keywords_node",     "abstract_node")
 builder.add_edge("abstract_node",     "introduction_node")
 builder.add_edge("introduction_node", "methods_node")
 builder.add_edge("methods_node",      "results_node")

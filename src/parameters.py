@@ -7,6 +7,7 @@ from langgraph.graph.message import add_messages
 class PAPER(TypedDict):
     Title: str
     Abstract: str
+    Keywords: str
     Introduction: str
     Methods: str
     Results: str
