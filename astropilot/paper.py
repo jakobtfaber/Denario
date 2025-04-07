@@ -1,9 +1,9 @@
 from langgraph.graph import START, StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.sqlite import SqliteSaver
-from src.parameters import GraphState
-from src.paper_node import *
-from src.reader import *
+from parameters import GraphState
+from paper_node import *
+from reader import *
 
 
 
