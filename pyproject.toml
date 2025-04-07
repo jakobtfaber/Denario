@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "astropilot"
+version = "0.1.0"
+description = "A set of AI agents to automatize scientific research in Astrophysics and Cosmology"
+authors = [
+    { name = "Your Name", email = "your.email@example.com" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }  # Adjust if you use a different license
+dependencies = [
+    # "cmbagent-autogen @ git+https://github.com/CMBAgents/ag2.git@ag2_v0.8.4_upgrade#egg=cmbagent-autogen",
+    # "cmbagent @ git+https://github.com/CMBAgents/cmbagent.git@astrop#egg=cmbagent",
+    "langchain",
+    "langchain-chroma",
+    "langchain-community",
+    "langchain-google-vertexai",
+    "langchain-groq",
+    "langchain-google-genai",
+    "langchain-openai",
+    "langchain-anthropic",
+    "langgraph",
+    "langgraph-checkpoint-sqlite",
+    "pydantic",
+    "dotenv",
+    "requests",
+    "typing-extensions",
+    "pdflatex",
+    "tqdm",
+    "numpy>=1.19.0",
+    "anthropic",
+    "astropy",
+    "geopandas",
+    "getdist",
+    "googletrans",
+    "healpy",
+    "mcfit",
+    "pyDOE",
+    "ruamel.yaml",
+    "pandas",
+    "ipython",
+    "shapely",
+    "statsmodels",
+    "kaleido",
+    "google-api-core",
+    "google-cloud-aiplatform",
+    "google-auth",
+    "pillow",
+    "jsonschema",
+    "jsonref==1.1.0",
+    "vertexai==1.71.1"
+]
+
+
+[tool.setuptools.packages.find]
+where = ["."]
