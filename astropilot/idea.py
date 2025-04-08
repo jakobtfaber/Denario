@@ -1,6 +1,8 @@
 from cmbagent import CMBAgent
 import copy
 import re
+
+
 class Idea:
     """
     This class is used to develop a research project idea based on the data of interest.
