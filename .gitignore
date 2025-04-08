@@ -179,3 +179,4 @@ cython_debug/
 
 AP_env/*
 .DS_Store
+paper/
