@@ -10,6 +10,7 @@ load_dotenv()
 GOOGLE_API_KEY    = os.getenv("GOOGLE_API_KEY")
 #OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY")
 #ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 
 #llm  = ChatGroq(model="llama3-8b-8192", temperature=0)

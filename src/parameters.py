@@ -12,6 +12,7 @@ class PAPER(TypedDict):
     Methods: str
     Results: str
     Conclusions: str
+    References: str
     summary: str
 
 # Class for Input/Output files
@@ -23,6 +24,7 @@ class FILES(TypedDict):
     Paper_folder: str #location of the paper
     Paper: str  #name of LaTeX file
     Paper2: str #name of LaTeX file after adding the plots: last agent may fail
+    Paper3: str
     Error: str  #location of the error file
     LaTeX_log: str #name of the file with the LaTeX log (when compiling it)
 

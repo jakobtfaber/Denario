@@ -4,11 +4,13 @@ import sys,os,json,re,time, base64
 from pathlib import Path
 from tqdm import tqdm
 import subprocess
+import requests
 
 from src.parameters import GraphState
 from src.prompts import *
 from src.llm import llm
 from src.tools import json_parser
+from src.literature import process_tex_file_with_references
 
 
 
@@ -27,6 +29,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     """
     
     # --- Step 1: Prompt and parse section ---
+    print(f'Writing {section_name}...', end="", flush=True)
     prompt = prompt_fn(state)
     result = llm.invoke(prompt).content
 
@@ -45,7 +48,10 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
             prompt = reflection_fn(state)
             section_text = llm.invoke(prompt).content
 
-    # --- Step 3: Remove unwanted LaTeX wrappers ---
+    # --- Step 3: Check LaTeX ---
+    section_text = LaTeX_checker(section_text)
+
+    # --- Step 4: Remove unwanted LaTeX wrappers ---
     section_text = section_text.replace(r"\documentclass{article}", "")
     section_text = section_text.replace(r"\begin{document}", "")
     section_text = section_text.replace(r"\end{document}", "")
@@ -53,13 +59,13 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     section_text = section_text.replace(fr"\begin{{{section_name}}}", "")
     section_text = section_text.replace(fr"\end{{{section_name}}}", "")
     section_text = section_text.replace(fr"\maketitle", "")
-    print(f'{section_name} writen...')
+    print('done')
 
-    # --- Step 4: Save paper ---
+    # --- Step 5: Save paper ---
     state['paper'][section_name] = section_text
     _ = save_paper(state)
 
-    # --- Step 5: Summarize ---
+    # --- Step 6: Summarize ---
     prompt = summary_prompt(state['paper']['summary'], section_text)
     result = llm.invoke(prompt).content
     match = re.search(r"\\begin{Summary}(.*?)\\end{Summary}", result, re.DOTALL)
@@ -68,7 +74,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     else:
         raise ValueError("No valid summary found.")
 
-    # --- Step 6: Update state ---
+    # --- Step 7: Update state ---
     return {"paper": {**state["paper"],
                       section_name: section_text,
                       "summary": state["paper"]["summary"]}}
@@ -101,6 +107,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     This node gets the title and the abstract of the paper
     """
 
+    print(f"Writing Abstract...", end="", flush=True)
     PROMPT = abstract_prompt(state['idea']['idea'])
     result = llm.invoke(PROMPT)
     result = result.content
@@ -120,8 +127,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         match = re.search(pattern, abstract, re.DOTALL)
         if match:  abstract = match.group(1).strip()
         else:      raise ValueError("No valid Abstract section found.")
-        
-    print('Abstract writen...')
+    print('done')
 
     # --- Save paper ---
     state['paper']['Abstract'] = abstract
@@ -145,18 +151,17 @@ def compile_latex(state):
     """
     Function used to compile the paper
     """
-
+    
     # get the current directory
     original_dir = os.getcwd()
 
     # go to the folder containing the paper
     os.chdir(state['files']['Paper_folder'])
-    pdfl = PDFLaTeX.from_texfile(state['files']['Paper'])
 
     # try to compile twice for citations and links
-    for i in range(2):  # compile twice to resolve references
+    for i in range(3):  # compile twice to resolve references
         try:
-            result = subprocess.run(["pdflatex", "paper.tex"],
+            result = subprocess.run(["xelatex", state['files']['Paper3']],
                                     capture_output=True,
                                     text=True, check=True)
             print(f"LaTeX compiled successfully: iteration {i+1}")
@@ -165,6 +170,12 @@ def compile_latex(state):
             with open(state['files']['LaTeX_log'], 'a') as f:
                 f.write(f"\n==== LaTeX Compilation Pass {i + 1} ====\n")
                 f.write(result.stdout)
+
+            if i==0:
+                result = subprocess.run(["bibtex", "paper"],
+                                        capture_output=True,
+                                        text=True, check=True)
+
             
         except subprocess.CalledProcessError as e:
             print(f"LaTeX compilation failed: iteration {i+1}")
@@ -172,19 +183,7 @@ def compile_latex(state):
                 f.write(f"\n==== ERROR on Pass {i + 1} ====\n")
                 f.write(e.stdout or "")
                 f.write(e.stderr or "")
-            
-            #pdf, log, completed_process = pdfl.create_pdf(keep_pdf_file=True,
-            #                                              keep_log_file=True)
-            #f = open(state['files']['LaTeX_log'], 'w')
-            #f.write(log.decode("utf-8"));  f.close()
-            #if completed_process.returncode != 0:
-            #    print(f"❌ LaTeX compilation failed on pass {i+1}")
-            #    raise RuntimeError("LaTeX compilation failed.")
-            #time.sleep(10)
-        #except:
-        #    print(f"LaTeX failed to compile on pass {i+1}")
-        #    raise RuntimeError(f"LaTeX compilation failed")
-            
+                        
     os.chdir(original_dir)
 
 ##################################################################
@@ -192,7 +191,7 @@ def generate_paper(state: GraphState, config: RunnableConfig):
     
     paper = save_paper(state)
     compile_latex(state)
-    return{'paper': paper}
+    #return{'paper': paper}
 
 
 ##################################################################
@@ -229,9 +228,9 @@ def plots_node(state: GraphState, config: RunnableConfig):
         images[f"image{i}"] = {'name':files[i].name,
                                'caption':caption}
 
+    print('Inserting figures...', end="", flush=True)
     PROMPT = plot_prompt(state, images)
     result = llm.invoke(PROMPT).content
-    print('Plots added...')
 
     # Extract new section
     pattern = r"\\begin{Section}(.*?)\\end{Section}"
@@ -249,10 +248,11 @@ def plots_node(state: GraphState, config: RunnableConfig):
     results = results.replace(r"\section{Results}", "")
     results = results.replace(r"\begin{Results}", "")
     results = results.replace(r"\end{Results}", "")
-
+    print('done')
+    
     # save paper
     state['paper']['Results'] = results
-    _ = save_paper(state, state['files']['Paper2'])
+    _ = save_paper(state, state['files']['Paper'])
     
     return {'paper':{**state['paper'], 'Results': results}}
 
@@ -261,6 +261,7 @@ def refine_results(state: GraphState, config: RunnableConfig):
     This agent takes the results section and improve it
     """
 
+    print('Refining results...', end="")
     PROMPT = refine_results_prompt(state)
     result = llm.invoke(PROMPT).content
 
@@ -283,9 +284,8 @@ def refine_results(state: GraphState, config: RunnableConfig):
 
     # save paper
     state['paper']['Results'] = section_text
-    _ = save_paper(state)
-
-    print('Results refined...')
+    _ = save_paper(state, state['files']['Paper2'])
+    print('done')
 
     return {'paper':{**state['paper'],
                      'Results': section_text}}
@@ -310,6 +310,22 @@ def keywords_node(state: GraphState, config: RunnableConfig):
     
     return {'paper': {**state['paper'], 'Keywords': keywords}}
 
+
+def LaTeX_checker(text):
+
+    PROMPT = LaTeX_prompt(text)
+    result = llm.invoke(PROMPT).content
+
+    # Extract caption
+    pattern = r"\\begin{Text}(.*?)\\end{Text}"
+    match = re.search(pattern, result, re.DOTALL)
+    if match:  text = match.group(1).strip()
+    else:
+        print('Failed to get LaTeX...')
+        raise ValueError("Failed to extract LaTeX")
+
+    return text
+    
 
 def LaTeX_node(state: GraphState, config: RunnableConfig):
     """
@@ -341,6 +357,27 @@ def LaTeX_node(state: GraphState, config: RunnableConfig):
     return state
 
 
+def citations_node(state: GraphState, config: RunnableConfig):
+    """
+    This agent adds citations to the paper
+    """
+
+    text = state['paper']['Introduction']
+
+    print('Adding citations...', end="", flush=True)
+    text, references = process_tex_file_with_references(text)
+    print('done!')
+    
+    state['paper']['Introduction'] = text
+    state['paper']['References']   = references
+    
+    save_paper(state, name=state['files']['Paper3'])
+    save_bib(state)
+    
+    return {'paper': {**state['paper'], 'Introduction': text, 'References': references}}
+    
+    
+
 def save_paper(state, name=None):
     """
     This function just saves the current state of the paper
@@ -360,12 +397,8 @@ def save_paper(state, name=None):
 \author{{AstroPilot}}
 \affiliation{{Gemini \& OpenAI servers. Planet Earth.}}
 
-
-
 \begin{{abstract}}
-
 {state['paper'].get('Abstract','')}
-
 \end{{abstract}}
 
 \keywords{{{state['paper']['Keywords']}}}
@@ -373,25 +406,19 @@ def save_paper(state, name=None):
 
 \section{{Introduction}}
 \label{{sec:intro}}
-
 {state['paper'].get('Introduction','')}
 
 \section{{Methods}}
 \label{{sec:methods}}
-
 {state['paper'].get('Methods','')}
 
 \section{{Results}}
 \label{{sec:results}}
-
 {state['paper'].get('Results','')}
 
 \section{{Conclusions}}
 \label{{sec:conclusions}}
-
 {state['paper'].get('Conclusions','')}
-
-
 
 \bibliography{{bibliography}}{{}}
 \bibliographystyle{{aasjournal}}
@@ -408,6 +435,13 @@ def save_paper(state, name=None):
     return paper
 
 
+def save_bib(state):
+    
+    f = open(f"{state['files']['Paper_folder']}/bibliography.bib", 'a')
+    f.write(state['paper']['References'])
+    f.close()
+    
+    
 
 def fixer(state: GraphState, section_name):
     """

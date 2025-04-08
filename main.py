@@ -23,8 +23,8 @@ builder.add_node("conclusions_node",  conclusions_node)
 builder.add_node("generate_paper",    generate_paper)
 builder.add_node("plots_node",        plots_node)
 builder.add_node("refine_results",    refine_results)
-builder.add_node("LaTeX_node",        LaTeX_node)
 builder.add_node("keywords_node",     keywords_node)
+builder.add_node("citations_node",    citations_node)
 
 
 # Define edges: these determine how the control flow moves
@@ -37,8 +37,8 @@ builder.add_edge("methods_node",      "results_node")
 builder.add_edge("results_node",      "conclusions_node")
 builder.add_edge("conclusions_node",  "plots_node")
 builder.add_edge("plots_node",        "refine_results")
-builder.add_edge("refine_results",    "LaTeX_node")
-builder.add_edge("LaTeX_node",        "generate_paper")
+builder.add_edge("refine_results",    "citations_node")
+builder.add_edge("citations_node",    "generate_paper")
 builder.add_edge("generate_paper",    "__end__")
 
 
@@ -46,17 +46,18 @@ memory = MemorySaver()
 #memory = SqliteSaver(conn)
 graph = builder.compile(checkpointer=memory)
 
-#graph_image = graph.get_graph(xray=True).draw_mermaid_png()
-#with open("graph_diagram.png", "wb") as f:
-#    f.write(graph_image)
+graph_image = graph.get_graph(xray=True).draw_mermaid_png()
+with open("graph_diagram.png", "wb") as f:
+    f.write(graph_image)
     
 result = graph.invoke({"files": {"Idea":         "Input_Files/idea.md",
                                  "Methods":      "Input_Files/methods.md",
                                  "Results":      "Input_Files/results.md",
                                  "Plots":        "Input_Files/plots",
                                  "Paper_folder": "LaTeX",
-                                 "Paper":        "paper.tex",
-                                 "Paper2":       "paper_w_plots.tex",
+                                 "Paper":        "paper_v1.tex",
+                                 "Paper2":       "paper_v2.tex",
+                                 "Paper3":       "paper_v3.tex",
                                  "Error":        "Error.txt",
                                  "LaTeX_log":    "LaTeX_compilation.log"},
                        "idea": {},
