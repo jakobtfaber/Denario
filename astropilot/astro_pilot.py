@@ -37,7 +37,17 @@ class AstroPilot:
             with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
                 data_description = f.read()
             data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR)+ "/project_data/")
+
+        elif data_description.endswith(".md"):
+            with open(data_description, 'r') as f:
+                data_description = f.read()
+        else:
+            raise ValueError("Data description must be a string or a path to a markdown file")
         self.research.data_description = data_description
+        # overwrite the data_description.md file
+        with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'w') as f:
+            f.write(data_description)
+        return None
 
     def show_data_description(self):
         display(Markdown(self.research.data_description))
