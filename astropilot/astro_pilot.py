@@ -4,7 +4,7 @@ from .experiment import run_experiment
 from .paper import write_paper
 
 class AstroPilot:
-    def __init__(self, params):
+    def __init__(self, params={}):
         self.params = params
 
     def idea(self, **kwargs):

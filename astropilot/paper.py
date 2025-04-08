@@ -66,4 +66,4 @@ def write_paper(params, **kwargs):
     
 
     print("[astropilot.paper] Paper generation workflow complete.")
-    return 1
+
