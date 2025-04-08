@@ -1,22 +1,49 @@
-from .idea import develop_idea
+from .idea import Idea
 from .method import design_method
 from .experiment import run_experiment
 from .paper import write_paper
+from pydantic import BaseModel, Field
+from typing import List
+
 import os
-
-from cmbagent import CMBAgent
-
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 
+from .config import REPO_DIR
+
+from cmbagent import CMBAgent
+
+
+
 
 class AstroPilot:
-    def __init__(self, params={}):
+    class Research(BaseModel):
+        idea: str = Field(default="", description="The idea of the project")
+        methodology: str = Field(default="", description="The methodology of the project")
+        results: str = Field(default="", description="The results of the project")
+        plot_paths: List[str] = Field(default_factory=list, description="The plot paths of the project")
+
+
+    def __init__(self, input_data: 'AstroPilot.Research' = None, params={}):
+        if input_data is None:
+            input_data = AstroPilot.Research()  # Initialize with default values
+        self.research = input_data
         self.params = params
 
-    def get_idea(self, **kwargs):
-        return develop_idea(self.params, **kwargs)
-
+    def get_idea(self, data_description: str = None, **kwargs):
+        idea = Idea()
+        if data_description is None:
+            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
+                data_description = f.read()
+            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR))
+        idea = idea.develop_idea(data_description, **kwargs)
+        self.research.idea = idea
+        # Write idea to file
+        idea_path = os.path.join(REPO_DIR, 'input_files', 'idea.md')
+        with open(idea_path, 'w') as f:
+            f.write(idea)
+        return None
+    
     def get_method(self, **kwargs):
         return design_method(self.params, **kwargs)
 
