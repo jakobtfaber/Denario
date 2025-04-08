@@ -13,7 +13,7 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }  # Adjust if you use a different license
 dependencies = [
-    # "cmbagent-autogen @ git+https://github.com/CMBAgents/ag2.git@ag2_v0.8.4_upgrade#egg=cmbagent-autogen",
+    # "cmbagent-autogen @ git+https://github.com/CMBAgents/ag2.git@ag2_v0.8.4_upgrade_astrop#egg=cmbagent-autogen",
     # "cmbagent @ git+https://github.com/CMBAgents/cmbagent.git@astrop#egg=cmbagent",
     "langchain",
     "langchain-chroma",
