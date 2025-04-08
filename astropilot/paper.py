@@ -52,7 +52,7 @@ def write_paper(params, **kwargs):
     #    f.write(graph_image)
         
     result = graph.invoke({"files": {"Idea":        os.path.join(REPO_DIR,"input_files/idea.md"),
-                                    "Methods":      os.path.join(REPO_DIR,"input_files/methods.md"),
+                                    "Methods":      os.path.join(REPO_DIR,"input_files/method.md"),
                                     "Results":      os.path.join(REPO_DIR,"input_files/results.md"),
                                     "Plots":        os.path.join(REPO_DIR,"input_files/plots"),
                                     "Paper_folder": os.path.join(REPO_DIR,"paper"),

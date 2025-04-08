@@ -170,3 +170,5 @@ Description of the subhalo features:
 
 
 Groups and subhalos should be considered as separate objects (they dont have the same features).
+
+There is no information on object positions, thus it is not possible to compute spatial correlation functions.
