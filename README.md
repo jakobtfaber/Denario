@@ -37,6 +37,7 @@ The code assumes the existence of 2 folders in the main directory:
 
 - **input_files**. This file should contain:
 
+  - data_description.md: This file should contain a detailed description of the data you want to do research on, or a description on how you want the data to be generated.
   - idea.md: This file contains a summary of the paper idea
   - methods.md: This file contains the methods of the paper
   - results.md: This file contains the results of the analysis
