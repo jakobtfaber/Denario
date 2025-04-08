@@ -1,6 +1,6 @@
 # AstroPilot
 
-AstroPilot is a multiagent system designed to automatize scientific research in astrophysics and cosmology
+AstroPilot is a multi-agent system designed to automatize scientific research in astrophysics and cosmology
 
 ## Installation
 
@@ -35,14 +35,14 @@ GOOGLE_API_KEY=your_google_api_key
 
 The code assumes the existence of 2 folders in the main directory:
 
-- **Input_Files**. This file should contain:
+- **input_files**. This file should contain:
 
   - idea.md: This file contains a summary of the paper idea
   - methods.md: This file contains the methods of the paper
   - results.md: This file contains the results of the analysis
   - plots: This is a folder and contains all the plots of the paper
 
-- **LaTeX**. This folder contains the files `aasjournal.bst`, `aastex631.cls`, `bibliography.bib` needed to compile the paper. The paper, called `paper.tex` and `paper.pdf` will be place in this folder
+- **paper**. This folder contains the files `aasjournal.bst`, `aastex631.cls`, `bibliography.bib` needed to compile the paper. The paper, called `paper.tex` and `paper.pdf` will be place in this folder
 
 For new ideas/project, modify the files in the Input_Files folder accordingly.
 
@@ -51,7 +51,9 @@ For new ideas/project, modify the files in the Input_Files folder accordingly.
 To run the code just type:
 
 ```python
-python main.py
+from astropilot import AstroPilot
+astro_pilot = AstroPilot()
+astro_pilot.paper()
 ```
 
 This will write the paper, section by section, save the .tex file and compile the code.
