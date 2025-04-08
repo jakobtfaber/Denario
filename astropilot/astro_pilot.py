@@ -3,8 +3,8 @@ from .method import Method
 from .experiment import run_experiment
 from .paper import write_paper
 from pydantic import BaseModel, Field
-from typing import List
-
+from typing import List, Dict
+from IPython.display import display, Markdown
 import os
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
@@ -22,6 +22,7 @@ class AstroPilot:
         methodology: str = Field(default="", description="The methodology of the project")
         results: str = Field(default="", description="The results of the project")
         plot_paths: List[str] = Field(default_factory=list, description="The plot paths of the project")
+        keywords: Dict[str, str] = Field(default_factory=dict, description="The AAS keywords describing the project")
 
 
     def __init__(self, input_data: 'AstroPilot.Research' = None, params={}):
@@ -92,7 +93,15 @@ class AstroPilot:
                                 }
                 )
         aas_keywords = cmbagent.final_context['aas_keywords'] ## here you get the dict with urls
-        return aas_keywords
+        self.research.keywords = aas_keywords
+        return None
+    
+    def show_keywords(self):
+        AAS_keyword_list = "\n".join(
+                            [f"- [{keyword}]({self.research.keywords[keyword]})" for keyword in self.research.keywords]
+                        )
+        display(Markdown(AAS_keyword_list))
+        return None
 
 
     def get_paper(self):
