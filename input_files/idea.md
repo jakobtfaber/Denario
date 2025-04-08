@@ -1,14 +1,13 @@
-<!-- filename: selected_project_idea.md -->
-### Selected Project Idea
 
-**Selected Idea:** **Effects on Star Formation and Stellar Assembly in Different fNL Scenarios**
+Project Idea:
+	* Probing Primordial Non-Gaussianity through the Mass Distribution and Structural Properties of Galaxy Groups
+		- Investigate the impact of primordial non-Gaussianity on the formation and evolution of large-scale structures by analyzing the mass distribution, structural properties, and clustering of galaxy groups in CAMELS simulations with fNL=200 and fNL=-200.
+		- Filter the datasets to focus on the high-mass tail (>95th percentile) of Group_M_Mean200.
+		- Fit the high-mass tail of the Group_M_Mean200 distribution using power-law or Schechter function models.
+		- Use Anderson-Darling or Cramér-von Mises tests to compare the high-mass tails of datasets A and B.
+		- Perform regression analysis with Group_R_Mean200 as the dependent variable and Group_M_Mean200 as the independent variable.
+		- Compute the two-point correlation function of groups to assess differences in large-scale structure clustering between datasets.
+		- Compare the results with theoretical predictions for halo mass functions and mass-concentration relationships under different fNL values.
+		- Discuss the implications of the findings for our understanding of primordial non-Gaussianity and its role in cosmic structure formation.
 
-**Justification:**
-
-- **Feasibility:** This project leverages the robust statistical samples available for star formation rates and stellar photometric properties. The datasets provide a solid basis for comparing GroupSFR, SubhaloSFR, and multiple photometric bands that are less affected by sparsity issues.
-  
-- **Originality:** There is significant interest in linking early-universe conditions (captured by different fNL values) with the observable processes of star formation. The idea taps into a relatively under-explored aspect of how the primordial density fluctuations might impact baryonic processes, offering fresh insights into the connection between cosmological initial conditions and galaxy evolution.
-  
-- **Scientific Impact:** Star formation is a cornerstone of galaxy evolution, and understanding its sensitivity to initial conditions can have far-reaching implications. This project could help constrain models of galaxy formation by providing measurable differences in luminosity, color, and star formation efficiency. Moreover, linking these observable properties to the theoretical framework of primordial non-Gaussianity may inform future observational strategies and cosmological parameter estimation.
-
-Given these reasons, the second idea stands out as the most promising for both scientific impact and feasibility.
+        
