@@ -45,7 +45,18 @@ class AstroPilot:
         return None
     
     def get_method(self, **kwargs):
-        return design_method(self.params, **kwargs)
+        method = Method()
+        if data_description is None:
+            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
+                data_description = f.read()
+            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR))
+        method = method.design_method(data_description, **kwargs)
+        self.research.methodology = method
+        # Write idea to file
+        method_path = os.path.join(REPO_DIR, 'input_files', 'method.md')
+        with open(method_path, 'w') as f:
+            f.write(method)
+        return None
 
     def run_experiment(self, **kwargs):
         return run_experiment(self.params, **kwargs)
