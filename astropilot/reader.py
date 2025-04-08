@@ -2,7 +2,7 @@ from langchain_core.runnables import RunnableConfig
 import sys,os
 from pathlib import Path
 
-from src.parameters import GraphState
+from .parameters import GraphState
 
 
 def reader_node(state: GraphState, config: RunnableConfig):

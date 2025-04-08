@@ -5,10 +5,10 @@ from pathlib import Path
 from tqdm import tqdm
 import subprocess
 
-from src.parameters import GraphState
-from src.prompts import *
-from src.llm import llm
-from src.tools import json_parser
+from .parameters import GraphState
+from .prompts import *
+from .llm import llm
+from .tools import json_parser
 
 
 
@@ -53,7 +53,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     section_text = section_text.replace(fr"\begin{{{section_name}}}", "")
     section_text = section_text.replace(fr"\end{{{section_name}}}", "")
     section_text = section_text.replace(fr"\maketitle", "")
-    print(f'{section_name} writen...')
+    print(f'{section_name} written...')
 
     # --- Step 4: Save paper ---
     state['paper'][section_name] = section_text
@@ -121,7 +121,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         if match:  abstract = match.group(1).strip()
         else:      raise ValueError("No valid Abstract section found.")
         
-    print('Abstract writen...')
+    print('Abstract written...')
 
     # --- Save paper ---
     state['paper']['Abstract'] = abstract

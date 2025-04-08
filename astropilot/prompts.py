@@ -297,7 +297,7 @@ Respond in this format:
 <Results>
 \end{{Results}}
 
-In <Results> put the results section writen in LaTeX.
+In <Results> put the results section written in LaTeX.
 """)]
 
 
@@ -359,7 +359,7 @@ Respond in this format:
 <Conclusions>
 \end{{Conclusions}}
 
-In <Conclusions> put the conclusion section writen in LaTeX.
+In <Conclusions> put the conclusion section written in LaTeX.
 """)]
 
 
@@ -372,7 +372,7 @@ def caption_prompt(state, image, name=None):
 <Caption>
 \end{{Caption}}
 
-In <Caption> place the figure caption writen in LaTeX.
+In <Caption> place the figure caption written in LaTeX.
 """},
             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image}"}}
         ])
