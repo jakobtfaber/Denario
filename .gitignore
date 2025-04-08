@@ -180,3 +180,5 @@ cython_debug/
 AP_env/*
 .DS_Store
 paper/
+project_data/
+notebooks/bblocal
