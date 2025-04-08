@@ -1,5 +1,5 @@
 from .idea import Idea
-from .method import design_method
+from .method import Method
 from .experiment import run_experiment
 from .paper import write_paper
 from pydantic import BaseModel, Field
@@ -35,7 +35,7 @@ class AstroPilot:
         if data_description is None:
             with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
                 data_description = f.read()
-            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR))
+            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR)+ "/project_data/")
         idea = idea.develop_idea(data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
@@ -44,13 +44,18 @@ class AstroPilot:
             f.write(idea)
         return None
     
-    def get_method(self, **kwargs):
-        method = Method()
+    def get_method(self, data_description: str = None, **kwargs):
+        
+        if self.research.idea == "":
+            with open(os.path.join(REPO_DIR, 'input_files', 'idea.md'), 'r') as f:
+                self.research.idea = f.read()
+
+        method = Method(self.research.idea)
         if data_description is None:
             with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
                 data_description = f.read()
-            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR))
-        method = method.design_method(data_description, **kwargs)
+            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR)+ "/project_data/")
+        method = method.develop_method(data_description, **kwargs)
         self.research.methodology = method
         # Write idea to file
         method_path = os.path.join(REPO_DIR, 'input_files', 'method.md')

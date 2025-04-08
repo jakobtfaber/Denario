@@ -1,131 +1,88 @@
-<!-- filename: methods_for_selected_idea.md -->
-```markdown
-<!-- filename: methods_for_selected_idea.md -->
-# Methodology for "Effects on Star Formation and Stellar Assembly in Different fNL Scenarios"
+# Detailed Methodology for Probing Primordial Non-Gaussianity Using CAMELS Datasets
 
-This document outlines a detailed methodology for implementing the selected research project idea, which examines how differing primordial non-Gaussianity values (fNL = 200 vs. fNL = –200) impact star formation and stellar assembly processes. The following sections describe the data preprocessing steps, statistical analysis framework, and visualization techniques that will be used, as well as identify key features and the physical rationale behind their expected differences.
+This document outlines the precise steps, techniques, and rationale for the analysis of group and subhalo properties in two CAMELS datasets—one with fNL=200 and the other with fNL=-200. We will focus on comparing the mass distributions and structural properties of galaxy groups, with special emphasis on the high-mass tail of the halo mass function.
 
----
+## 1. Data Loading and Quality Inspection
 
-## 1. Data Preprocessing
+- **Dataset Retrieval:**  
+  We load the four datasets (groups and subhalos for both A and B) using the provided pickle files. Each dataset is thoroughly checked for completeness. The key features (GroupSFR, Group_R_Mean200, Group_M_Mean200) and subhalo attributes (e.g., SubhaloMass, SubhaloSFR, SubhaloSpinMod, SubhaloVmax) are examined for null values and consistency.
 
-### 1.1. Data Import and Verification
-- **Data Sources:**  
-  - Dataset A (fNL = 200)  
-  - Dataset B (fNL = –200)
-- **Actions:**
-  - Load both datasets from their respective pickle files.
-  - Verify the integrity and structure of each dataset (using `.info()` and `.describe()`) to confirm feature presence and appropriate data types.
-  - Compare non-null counts between datasets for features of interest to understand potential sample size limitations.
+- **Inspection Outputs:**  
+  Descriptive statistics (mean, standard deviation, min, max, quartiles) for each group feature are generated. For instance, the summary of Group_M_Mean200 shows mean values around 10.79 and 10.74 for Datasets A and B, respectively, with similar spread. These outputs confirm that the datasets are reliable and require no missing-value imputation or outlier removal.
 
-### 1.2. Cleaning and Filtering
-- **Handling Missing Values:**
-  - For key features such as GroupSFR, SubhaloSFR, and photometric properties (SubhaloStellarPhotometrics_U, B, V, K, g, r, i, z), remove or filter out rows that contain NaN values.
-  - Optionally, log the fraction of missing data to assess if any additional imputation is necessary (though caution is advised since imputation might mask distribution differences).
-- **Normalizing Units and Scales:**
-  - Ensure that units and scales are consistently applied across both datasets.
-  - Consider transforming highly skewed variables (e.g., SFR, SubhaloMass) with a logarithmic scaling to compress wide dynamic ranges.
-- **Data Subsetting:**
-  - Focus primarily on the following features:
-    - **Star Formation and Mass Indicators:**  
-      - *GroupSFR* (aggregate SFR at the group level)
-      - *SubhaloSFR* (star formation rate at the subhalo level)
-      - *SubhaloMass* (correlates with galaxy potential and star formation efficiency)
-    - **Photometric Properties:**  
-      - *SubhaloStellarPhotometrics_U, B, V, K, g, r, i, z*  
-        (these will be used to derive luminosity, color indices, and assess stellar assembly history)
-  - Optionally, create derived quantities such as SFR-to-mass ratios that might expose differences in star formation efficiency.
+## 2. Distribution Analysis of Group Mass and Radius
 
----
+- **Histogram and CDF Visualization:**  
+  Overlaid histograms and cumulative distribution functions (CDFs) are created for Group_M_Mean200 using a logarithmic x-scale due to the wide dynamic range. These plots facilitate a visual comparison of the full mass distributions between the datasets.  
+  - **Key Observation:** The central statistical properties (mean, median) of the two distributions are nearly identical.
+  
+- **Statistical Testing:**  
+  To quantitatively compare the distributions, we employ:
+  - **Anderson-Darling k-sample Test:** Sensitive to tail behavior, which returned a capped p-value (~0.250) for Group_M_Mean200.
+  - **Cramér-von Mises Test:** Provided a test statistic with a p-value approximately 0.886.
+  
+  Both tests indicate no statistically significant difference between the full distributions of the two datasets.
 
-## 2. Statistical Analysis
+## 3. Filtering and Tail Modeling
 
-### 2.1. Distribution Comparison
-- **Descriptive Statistics:**
-  - Compute the mean, median, standard deviation, and percentiles for SFR and photometric features in both datasets.
-  - Compare central tendencies and spread for each key feature.
-- **Statistical Tests for Distribution Differences:**
-  - **Kolmogorov-Smirnov (KS) Test:**
-    - Apply the KS test to compare the cumulative distributions of selected features (SFRs and photometric magnitudes) between datasets A and B.
-  - **Anderson-Darling Test:**
-    - Utilize the Anderson-Darling test to assess if the samples are drawn from the same distribution, offering enhanced sensitivity to differences in the tails.
-  - **Additional Tests:**
-    - Consider other non-parametric tests if necessary (e.g., Mann-Whitney U) to further validate findings.
+- **High-Mass Tail Isolation:**  
+  We define the high-mass tail as those groups with Group_M_Mean200 values exceeding the 95th percentile.  
+  - **Parameter:** For Dataset A, the threshold is approximately 18.097 (in 1e10 Msun/h units) and for Dataset B about 18.273.
+  - **Sample Size:** This filtering selects roughly 2,200 groups per dataset.
 
-### 2.2. Metric and Ratio Analysis
-- **Ratios and Scaling:**
-  - Compute ratios such as *SubhaloSFR/SubhaloMass* for individual subhalos, then compare their distributions.
-  - Create bin-by-bin ratio plots that capture relative differences between the two datasets.
-- **Color Indices:**
-  - Derive color indices (e.g., g - r, U - B) from the photometric features.
-  - Analyze any systematic shifts in these indices, as differences in colors can be linked to variations in stellar populations and star formation histories.
+- **Fitting the High-Mass Tail:**  
+  To characterize the tail behavior, we fit a power-law model of the form:
+  
+  f(x) = A · x^(–α)
+  
+  - **Fitting Procedure:**  
+    - The histogram for the tail data is computed using logarithmically spaced bins between the minimum and maximum tail values.
+    - A non-linear least-squares fit (using SciPy's `curve_fit`) is performed in log-log space, with an initial guess of A equal to the maximum histogram count and α set to 2.0.
+    - **Result Parameters:**  
+      The fits yield nearly identical parameters for both datasets (e.g., A ≈ 8.32e+03 for A and 8.55e+03 for B, with α ≈ 0.851 and 0.854, respectively).
 
-### 2.3. Physical Mechanisms
-- **Physical Interpretation:**
-  - The primordial non-Gaussianity parameter (fNL) influences the initial density fluctuation spectrum:
-    - With a positive fNL (200), one might expect more pronounced over-densities in the early universe, potentially leading to earlier or more intense star formation episodes.
-    - With a negative fNL (–200), the initial density field may be less extreme, possibly resulting in a more delayed or lower star formation rate.
-  - These early conditions could imprint differences in the mass assembly and the stellar populations, reflected by variations in SFR, luminosities, and color distributions.
-- **Target Features:**
-  - Emphasize investigations on:
-    - **SubhaloSFR and GroupSFR:** Expected to show potential systematic shifts due to varying star formation intensities.
-    - **Photometric Magnitudes:** Differences in brightness and color can trace variations in stellar ages and metallicity distributions, which are indirectly influenced by early star formation history affected by fNL.
+## 4. Analysis of Structural Properties
 
----
+- **Mass-to-Radius Ratio:**  
+  We compute the ratio Group_M_Mean200 / Group_R_Mean200 for every group.  
+  - **Outcome:**  
+    The histograms of the mass-to-radius ratios are nearly identical between the two datasets, which reinforces that the large-scale structural attributes (such as halo concentration) remain consistent.
 
-## 3. Visualization Techniques
+- **Regression Analysis:**  
+  Linear regression is performed with Group_R_Mean200 as the dependent variable and Group_M_Mean200 as the independent variable.  
+  - **Method:**  
+    A simple least-squares fit (using NumPy’s `polyfit`) is used to determine the slope and intercept.  
+  - **Results:**  
+    Both datasets yield almost identical regression parameters (e.g., slope ≈ 0.1487 for Dataset A vs. ≈ 0.1515 for Dataset B; intercepts around 67.5–67.6). This similarity confirms that the correlation between group mass and physical scale is robust across different fNL setups.
 
-### 3.1. Histograms and Density Plots
-- **Histograms:**
-  - Plot histograms for both datasets for key features.
-  - Use logarithmic scales for SFR and mass-related features to capture their wide dynamic ranges; use linear scales for photometric magnitudes to preserve color information.
-  - Ensure dynamic binning strategies to capture both central tendencies and tail behaviors.
-- **Density Plots:**
-  - Generate kernel density estimates (KDE) for smoother visualizations of the distribution differences.
+## 5. Addressing Potential Systematic Biases
 
-### 3.2. Scatter and Ratio Plots
-- **Scatter Plots:**
-  - Create scatter plots correlating SFR and mass, as well as plotting color indices against SFR to identify trends.
-  - Include separate markers or colors to distinguish between the positive and negative fNL datasets.
-- **Ratio Plots:**
-  - Construct ratio plots by taking the ratio of binned counts (or densities) in datasets A and B. This will highlight regions where the differences are most pronounced.
-  - Use log-log scales where applicable to visualize variations spanning multiple orders of magnitude.
+- **Consistent Data Processing:**  
+  The same filtering criteria (95th percentile) and the same feature transformations (logarithmic scaling for visualization and fitting) are applied to both datasets. This uniform treatment minimizes processing biases.
+  
+- **Robust Statistical Methods:**  
+  Using two independent statistical tests (Anderson-Darling and Cramér-von Mises) for comparing distributions and employing regression analysis ensures that subtle differences are not masked by methodology inconsistencies.
 
-### 3.3. Statistical Summary Visuals
-- **Box Plots/Violin Plots:**
-  - Display box or violin plots to visually compare the spread and central tendency of each feature between the two simulations.
-  - These plots help in visualizing outliers and the overall distribution shape.
+## 6. Workflow Summary
 
----
+1. **Data Preparation:**  
+   Load datasets and perform quality checks to validate completeness and consistency.
 
-## 4. Implementation Workflow
+2. **Visual and Statistical Comparison:**  
+   - Create histograms and CDFs for Group_M_Mean200.
+   - Apply Anderson-Darling and Cramér-von Mises tests to assess overall distribution differences.
 
-### Workflow Overview:
-1. **Data Loading and Cleaning:** Load both datasets, filter and clean the data for target features.
-2. **Feature Engineering:** Create derived quantities such as SFR-to-mass ratios and color indices.
-3. **Exploratory Data Analysis (EDA):** Compute descriptive statistics and visualize distributions via histograms, density plots, and scatter plots.
-4. **Statistical Testing:** Perform KS, Anderson-Darling, and possibly Mann-Whitney U tests to rigorously compare the distributions.
-5. **Visualization and Ratio Analysis:** Develop ratio plots and comparative visuals (box plots, violin plots) to identify and highlight differences.
-6. **Interpretation:** Map the statistical and visual findings to physical mechanisms influenced by primordial non-Gaussianity.
+3. **High-Mass Tail Extraction and Modeling:**  
+   - Filter groups with Group_M_Mean200 above the 95th percentile.
+   - Fit the high-mass tail using a power-law model in logarithmic bins (parameter range determined by the minimum and maximum of the tail sample).
+   - Record fitted parameters (A and α) for direct comparison.
 
-### Tools and Technologies:
-- **Programming Language:** Python
-- **Libraries:**  
-  - Pandas for data manipulation  
-  - NumPy for numerical operations and vectorized computations  
-  - SciPy for statistical tests  
-  - Matplotlib/Seaborn for plotting  
-  - Optionally, Dask for performance optimization with large arrays
+4. **Structural Analysis:**  
+   - Compute the mass-to-radius ratio and compare distributions.
+   - Perform regression analysis (Group_R_Mean200 vs. Group_M_Mean200) to quantify the relationship between mass and group size.
 
----
+5. **Subhalo Analysis (Conditional):**  
+   - If a linking column such as ‘id’ exists, extract corresponding subhalo properties for groups in the high-mass tail for further comparison.
+   - In our current datasets, this step is skipped due to the absence of an 'id' column.
 
-## Summary
-
-In summary, the methods for this project involve:
-- **Data Preprocessing:** Clean the datasets and focus on star formation and photometric features.
-- **Statistical Analysis:** Use descriptive statistics and non-parametric tests (KS, Anderson-Darling) to compare the distributions of SFR and stellar magnitudes.
-- **Visualization Techniques:** Employ histograms, ratio plots, scatter plots, and box/violin plots to capture and compare the dynamic ranges and subtle shifts in the data.
-- **Physical Interpretation:** Connect observed differences to the impact of primordial non-Gaussianity on early universe conditions, influencing star formation efficiency and stellar assembly.
-
-This integrated methodology should provide a robust framework for investigating how different primordial non-Gaussianity scenarios imprint themselves on the observable properties of galaxies.
-```
+By adhering to this methodology, we ensure that all comparisons between the two CAMELS datasets are carried out with consistency and high statistical rigor. The similar outcomes across key tests and analyses reinforce that any potential differences due to primordial non-Gaussianity are subtle and require sensitive, well-controlled methods.
