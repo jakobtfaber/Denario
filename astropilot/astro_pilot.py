@@ -1,6 +1,6 @@
 from .idea import Idea
 from .method import Method
-from .experiment import run_experiment
+from .experiment import Experiment
 from .paper import write_paper
 from pydantic import BaseModel, Field
 from typing import List, Dict
@@ -12,12 +12,13 @@ os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 from .config import REPO_DIR
 
 from cmbagent import CMBAgent
-
+import shutil
 
 
 
 class AstroPilot:
     class Research(BaseModel):
+        data_description: str = Field(default="", description="The data description of the project")
         idea: str = Field(default="", description="The idea of the project")
         methodology: str = Field(default="", description="The methodology of the project")
         results: str = Field(default="", description="The results of the project")
@@ -31,13 +32,21 @@ class AstroPilot:
         self.research = input_data
         self.params = params
 
-    def get_idea(self, data_description: str = None, **kwargs):
-        idea = Idea()
+    def set_data_description(self, data_description: str = None, **kwargs):
         if data_description is None:
             with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
                 data_description = f.read()
             data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR)+ "/project_data/")
-        idea = idea.develop_idea(data_description, **kwargs)
+        self.research.data_description = data_description
+
+    def show_data_description(self):
+        display(Markdown(self.research.data_description))
+        return None
+
+    def get_idea(self, **kwargs):
+        
+        idea = Idea()
+        idea = idea.develop_idea(self.research.data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
         idea_path = os.path.join(REPO_DIR, 'input_files', 'idea.md')
@@ -45,27 +54,45 @@ class AstroPilot:
             f.write(idea)
         return None
     
-    def get_method(self, data_description: str = None, **kwargs):
+    def get_method(self, **kwargs):
         
         if self.research.idea == "":
             with open(os.path.join(REPO_DIR, 'input_files', 'idea.md'), 'r') as f:
                 self.research.idea = f.read()
 
         method = Method(self.research.idea)
-        if data_description is None:
-            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
-                data_description = f.read()
-            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR)+ "/project_data/")
-        method = method.develop_method(data_description, **kwargs)
-        self.research.methodology = method
+        methododology = method.develop_method(self.research.data_description, **kwargs)
+        self.research.methodology = methododology
+
         # Write idea to file
         method_path = os.path.join(REPO_DIR, 'input_files', 'method.md')
         with open(method_path, 'w') as f:
-            f.write(method)
+            f.write(methododology)
         return None
 
-    def run_experiment(self, **kwargs):
-        return run_experiment(self.params, **kwargs)
+    def get_results(self, **kwargs):
+        if self.research.methodology == "":
+            with open(os.path.join(REPO_DIR, 'input_files', 'method.md'), 'r') as f:
+                self.research.methodology = f.read()
+
+        experiment = Experiment(self.research.idea, self.research.methodology)
+        run = experiment.run_experiment(self.research.data_description, **kwargs)
+        self.research.results = experiment.results
+        self.research.plot_paths = experiment.plot_paths
+
+        # move plots to the plots folder in input_files/plots after clearing the folder
+        plots_folder = os.path.join(REPO_DIR, 'input_files', 'plots')
+        if os.path.exists(plots_folder):
+            for file in os.listdir(plots_folder):
+                os.remove(os.path.join(plots_folder, file))
+        for plot_path in self.research.plot_paths:
+            shutil.move(plot_path, plots_folder)
+
+        # Write results to file
+        results_path = os.path.join(REPO_DIR, 'input_files', 'results.md')
+        with open(results_path, 'w') as f:
+            f.write(self.research.results)
+        return None
     
     def get_keywords(self, input_text: str, n_keywords: int = 5, **kwargs):
         """
