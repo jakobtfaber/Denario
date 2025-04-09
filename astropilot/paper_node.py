@@ -218,7 +218,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
     # do a loop over all images
     images = {}
     #for i in tqdm(range(len(files)), desc="Processing figures"):
-    for i in tqdm(range(10), desc="Processing figures"):
+    for i in tqdm(range(len(files)), desc="Processing figures"):
     
         image = image_to_base64(files[i])
 

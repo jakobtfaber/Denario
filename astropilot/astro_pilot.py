@@ -176,3 +176,12 @@ class AstroPilot:
 
     def get_paper(self):
         return write_paper(self.params)
+    
+
+    def research_pilot(self, data_description: str = None):
+        self.set_data_description(data_description)
+        self.get_idea()
+        self.get_method()
+        self.get_results()
+        self.get_paper()
+        return None
