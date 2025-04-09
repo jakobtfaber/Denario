@@ -41,8 +41,14 @@ class AstroPilot:
         elif data_description.endswith(".md"):
             with open(data_description, 'r') as f:
                 data_description = f.read()
+
+        elif isinstance(data_description, str):
+            pass
+
         else:
-            raise ValueError("Data description must be a string or a path to a markdown file")
+            raise ValueError("Data description must be a string, a path to a markdown file or None if you want to load data description from input_files/data_description.md")
+        
+
         self.research.data_description = data_description
         # overwrite the data_description.md file
         with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'w') as f:
@@ -64,8 +70,16 @@ class AstroPilot:
             f.write(idea)
         return None
     
+    def show_idea(self):
+        display(Markdown(self.research.idea))
+        return None
+    
     def get_method(self, **kwargs):
-        
+
+        if self.research.data_description == "":
+            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
+                self.research.data_description = f.read()        
+
         if self.research.idea == "":
             with open(os.path.join(REPO_DIR, 'input_files', 'idea.md'), 'r') as f:
                 self.research.idea = f.read()
@@ -79,19 +93,34 @@ class AstroPilot:
         with open(method_path, 'w') as f:
             f.write(methododology)
         return None
+    
+    def show_method(self):
+        display(Markdown(self.research.methodology))
+        return None
 
     def get_results(self, **kwargs):
+
+        if self.research.data_description == "":
+            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
+                self.research.data_description = f.read()
+
+        if self.research.idea == "":
+            with open(os.path.join(REPO_DIR, 'input_files', 'idea.md'), 'r') as f:
+                self.research.idea = f.read()
+
         if self.research.methodology == "":
             with open(os.path.join(REPO_DIR, 'input_files', 'method.md'), 'r') as f:
                 self.research.methodology = f.read()
+
 
         experiment = Experiment(self.research.idea, self.research.methodology)
         run = experiment.run_experiment(self.research.data_description, **kwargs)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
 
-        # move plots to the plots folder in input_files/plots after clearing the folder
+        # move plots to the plots folder in input_files/plots 
         plots_folder = os.path.join(REPO_DIR, 'input_files', 'plots')
+        ## Clearing the folder
         if os.path.exists(plots_folder):
             for file in os.listdir(plots_folder):
                 os.remove(os.path.join(plots_folder, file))
@@ -102,6 +131,10 @@ class AstroPilot:
         results_path = os.path.join(REPO_DIR, 'input_files', 'results.md')
         with open(results_path, 'w') as f:
             f.write(self.research.results)
+        return None
+    
+    def show_results(self):
+        display(Markdown(self.research.results))
         return None
     
     def get_keywords(self, input_text: str, n_keywords: int = 5, **kwargs):

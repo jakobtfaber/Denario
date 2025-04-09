@@ -1,88 +1,89 @@
-# Detailed Methodology for Probing Primordial Non-Gaussianity Using CAMELS Datasets
+## Detailed Methodology for the Analysis of Coupled Harmonic Oscillators
 
-This document outlines the precise steps, techniques, and rationale for the analysis of group and subhalo properties in two CAMELS datasets—one with fNL=200 and the other with fNL=-200. We will focus on comparing the mass distributions and structural properties of galaxy groups, with special emphasis on the high-mass tail of the halo mass function.
+This document describes a step-by-step methodology for analyzing energy transfer dynamics and beat frequencies in coupled harmonic oscillators. The objective is to connect the theoretical predictions derived from the mathematical model with computational results, using a suite of quantitative and visualization techniques.
 
-## 1. Data Loading and Quality Inspection
+### 1. Theoretical Model and Mathematical Formulations
 
-- **Dataset Retrieval:**  
-  We load the four datasets (groups and subhalos for both A and B) using the provided pickle files. Each dataset is thoroughly checked for completeness. The key features (GroupSFR, Group_R_Mean200, Group_M_Mean200) and subhalo attributes (e.g., SubhaloMass, SubhaloSFR, SubhaloSpinMod, SubhaloVmax) are examined for null values and consistency.
+The foundation of the analysis is the set of coupled second-order differential equations that govern the motion of two harmonic oscillators:
 
-- **Inspection Outputs:**  
-  Descriptive statistics (mean, standard deviation, min, max, quartiles) for each group feature are generated. For instance, the summary of Group_M_Mean200 shows mean values around 10.79 and 10.74 for Datasets A and B, respectively, with similar spread. These outputs confirm that the datasets are reliable and require no missing-value imputation or outlier removal.
+  m · d²x₁/dt² + c · dx₁/dt + k · x₁ + k_c · (x₁ - x₂) = 0  
+  m · d²x₂/dt² + c · dx₂/dt + k · x₂ + k_c · (x₂ - x₁) = 0
 
-## 2. Distribution Analysis of Group Mass and Radius
+where:
+- m: Mass of each oscillator.
+- k: Individual spring constant.
+- c: Damping coefficient.
+- k_c: Coupling strength between oscillators.
+- x₁(t) and x₂(t): Displacement time series for oscillator 1 and 2, respectively.
 
-- **Histogram and CDF Visualization:**  
-  Overlaid histograms and cumulative distribution functions (CDFs) are created for Group_M_Mean200 using a logarithmic x-scale due to the wide dynamic range. These plots facilitate a visual comparison of the full mass distributions between the datasets.  
-  - **Key Observation:** The central statistical properties (mean, median) of the two distributions are nearly identical.
-  
-- **Statistical Testing:**  
-  To quantitatively compare the distributions, we employ:
-  - **Anderson-Darling k-sample Test:** Sensitive to tail behavior, which returned a capped p-value (~0.250) for Group_M_Mean200.
-  - **Cramér-von Mises Test:** Provided a test statistic with a p-value approximately 0.886.
-  
-  Both tests indicate no statistically significant difference between the full distributions of the two datasets.
+These equations provide a concrete basis for understanding the phenomena of energy transfer and the modulation (beat frequencies) arising in weak, strong, and intermediate coupling regimes. In particular, the interplay between k and k_c determines the emergence of symmetric (in-phase) and antisymmetric (out-of-phase) normal modes.
 
-## 3. Filtering and Tail Modeling
+### 2. Simulation and Data Generation
 
-- **High-Mass Tail Isolation:**  
-  We define the high-mass tail as those groups with Group_M_Mean200 values exceeding the 95th percentile.  
-  - **Parameter:** For Dataset A, the threshold is approximately 18.097 (in 1e10 Msun/h units) and for Dataset B about 18.273.
-  - **Sample Size:** This filtering selects roughly 2,200 groups per dataset.
+Simulations are executed using a 4th order Runge-Kutta numerical integration scheme to solve the aforementioned differential equations. The simulation framework produces time series data for:
+- Positions (x₁ and x₂)
+- Velocities (derived from the displacement derivatives)
+- Energy components (kinetic energy from ½ m·v² and potential energy from ½ k·x² including the coupling potential energy from ½ k_c·(x₁ − x₂)²)
 
-- **Fitting the High-Mass Tail:**  
-  To characterize the tail behavior, we fit a power-law model of the form:
-  
-  f(x) = A · x^(–α)
-  
-  - **Fitting Procedure:**  
-    - The histogram for the tail data is computed using logarithmically spaced bins between the minimum and maximum tail values.
-    - A non-linear least-squares fit (using SciPy's `curve_fit`) is performed in log-log space, with an initial guess of A equal to the maximum histogram count and α set to 2.0.
-    - **Result Parameters:**  
-      The fits yield nearly identical parameters for both datasets (e.g., A ≈ 8.32e+03 for A and 8.55e+03 for B, with α ≈ 0.851 and 0.854, respectively).
+Key simulation parameters include:
+- Varying the coupling strength k_c to observe changes in dynamical behavior.
+- Different initial conditions to probe synchronization versus phase lag effects.
+- A fixed or varied damping coefficient c to balance energy dissipation with oscillatory behavior.
 
-## 4. Analysis of Structural Properties
+The simulation runtime is capped (e.g., total simulation time and chosen time step dt) to ensure that data generation completes on a standard laptop within 3 minutes.
 
-- **Mass-to-Radius Ratio:**  
-  We compute the ratio Group_M_Mean200 / Group_R_Mean200 for every group.  
-  - **Outcome:**  
-    The histograms of the mass-to-radius ratios are nearly identical between the two datasets, which reinforces that the large-scale structural attributes (such as halo concentration) remain consistent.
+### 3. Data Preprocessing
 
-- **Regression Analysis:**  
-  Linear regression is performed with Group_R_Mean200 as the dependent variable and Group_M_Mean200 as the independent variable.  
-  - **Method:**  
-    A simple least-squares fit (using NumPy’s `polyfit`) is used to determine the slope and intercept.  
-  - **Results:**  
-    Both datasets yield almost identical regression parameters (e.g., slope ≈ 0.1487 for Dataset A vs. ≈ 0.1515 for Dataset B; intercepts around 67.5–67.6). This similarity confirms that the correlation between group mass and physical scale is robust across different fNL setups.
+Once the simulation output is generated, preprocessing is performed:
+- **Normalization:** Time series of positions, velocities, and energy are normalized (using z-score normalization) to bring them to a common numerical range. This is crucial for comparing signals across coupling regimes.
+- **Smoothing and Filtering:** A low-pass filter (for instance, a moving average or Savitzky–Golay filter) is applied to remove small-scale numerical noise while preserving key features like beat modulation and energy fluctuations.
+- **Windowing:** For frequency domain analysis, segments of the time series are multiplied with window functions (Hann or Blackman) to minimize spectral leakage during Fourier transformation.
 
-## 5. Addressing Potential Systematic Biases
+### 4. Analysis Techniques
 
-- **Consistent Data Processing:**  
-  The same filtering criteria (95th percentile) and the same feature transformations (logarithmic scaling for visualization and fitting) are applied to both datasets. This uniform treatment minimizes processing biases.
-  
-- **Robust Statistical Methods:**  
-  Using two independent statistical tests (Anderson-Darling and Cramér-von Mises) for comparing distributions and employing regression analysis ensures that subtle differences are not masked by methodology inconsistencies.
+#### A. Fourier Analysis for Beat Frequency Identification
 
-## 6. Workflow Summary
+The Fourier Transform (using FFT) converts the time-domain signals (positions) into the frequency domain:
+- **Process:** Compute the power spectral density (PSD) for each oscillator’s displacement.
+- **Rationale:** The resulting spectrum is analyzed to identify peak frequencies, frequency splitting, and sidebands that correspond to beat phenomena. When oscillators are coupled, slight differences in natural frequencies produce beat patterns.
+- **Comparative Analysis:** The derived frequency spectra are compared across different k_c values to observe systematic shifts in dominant frequencies and amplitude modulations, providing quantitative validation of the energy transfer mechanism.
 
-1. **Data Preparation:**  
-   Load datasets and perform quality checks to validate completeness and consistency.
+#### B. Energy Dynamics and Transfer Rate Estimation
 
-2. **Visual and Statistical Comparison:**  
-   - Create histograms and CDFs for Group_M_Mean200.
-   - Apply Anderson-Darling and Cramér-von Mises tests to assess overall distribution differences.
+- **Energy Time Series:** Total, kinetic, and potential energy are calculated as functions of time.  
+  Kinetic Energy: ½ m (v₁² + v₂²)  
+  Potential Energy: ½ k (x₁² + x₂²) + ½ k_c (x₁ - x₂)²
+- **Rate of Change:** The temporal derivative (or finite differences) of the energy data is computed to quantify instantaneous energy transfer rates.
+- **Rationale:** Comparing energy exchange dynamics across different coupling strengths allows identification of regimes in which energy is exchanged rapidly (indicative of strong coupling) or with slower modulation (typical in weak coupling).
 
-3. **High-Mass Tail Extraction and Modeling:**  
-   - Filter groups with Group_M_Mean200 above the 95th percentile.
-   - Fit the high-mass tail using a power-law model in logarithmic bins (parameter range determined by the minimum and maximum of the tail sample).
-   - Record fitted parameters (A and α) for direct comparison.
+#### C. Phase Space Visualization and Poincaré Analysis
 
-4. **Structural Analysis:**  
-   - Compute the mass-to-radius ratio and compare distributions.
-   - Perform regression analysis (Group_R_Mean200 vs. Group_M_Mean200) to quantify the relationship between mass and group size.
+- **Phase Portraits:** Plot x vs. v for each oscillator. This visualization highlights trajectory patterns such as limit cycles or convergent behavior.
+- **Poincaré Sections:** By extracting points at specific events (for instance, when x crosses zero from negative to positive), a Poincaré map is constructed to reduce the continuous dynamics to a discrete set. This helps in identifying periodic or quasi-periodic orbits and possible phase locking.
+- **Rationale:** Both trajectories and Poincaré sections are used to validate the synchronization dynamics and the modulation regimes predicted by theory.
 
-5. **Subhalo Analysis (Conditional):**  
-   - If a linking column such as ‘id’ exists, extract corresponding subhalo properties for groups in the high-mass tail for further comparison.
-   - In our current datasets, this step is skipped due to the absence of an 'id' column.
+#### D. Dimensional Reduction and Mode Decomposition
 
-By adhering to this methodology, we ensure that all comparisons between the two CAMELS datasets are carried out with consistency and high statistical rigor. The similar outcomes across key tests and analyses reinforce that any potential differences due to primordial non-Gaussianity are subtle and require sensitive, well-controlled methods.
+- **Principal Component Analysis (PCA):** PCA is applied to the concatenated time series data (positions, velocities, energy profiles) to extract the dominant modes of variability.
+- **Interpretation:** The principal components are mapped back to physical modes along symmetric (in-phase) and antisymmetric (out-of-phase) axes. This mapping aids in interpreting the appearance of beat frequencies as a consequence of mixing these modal contributions.
+- **Rationale:** Dimensional reduction helps in simplifying complex inter-oscillator dynamics without losing critical information about energy transfer trends.
+
+### 5. Workflow Summary
+
+1. **Data Loading:** Retrieve simulation data from the saved `.npz` file.
+2. **Preprocessing:** Normalize and smooth the time series; apply window functions as necessary.
+3. **Fourier Analysis:** Compute FFT and analyze spectral components to detail beat frequencies.
+4. **Energy Analysis:** Plot energy evolution and compute its derivatives to quantify energy transfer rates.
+5. **Phase Space Reconstruction:** Generate phase portraits and Poincaré sections for both oscillators.
+6. **Dimensional Reduction:** Perform PCA for identifying dominant modes and validate connections with theoretical modes.
+
+### 6. Extensions for More Complex Systems
+
+To extend this methodology while remaining within computational constraints:
+- **Multiple Coupled Oscillators:** The simulation framework can be generalized to systems with more oscillators by constructing higher-dimensional state vectors and coupling matrices. The analysis pipeline (Fourier analysis, phase space visualization, PCA) remains largely applicable.
+- **Non-linear Coupling:** Incorporate non-linear coupling terms (e.g., cubic or quadratic interactions) into the equations of motion. Advanced integration schemes and modifications in the preprocessing (e.g., more robust filtering) may be required.
+- **Hybrid Analysis Techniques:** For both extended systems, consider combining time–frequency methods (such as wavelet transforms) with PCA to capture transient phenomena and non-stationary beat patterns.
+
+### Conclusion
+
+This methodology provides a robust workflow that leverages numerical simulations, Fourier-based spectral analysis, energy dynamics computations, phase space visualizations, and dimensional reduction techniques. The combination of these methods allows for a detailed and quantitative connection between the theoretical model of coupled harmonic oscillators and the computationally generated data. The outlined approach is readily extendable to investigate more complex systems, ensuring that the fundamental physics of energy transfer and beat phenomena are accurately captured and analyzed within practical computational constraints.

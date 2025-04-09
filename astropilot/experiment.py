@@ -24,6 +24,12 @@ class Experiment:
 
         In the final step of the plan, researcher should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
         The last agent in the plan must be the researcher.
+
+        **Agents roles**:
+        - engineer: To generate the results and do the computations, plots and key statistics via code pipelines.
+        - researcher: To generate the discussion and interpretation of the results. This agent does not run code or see plots. It only discusses results.
+
+        The goal here is to do the in-depth research and analysis, not the EDAs.
         """
 
         self.plan_reviewer_append_instructions = rf"""
@@ -34,6 +40,12 @@ class Experiment:
             Check that the agents called in each sub-task only include, if needed: 
             - engineer: an expert Python coder who writes entire Python pipelines ready to be executed, and generates results, plots and key statistics. It does not aim to discuss the results of the code, only to write the code.
             - researcher: an expert researcher that produces reasoning but does not run code. This agent also discusses and interprets results. 
+
+        **Agents roles**:
+        - engineer: To generate the results and do the computations, plots and key statistics via code pipelines.
+        - researcher: To generate the discussion and interpretation of the results.
+
+        The goal here is to do the in-depth research and analysis, not the EDAs.
 
         In the final step of the plan, researcher should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
         The last agent in the plan must be the researcher.
@@ -61,6 +73,10 @@ class Experiment:
 
         **IMPORTANT**: You must print out in the console ALL the quantitative information that you think the researcher will need to interpret the results. (The researcher does not have access to saved data files, only to what you print out!)
 
+        **Agents roles**:
+        - engineer: To generate the results and do the computations, plots and key statistics via code pipelines.
+        - researcher: To generate the discussion and interpretation of the results. This agent does not run code or see plots. It only discusses results.
+
         """
 
 
@@ -83,7 +99,7 @@ class Experiment:
                     max_rounds=500,
                     initial_agent="planner",
                     shared_context = {'feedback_left': 1,
-                                        'maximum_number_of_steps_in_plan': 6,
+                                        'maximum_number_of_steps_in_plan': 3,
                                         'planner_append_instructions': self.planner_append_instructions,
                                         'engineer_append_instructions': self.engineer_append_instructions,
                                         'researcher_append_instructions': self.researcher_append_instructions,
@@ -124,6 +140,7 @@ class Experiment:
         except:
             cmbagent.task_result = None
             
+        MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"
         extracted_results = re.findall(MD_CODE_BLOCK_PATTERN, cmbagent.task_result, flags=re.DOTALL)[0]
         # print(extracted_methodology)
         clean_results = re.sub(r'^<!--.*?-->\s*\n', '', extracted_results)

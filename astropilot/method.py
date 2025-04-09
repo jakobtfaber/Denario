@@ -41,7 +41,7 @@ The goal of the task is to write a plan that will be used to generate a detailed
    The plan must strictly involve only the following agents: 
 
    - engineer: an expert Python coder who writes entire Python pipelines ready to be executed. It does not aim to discuss the results of the code, only to write the best possible code.
-   - researcher: an expert researcher that produces reasoning. This agents also discusses results and provides methodology. 
+   - researcher: an expert researcher that produces reasoning. This agents also discusses results and provides methodology.
 
    You must not invoke any other agent than the ones listed above.
 
@@ -49,6 +49,9 @@ The goal of the task is to write a plan that will be used to generate a detailed
     researcher->engineer->researcher->researcher
 
     The exploratory data analysis is intended to refine and inform the methodology for the research project. In this task we do not perform the full research, only outline the methodology. 
+
+    The methodology should focus on describing the deep research and analysis that will be performed, it should not mention exploratory data analysis that has already been performed.
+
 """
 
         self.plan_reviewer_append_instructions = rf"""
@@ -96,6 +99,7 @@ The goal of the task is to write a plan that will be used to generate a detailed
         - When asked about generating the Methodology description, your focus should be strictly on the statistical and machine learning methods for this specific project to be performed. **Do not include** any discussion of future directions, future work, project extensions, or limitations.
         the methodology description should be written as if it were a senior researcher explaining to her research assistant how to perform the project. 
 
+        The methodology should focus on describing the deep research and analysis that will be performed, it should not mention exploratory data analysis that has already been performed.
         """
 
     def develop_method(self, data_description: str, **kwargs):
