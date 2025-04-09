@@ -186,3 +186,6 @@ paper/paper_*
 
 project_data/*
 bblocal
+
+
+input_files/plots/*
