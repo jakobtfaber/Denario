@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 #GROQ_API_KEY      = os.getenv("GROQ_API_KEY")
-GOOGLE_API_KEY    = os.getenv("GOOGLE_API_KEY")
+GOOGLE_API_KEY    = os.getenv("GOOGLE_API_KEY") if os.getenv("GOOGLE_API_KEY") else os.getenv("GEMINI_API_KEY")
 #OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY")
 #ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
 
