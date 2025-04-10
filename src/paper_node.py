@@ -417,8 +417,6 @@ async def add_citations_async(text, section_name):
     new_text, references = await loop.run_in_executor(None, func)
     new_text = clean_section(new_text, section_name)
     print(f'    {section_name} done')
-    #with open('borrar.bib', 'w') as f:
-    #    f.write(references)
     return section_name, new_text, references
 
 async def citations_node(state: GraphState, config: RunnableConfig):
