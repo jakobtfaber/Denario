@@ -29,7 +29,8 @@ dependencies = [
   "langgraph-checkpoint-sqlite==2.0.6",
   "langgraph-prebuilt==0.1.8",
   "langgraph-sdk==0.1.61",
-  "langsmith==0.3.25"
+  "langsmith==0.3.25",
+  "numpy==1.26.4"
 ]
 
 
