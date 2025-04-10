@@ -13,27 +13,23 @@ readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "MIT" }  # Adjust if you use a different license
 
-
-
 dependencies = [
-    # "cmbagent-autogen @ git+https://github.com/CMBAgents/ag2.git@ag2_v0.8.4_upgrade_astrop#egg=cmbagent-autogen",
-    # "cmbagent @ git+https://github.com/CMBAgents/cmbagent.git@astrop#egg=cmbagent",
-langchain==0.3.23
-langchain-anthropic==0.3.10
-langchain-chroma==0.2.2
-langchain-community==0.3.21
-langchain-core==0.3.51
-langchain-google-genai==2.1.2
-langchain-google-vertexai==2.0.9
-langchain-groq==0.3.2
-langchain-openai==0.3.12
-langchain-text-splitters==0.3.8
-langgraph==0.3.25
-langgraph-checkpoint==2.0.24
-langgraph-checkpoint-sqlite==2.0.6
-langgraph-prebuilt==0.1.8
-langgraph-sdk==0.1.61
-langsmith==0.3.25
+  "langchain==0.3.23",
+  "langchain-anthropic==0.3.10",
+  "langchain-chroma==0.2.2",
+  "langchain-community==0.3.21",
+  "langchain-core==0.3.51",
+  "langchain-google-genai==2.1.2",
+  "langchain-google-vertexai==2.0.9",
+  "langchain-groq==0.3.2",
+  "langchain-openai==0.3.12",
+  "langchain-text-splitters==0.3.8",
+  "langgraph==0.3.25",
+  "langgraph-checkpoint==2.0.24",
+  "langgraph-checkpoint-sqlite==2.0.6",
+  "langgraph-prebuilt==0.1.8",
+  "langgraph-sdk==0.1.61",
+  "langsmith==0.3.25"
 ]
 
 
