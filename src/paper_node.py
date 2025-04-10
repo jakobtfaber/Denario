@@ -5,6 +5,8 @@ from pathlib import Path
 from tqdm import tqdm
 import subprocess
 import requests
+import asyncio
+from functools import partial
 
 from src.parameters import GraphState
 from src.prompts import *
@@ -13,7 +15,23 @@ from src.tools import json_parser
 from src.literature import process_tex_file_with_references
 
 
+def clean_section(text, section):
+    """
+    This function performs some clean up of unwanted LaTeX wrappers
+    """
 
+    text = text.replace(r"\documentclass{article}", "")
+    text = text.replace(r"\begin{document}", "")
+    text = text.replace(r"\end{document}", "")
+    text = text.replace(fr"\section{{{section}}}", "")
+    text = text.replace(fr"\section*{{{section}}}", "")
+    text = text.replace(fr"\begin{{{section}}}", "")
+    text = text.replace(fr"\end{{{section}}}", "")
+    text = text.replace(fr"\maketitle", "")
+    text = text.replace(fr"<PARAGRAPH>", "")
+    text = text.replace(fr"</PARAGRAPH>", "")
+
+    return text
 
 
 def section_node(state: GraphState, config: RunnableConfig, section_name: str,
@@ -52,18 +70,12 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     section_text = LaTeX_checker(section_text)
 
     # --- Step 4: Remove unwanted LaTeX wrappers ---
-    section_text = section_text.replace(r"\documentclass{article}", "")
-    section_text = section_text.replace(r"\begin{document}", "")
-    section_text = section_text.replace(r"\end{document}", "")
-    section_text = section_text.replace(fr"\section{{{section_name}}}", "")
-    section_text = section_text.replace(fr"\begin{{{section_name}}}", "")
-    section_text = section_text.replace(fr"\end{{{section_name}}}", "")
-    section_text = section_text.replace(fr"\maketitle", "")
-    print('done')
+    section_text = clean_section(section_text, section_name)
 
     # --- Step 5: Save paper ---
     state['paper'][section_name] = section_text
     _ = save_paper(state)
+    print('done')
 
     # --- Step 6: Summarize ---
     prompt = summary_prompt(state['paper']['summary'], section_text)
@@ -172,7 +184,7 @@ def compile_latex(state):
                 f.write(result.stdout)
 
             if i==0:
-                result = subprocess.run(["bibtex", "paper"],
+                result = subprocess.run(["bibtex", Path(state['files']['Paper3']).stem],
                                         capture_output=True,
                                         text=True, check=True)
 
@@ -242,19 +254,15 @@ def plots_node(state: GraphState, config: RunnableConfig):
         results = fixer(state, 'Results')
 
     # --- Remove unwanted LaTeX wrappers ---
-    results = results.replace(r"\documentclass{article}", "")
-    results = results.replace(r"\begin{document}", "")
-    results = results.replace(r"\end{document}", "")
-    results = results.replace(r"\section{Results}", "")
-    results = results.replace(r"\begin{Results}", "")
-    results = results.replace(r"\end{Results}", "")
-    print('done')
+    results = clean_section(results, 'Results')
     
     # save paper
     state['paper']['Results'] = results
     _ = save_paper(state, state['files']['Paper'])
+    print('done')
     
     return {'paper':{**state['paper'], 'Results': results}}
+
 
 def refine_results(state: GraphState, config: RunnableConfig):
     """
@@ -275,12 +283,10 @@ def refine_results(state: GraphState, config: RunnableConfig):
         fixer(state, 'Results')
 
     # --- Remove unwanted LaTeX wrappers ---
-    section_text = section_text.replace(r"\documentclass{article}", "")
-    section_text = section_text.replace(r"\begin{document}", "")
-    section_text = section_text.replace(r"\end{document}", "")
-    section_text = section_text.replace(r"\section{Results}", "")
-    section_text = section_text.replace(r"\begin{Results}", "")
-    section_text = section_text.replace(r"\end{Results}", "")
+    section_text = clean_section(section_text, 'Results')
+
+    # check that all references are done properly
+    section_text = check_references(section_text)
 
     # save paper
     state['paper']['Results'] = section_text
@@ -299,12 +305,15 @@ def keywords_node(state: GraphState, config: RunnableConfig):
     result = llm.invoke(PROMPT).content
 
     # Extract caption
-    pattern = r"\\begin{keywords}(.*?)\\end{keywords}"
+    pattern = r"\\begin{Keywords}(.*?)\\end{Keywords}"
     match = re.search(pattern, result, re.DOTALL)
     if match:  keywords = match.group(1).strip()
     else:
         print('Failed to get keywords...')
         raise ValueError("Failed to extract keywords")
+
+    # Avoid adding \ to the end
+    keywords = keywords.replace("\\", "")
 
     print(f'Selected keywords: {keywords}')
     
@@ -357,26 +366,98 @@ def LaTeX_node(state: GraphState, config: RunnableConfig):
     return state
 
 
-def citations_node(state: GraphState, config: RunnableConfig):
+def check_references(text):
     """
-    This agent adds citations to the paper
+    This function will check for wrong references to figures
     """
 
-    text = state['paper']['Introduction']
+    PROMPT = references_prompt(text)
+    result = llm.invoke(PROMPT).content
 
-    print('Adding citations...', end="", flush=True)
-    text, references = process_tex_file_with_references(text)
-    print('done!')
+    # Extract text
+    pattern = rf"\\begin{{Text}}(.*?)\\end{{Text}}"
+    match = re.search(pattern, result, re.DOTALL)
+    if match:  section_text = match.group(1).strip()
+    else:
+        f = open('Error.txt', 'w');  f.write(result);  f.close()
+        raise ValueError(f"Failed to fix references")
+
+    return section_text
     
-    state['paper']['Introduction'] = text
-    state['paper']['References']   = references
+
     
+#######################################################################################
+#def citations_node(state: GraphState, config: RunnableConfig):
+#    """
+#    This agent adds citations to the paper
+#    """
+#
+#    text = state['paper']['Introduction']
+#
+#    # add citations
+#    print('Adding citations...', end="", flush=True)
+#    text, references = process_tex_file_with_references(text)
+#
+#    # --- Remove unwanted LaTeX wrappers ---
+#    text = clean_section(text, 'Introduction')
+#    
+#    state['paper']['Introduction'] = text
+#    state['paper']['References']   = references
+#    
+#    save_paper(state, name=state['files']['Paper3'])
+#    save_bib(state)
+#    print('done')
+#    
+#    return {'paper': {**state['paper'], 'Introduction': text, 'References': references}}
+    
+
+async def add_citations_async(text, section_name):
+    loop = asyncio.get_event_loop()
+    func = partial(process_tex_file_with_references, text)
+    new_text, references = await loop.run_in_executor(None, func)
+    new_text = clean_section(new_text, section_name)
+    print(f'    {section_name} done')
+    #with open('borrar.bib', 'w') as f:
+    #    f.write(references)
+    return section_name, new_text, references
+
+async def citations_node(state: GraphState, config: RunnableConfig):
+    """
+    This agent adds citations asynchronously to all main sections.
+    """
+
+    print("Adding citations...")
+
+    sections = ['Introduction', 'Methods', 'Results', 'Conclusions']
+    tasks = [add_citations_async(state['paper'][section], section) for section in sections]
+    results = await asyncio.gather(*tasks)
+
+    # Deduplicate full BibTeX entries
+    bib_entries_set = set()
+    bib_entries_list = []
+
+    for section_name, updated_text, references in results:
+        state['paper'][section_name] = updated_text
+
+        # Break the full .bib string into entries by \n\n
+        entries = references.strip().split('\n\n')
+        for entry in entries:
+            clean_entry = entry.strip()
+            if clean_entry and clean_entry not in bib_entries_set:
+                bib_entries_list.append(clean_entry)
+
+    # Save all combined deduplicated BibTeX entries as a single string
+    state['paper']['References'] = "\n\n".join(bib_entries_list)
+
     save_paper(state, name=state['files']['Paper3'])
     save_bib(state)
-    
-    return {'paper': {**state['paper'], 'Introduction': text, 'References': references}}
-    
-    
+    print("✅ Citations added to all sections.")
+
+    return {'paper': state['paper']}
+
+
+
+
 
 def save_paper(state, name=None):
     """
@@ -395,7 +476,7 @@ def save_paper(state, name=None):
 \title{{{state['paper'].get('Title','')}}}
 
 \author{{AstroPilot}}
-\affiliation{{Gemini \& OpenAI servers. Planet Earth.}}
+\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}
 
 \begin{{abstract}}
 {state['paper'].get('Abstract','')}
@@ -436,11 +517,8 @@ def save_paper(state, name=None):
 
 
 def save_bib(state):
-    
-    f = open(f"{state['files']['Paper_folder']}/bibliography.bib", 'a')
-    f.write(state['paper']['References'])
-    f.close()
-    
+    with open(f"{state['files']['Paper_folder']}/bibliography.bib", 'a', encoding='utf-8') as f:
+        f.write(state['paper']['References'].strip() + "\n")    
     
 
 def fixer(state: GraphState, section_name):

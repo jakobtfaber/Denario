@@ -4,6 +4,7 @@ from langgraph.checkpoint.sqlite import SqliteSaver
 from src.parameters import GraphState
 from src.paper_node import *
 from src.reader import *
+import asyncio
 
 
 
@@ -46,10 +47,11 @@ memory = MemorySaver()
 #memory = SqliteSaver(conn)
 graph = builder.compile(checkpointer=memory)
 
-graph_image = graph.get_graph(xray=True).draw_mermaid_png()
-with open("graph_diagram.png", "wb") as f:
-    f.write(graph_image)
-    
+#graph_image = graph.get_graph(xray=True).draw_mermaid_png()
+#with open("graph_diagram.png", "wb") as f:
+#    f.write(graph_image)
+
+"""
 result = graph.invoke({"files": {"Idea":         "Input_Files/idea.md",
                                  "Methods":      "Input_Files/methods.md",
                                  "Results":      "Input_Files/results.md",
@@ -63,3 +65,18 @@ result = graph.invoke({"files": {"Idea":         "Input_Files/idea.md",
                        "idea": {},
                        "paper":{"summary":""}},
                       config)
+"""
+
+result = asyncio.run(graph.ainvoke({"files": {"Idea":         "Input_Files/idea.md",
+                                              "Methods":      "Input_Files/methods.md",
+                                              "Results":      "Input_Files/results.md",
+                                              "Plots":        "Input_Files/plots",
+                                              "Paper_folder": "LaTeX",
+                                              "Paper":        "paper_v1.tex",
+                                              "Paper2":       "paper_v2.tex",
+                                              "Paper3":       "paper_v3.tex",
+                                              "Error":        "Error.txt",
+                                              "LaTeX_log":    "LaTeX_compilation.log"},
+                                    "idea": {},
+                                    "paper":{"summary":""}},
+                                   config))
