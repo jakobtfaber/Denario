@@ -48,6 +48,19 @@ clone_repo "$ASTROPILOT_REPO" "$ASTROPILOT_DIR"
 echo "Switching to branch 'bbdev' and installing AstroPilot..."
 cd "$ASTROPILOT_DIR"
 git switch bbdev
+
+# Create the .env file from environment variables
+echo "Creating .env file in AstroPilot with API keys..."
+cat <<EOF > .env
+OPENAI_API_KEY="${OPENAI_API_KEY}"
+ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY}"
+GEMINI_API_KEY="${GEMINI_API_KEY}"
+GOOGLE_API_KEY="${GOOGLE_API_KEY}"
+LANGCHAIN_API_KEY="${LANGCHAIN_API_KEY}"
+PERPLEXITY_API_KEY="${PERPLEXITY_API_KEY}"
+EOF
+echo ".env file created."
+
 pip install -e .
 cd ..
 

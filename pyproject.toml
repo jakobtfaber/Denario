@@ -32,7 +32,8 @@ dependencies = [
   "langsmith==0.3.25",
   "google-generativeai",
   "numpy==1.26.4",
-  "jupyterlab"
+  "jupyterlab",
+  "pdflatex",
 ]
 
 
