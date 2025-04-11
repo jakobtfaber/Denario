@@ -4,7 +4,7 @@ AstroPilot is a multi-agent system designed to automatize scientific research in
 
 ## Installation
 
-Download or copy the installer.sh file
+Download [installer.sh](https://github.com/AstroPilot-AI/AstroPilot/blob/bbdev/installer.sh) file
 
 ```bash
 chmod +x installer.sh
