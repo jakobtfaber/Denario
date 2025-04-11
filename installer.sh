@@ -2,6 +2,15 @@
 # installer.sh
 # This script sets up a Python virtual environment, upgrades pip,
 # and clones & installs three Git repositories using specific branches.
+# It also supports a "clean" option to remove the environment and clones.
+
+# If the first argument is "clean", remove everything and exit.
+if [ "$1" == "clean" ]; then
+    echo "Cleaning up Python virtual environment and repositories..."
+    rm -rf astrop_env AstroPilot ag2 cmbagent
+    echo "Clean operation completed."
+    exit 0
+fi
 
 # Exit immediately if a command exits with a non-zero status.
 set -e
