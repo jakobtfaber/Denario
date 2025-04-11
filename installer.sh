@@ -88,6 +88,7 @@ git switch astrop
 pip install -e .
 cd ..
 
+pip install pdflatex
 
 # Install an IPython kernel for the virtual environment
 echo "Installing IPython kernel for the virtual environment..."
