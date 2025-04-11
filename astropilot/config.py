@@ -5,3 +5,5 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 # REPO_DIR is defined as one directory above the package
 REPO_DIR = BASE_DIR.parent
+
+## in colab we need REPO_DIR = "/content/AstroPilot/"
