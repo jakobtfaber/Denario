@@ -33,6 +33,7 @@ dependencies = [
   "google-generativeai",
   "numpy==1.26.4",
   "jupyterlab",
+  "ipywidgets",
 ]
 
 
