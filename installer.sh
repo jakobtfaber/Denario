@@ -75,4 +75,10 @@ git switch astrop
 pip install -e .
 cd ..
 
+
+# Install an IPython kernel for the virtual environment
+echo "Installing IPython kernel for the virtual environment..."
+python -m ipykernel install --user --name astrop_env --display-name "Python (astrop_env)"
+
 echo "Installation complete!"
+
