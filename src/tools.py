@@ -75,19 +75,11 @@ def fixer(state: GraphState, section_name):
 
 
 
-def LaTeX_checker(text):
+def LaTeX_checker(state, text):
 
     PROMPT = LaTeX_prompt(text)
     result = llm.invoke(PROMPT).content
-
-    # Extract caption
-    pattern = r"\\begin{Text}(.*?)\\end{Text}"
-    match = re.search(pattern, result, re.DOTALL)
-    if match:  text = match.group(1).strip()
-    else:
-        print('Failed to get LaTeX...')
-        raise ValueError("Failed to extract LaTeX")
-
+    text = extract_latex_block(state, result, "Text")
     return text
 
 

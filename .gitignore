@@ -1,6 +1,9 @@
 *~
 LaTeX/paper*
 output.txt
+LaTeX/*.pdf
+LaTeX/bibliography.bib
+graph_diagram.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

@@ -4,6 +4,7 @@ from pathlib import Path
 from tqdm import tqdm
 import asyncio
 from functools import partial
+import random
 
 from src.parameters import GraphState
 from src.prompts import *
@@ -50,11 +51,9 @@ def abstract_node(state: GraphState, config: RunnableConfig):
 
         # improve abstract
         PROMPT = abstract_reflection(state)
-        abstract = (llm.invoke(PROMPT)).content
-        pattern = r"\\begin{Abstract}(.*?)\\end{Abstract}"
-        match = re.search(pattern, abstract, re.DOTALL)
-        if match:  abstract = match.group(1).strip()
-        else:      raise ValueError("No valid Abstract section found.")
+        result = (llm.invoke(PROMPT)).content
+        abstract = extract_latex_block(state, result, "Abstract")
+        
     print('done')
 
     # --- Save paper ---
@@ -62,17 +61,14 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     save_paper(state, state['files']['Paper_v1'])
 
     # summarize text
-    PROMPT = summary_prompt("", abstract)
-    result = llm.invoke(PROMPT)
-    pattern = r"\\begin{Summary}(.*?)\\end{Summary}"
-    match = re.search(pattern, result.content, re.DOTALL)
-    if match:  state['paper']['summary'] = match.group(1).strip()  
-    else:      raise ValueError("No valid summary found.")
+    #PROMPT = summary_prompt("", abstract)
+    #result = llm.invoke(PROMPT).content
+    #summary = extract_latex_block(state, result, "Summary")
 
     return {'paper':{**state['paper'],
                      'Title': state['paper']['Title'],
-                     'Abstract': abstract,
-                     'summary': state['paper']['summary']}}
+                     'Abstract': abstract}}
+                     #'summary': summary}}
 
 
 def section_node(state: GraphState, config: RunnableConfig, section_name: str,
@@ -108,7 +104,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
             section_text = llm.invoke(prompt).content
 
     # --- Step 3: Check LaTeX ---
-    section_text = LaTeX_checker(section_text)
+    section_text = LaTeX_checker(state, section_text)
 
     # --- Step 4: Remove unwanted LaTeX wrappers ---
     section_text = clean_section(section_text, section_name)
@@ -119,18 +115,14 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     print('done')
 
     # --- Step 6: Summarize ---
-    prompt = summary_prompt(state['paper']['summary'], section_text)
-    result = llm.invoke(prompt).content
-    match = re.search(r"\\begin{Summary}(.*?)\\end{Summary}", result, re.DOTALL)
-    if match:
-        state['paper']['summary'] = match.group(1).strip()
-    else:
-        raise ValueError("No valid summary found.")
+    #prompt = summary_prompt(state['paper']['summary'], section_text)
+    #result = llm.invoke(prompt).content
+    #summary = extract_latex_block(state, result, "Summary")
 
     # --- Step 7: Update state ---
     return {"paper": {**state["paper"],
-                      section_name: section_text,
-                      "summary": state["paper"]["summary"]}}
+                      section_name: section_text}}
+                      #"summary": summary}}
 
 
 # get the functions for the different nodes
@@ -154,7 +146,7 @@ def conclusions_node(state: GraphState, config: RunnableConfig):
                         prompt_fn=conclusions_prompt,
                         reflection_fn=None)
 
-
+#######################################################################################
 def image_to_base64(image_path):
     with open(image_path, "rb") as file:
         binary_data = file.read()
@@ -181,96 +173,61 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
         PROMPT = caption_prompt(state, image)
         result = llm.invoke(PROMPT).content
-
-        # Extract caption
-        pattern = r"\\begin{Caption}(.*?)\\end{Caption}"
-        match = re.search(pattern, result, re.DOTALL)
-        if match:
-            caption = match.group(1).strip()
-        else:
-            raise ValueError(f"No valid caption found for {file.name}")
-
+        caption = extract_latex_block(state, result, "Caption")
+        caption = LaTeX_checker(state, caption)  #make sure is written in LaTeX
         images[f"image{i}"] = {'name': file.name, 'caption': caption}
 
     print('Inserting figures...', end="", flush=True)
     PROMPT = plot_prompt(state, images)
     result = llm.invoke(PROMPT).content
-
-    # Extract new section
-    pattern = r"\\begin{Section}(.*?)\\end{Section}"
-    match = re.search(pattern, result, re.DOTALL)
-    if match:  results = match.group(1).strip()
-    else:
-        print('Failed to get Results section...')
-        f = open(state['files']['Error'], 'w');  f.write(result);  f.close()
-        results = fixer(state, 'Results')
+    results = extract_latex_block(state, result, "Section")
 
     # --- Remove unwanted LaTeX wrappers ---
     results = clean_section(results, 'Results')
     
-    # save paper
+    # save paper and compile it
     state['paper']['Results'] = results
     save_paper(state, state['files']['Paper_v1'])
     print('done')
-
-    # compile latex
     compile_latex(state, state['files']['Paper_v1'])
     
     return {'paper':{**state['paper'], 'Results': results}}
+#######################################################################################
 
 
 def refine_results(state: GraphState, config: RunnableConfig):
     """
-    This agent takes the results section and improve it
+    This agent takes the results section with plots and improves it
     """
 
     print('Refining results...', end="")
     PROMPT = refine_results_prompt(state)
     result = llm.invoke(PROMPT).content
-
-    # Extract caption
-    pattern = r"\\begin{Results}(.*?)\\end{Results}"
-    match = re.search(pattern, result, re.DOTALL)
-    if match:  section_text = match.group(1).strip()
-    else:
-        print('Failed to get Results section...')
-        f = open(state['files']['Error'], 'w');  f.write(result);  f.close()
-        fixer(state, 'Results')
-
+    results = extract_latex_block(state, result, "Results")
+    
     # --- Remove unwanted LaTeX wrappers ---
-    section_text = clean_section(section_text, 'Results')
+    section_text = clean_section(results, 'Results')
 
     # check that all references are done properly
-    section_text = check_references(section_text)
+    section_text = check_references(state, section_text)
 
-    # save paper
+    # save paper and compile it
     state['paper']['Results'] = section_text
     save_paper(state, state['files']['Paper_v2'])
     print('done')
-
-    # compile paper
     compile_latex(state, state['files']['Paper_v2'])
+
+    return {'paper':{**state['paper'], 'Results': section_text}}
     
 
-    return {'paper':{**state['paper'],
-                     'Results': section_text}}
-    
-
-def check_references(text):
+def check_references(state: GraphState, text: str)-> str:
     """
     This function will check for wrong references to figures
     """
 
     PROMPT = references_prompt(text)
     result = llm.invoke(PROMPT).content
-
-    # Extract text
-    pattern = rf"\\begin{{Text}}(.*?)\\end{{Text}}"
-    match = re.search(pattern, result, re.DOTALL)
-    if match:  section_text = match.group(1).strip()
-    else:
-        f = open('Error.txt', 'w');  f.write(result);  f.close()
-        raise ValueError(f"Failed to fix references")
+    section_text = extract_latex_block(state, result, "Text")
 
     return section_text
         

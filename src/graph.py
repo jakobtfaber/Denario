@@ -5,9 +5,6 @@ from src.paper_node import *
 from src.reader import *
 
 
-# Thread
-config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
-
 def build_graph(mermaid_diagram=False):
     """
     This function builds the graph

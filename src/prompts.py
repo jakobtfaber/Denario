@@ -306,14 +306,14 @@ def refine_results_prompt(state):
         SystemMessage(content='You are a cosmologist writing a scientific paper.'),
         HumanMessage(content=fr"""You are given the Results section of a paper that contains text and figures. The text and the figures were added independently, so there may not be a clear flow of integration between the two.
 
-Your task is to revise the text so that it refers explicitly to the figures and forms a coherent narrative. Follow these rules:
+Your task is to rewrite the text to make it more coherent with the figures and their captions. Follow these rules:
 
 - **Do not remove any figures. All figures must remain in the section**
-- Add appropriate LaTeX references to the figures using \ref{{fig:...}} syntax.
-- Modify or reorganize the text to improve clarity and flow.
-- Reorder figures and paragraphs only if it improves the structure.
-- Do not remove technical or scientific content.
-- Write the text in LaTeX.
+- Add appropriate LaTeX references to the figures using Figure \ref{{fig:...}} syntax
+- Modify or reorganize the text to improve clarity and flow
+- Reorder figures and paragraphs only if it improves the clarity of the text
+- Do not remove technical or scientific content
+- Write the text in LaTeX
 
 Results section:
 {state['paper']['Results']}
@@ -367,10 +367,13 @@ def caption_prompt(state, image, name=None):
     return [
         SystemMessage(content="You are a cosmologist."),
         HumanMessage(content=[
-            {"type": "text", "text": rf"""You are a cosmologist and your task is to create a caption for the figure. Create the caption to describe the image. Use the name of the image to know what quantity its being shown. Describe the outcome of the image. E.g. large differences are seen or small differences are found. Respond in the following format:
-\begin{{Caption}}
+            {"type": "text", "text": rf"""You are a cosmologist and your task is to create a caption for the figure. Create the caption to describe the image. Use the name of the image to know what quantity its being shown. Describe the outcome of the image. E.g. large differences are seen or small differences are found. Write the caption in LaTeX.
+
+**Respond in this format**
+
+\\begin{{Caption}}
 <Caption>
-\end{{Caption}}
+\\end{{Caption}}
 
 In <Caption> place the figure caption writen in LaTeX.
 """},
