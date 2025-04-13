@@ -5,7 +5,7 @@ from pathlib import Path
 from src.parameters import GraphState
 
 
-def reader_node(state: GraphState, config: RunnableConfig):
+def preprocess_node(state: GraphState, config: RunnableConfig):
     """
     This agent just read the input files and clean up files
     """
@@ -20,7 +20,7 @@ def reader_node(state: GraphState, config: RunnableConfig):
             raise RuntimeError(f"Failed to read {key} file: {e}")
 
     # remove these files if they already exist
-    for f in ['Paper', 'Paper2', 'Paper3']:
+    for f in ['Paper_v1', 'Paper_v2', 'Paper_v3']:
         f_in = f"{state['files']['Paper_folder']}/{state['files'][f]}"
         if os.path.exists(f_in): os.remove(f"{f_in}")
 

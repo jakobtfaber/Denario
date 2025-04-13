@@ -1,82 +1,25 @@
-from langgraph.graph import START, StateGraph, END
-from langgraph.checkpoint.memory import MemorySaver
-from langgraph.checkpoint.sqlite import SqliteSaver
-from src.parameters import GraphState
-from src.paper_node import *
-from src.reader import *
+from src.graph import build_graph
 import asyncio
-
-
 
 # Thread
 config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
-# Define the graph
-builder = StateGraph(GraphState)
+# build graph
+graph = build_graph(mermaid_diagram=True)
 
-# Define nodes: these do the work
-builder.add_node("reader_node",       reader_node)
-builder.add_node("abstract_node",     abstract_node)
-builder.add_node("introduction_node", introduction_node)
-builder.add_node("methods_node",      methods_node)
-builder.add_node("results_node",      results_node)
-builder.add_node("conclusions_node",  conclusions_node)
-builder.add_node("generate_paper",    generate_paper)
-builder.add_node("plots_node",        plots_node)
-builder.add_node("refine_results",    refine_results)
-builder.add_node("keywords_node",     keywords_node)
-builder.add_node("citations_node",    citations_node)
-
-
-# Define edges: these determine how the control flow moves
-builder.add_edge(START,               "reader_node")
-builder.add_edge("reader_node",       "keywords_node")
-builder.add_edge("keywords_node",     "abstract_node")
-builder.add_edge("abstract_node",     "introduction_node")
-builder.add_edge("introduction_node", "methods_node")
-builder.add_edge("methods_node",      "results_node")
-builder.add_edge("results_node",      "conclusions_node")
-builder.add_edge("conclusions_node",  "plots_node")
-builder.add_edge("plots_node",        "refine_results")
-builder.add_edge("refine_results",    "citations_node")
-builder.add_edge("citations_node",    "generate_paper")
-builder.add_edge("generate_paper",    "__end__")
-
-
-memory = MemorySaver()
-#memory = SqliteSaver(conn)
-graph = builder.compile(checkpointer=memory)
-
-#graph_image = graph.get_graph(xray=True).draw_mermaid_png()
-#with open("graph_diagram.png", "wb") as f:
-#    f.write(graph_image)
-
-"""
-result = graph.invoke({"files": {"Idea":         "Input_Files/idea.md",
-                                 "Methods":      "Input_Files/methods.md",
-                                 "Results":      "Input_Files/results.md",
-                                 "Plots":        "Input_Files/plots",
-                                 "Paper_folder": "LaTeX",
-                                 "Paper":        "paper_v1.tex",
-                                 "Paper2":       "paper_v2.tex",
-                                 "Paper3":       "paper_v3.tex",
-                                 "Error":        "Error.txt",
-                                 "LaTeX_log":    "LaTeX_compilation.log"},
-                       "idea": {},
-                       "paper":{"summary":""}},
-                      config)
-"""
-
-result = asyncio.run(graph.ainvoke({"files": {"Idea":         "Input_Files/idea.md",
-                                              "Methods":      "Input_Files/methods.md",
-                                              "Results":      "Input_Files/results.md",
-                                              "Plots":        "Input_Files/plots",
-                                              "Paper_folder": "LaTeX",
-                                              "Paper":        "paper_v1.tex",
-                                              "Paper2":       "paper_v2.tex",
-                                              "Paper3":       "paper_v3.tex",
-                                              "Error":        "Error.txt",
-                                              "LaTeX_log":    "LaTeX_compilation.log"},
-                                    "idea": {},
-                                    "paper":{"summary":""}},
-                                   config))
+# run the graph
+result = asyncio.run(graph.ainvoke(
+    {"files":{"Idea":         "Input_Files/idea.md",
+              "Methods":      "Input_Files/methods.md",
+              "Results":      "Input_Files/results.md",
+              "Plots":        "Input_Files/plots",
+              "Paper_folder": "LaTeX",
+              "Paper_v1":     "paper_v1.tex",
+              "Paper_v2":     "paper_v2.tex",
+              "Paper_v3":     "paper_v3.tex",
+              "Error":        "Error.txt",
+              "LaTeX_log":    "LaTeX_compilation.log"},
+     "idea": {},
+     "paper":{"summary":""}},
+    config)
+)

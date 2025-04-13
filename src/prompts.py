@@ -113,7 +113,7 @@ Respond in the following format:
 def abstract_prompt(idea):
     
     return [SystemMessage(content="""You are a scientific writer"""),
-            HumanMessage(content=f"""Given the context below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
+            HumanMessage(content=rf"""Given the context below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
 - What are we trying to do and why is it relevant?
 - Why is this hard? 
 - How do we solve it (i.e. our contribution!)
@@ -125,7 +125,7 @@ Please make sure the abstract reads smoothly and is well-motivated. This should 
 Context:
 {idea}
 
-Please respond in this format:
+**Respond in this format**
 
 ```json
 {{"Title": "The title of the paper",
