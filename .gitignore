@@ -1,6 +1,9 @@
 *~
 LaTeX/paper*
 output.txt
+LaTeX/*.pdf
+LaTeX/bibliography.bib
+graph_diagram.png
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -190,3 +193,9 @@ bblocal
 
 input_files/plots/*
 input_files_paper1
+AP_env/*
+.DS_Store
+paper/
+project_data/
+notebooks/bblocal
+

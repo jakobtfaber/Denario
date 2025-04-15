@@ -12,6 +12,7 @@ class PAPER(TypedDict):
     Methods: str
     Results: str
     Conclusions: str
+    References: str
     summary: str
 
 # Class for Input/Output files
@@ -20,11 +21,12 @@ class FILES(TypedDict):
     Methods: str
     Results: str
     Plots: str
-    Paper_folder: str #location of the paper
-    Paper: str  #name of LaTeX file
-    Paper2: str #name of LaTeX file after adding the plots: last agent may fail
-    Error: str  #location of the error file
-    LaTeX_log: str #name of the file with the LaTeX log (when compiling it)
+    Paper_folder: str #name of folder containing the paper
+    Paper_v1: str     #name of the file containing the version 1 of the paper 
+    Paper_v2: str     #name of the file containing the version 2 of the paper 
+    Paper_V3: str     #name of the file containing the version 3 of the paper 
+    Error: str        #name of the error file
+    LaTeX_log: str    #name of the file with the LaTeX log (when compiling it)
 
 # Idea class
 class IDEA(TypedDict):
@@ -34,11 +36,7 @@ class IDEA(TypedDict):
     
 # Graph state class
 class GraphState(TypedDict):
-    #query: str
-    #papers: str
-    next_node: str
     messages: Annotated[list[AnyMessage], add_messages]
-    f_out: str
-    paper: PAPER
     files: FILES
     idea: IDEA
+    paper: PAPER
