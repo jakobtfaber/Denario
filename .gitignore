@@ -185,3 +185,5 @@ AP_env/*
 paper/
 project_data/
 notebooks/bblocal
+input_files_paper1
+input_files/plots/*
