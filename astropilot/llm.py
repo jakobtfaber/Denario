@@ -10,11 +10,12 @@ load_dotenv()
 GOOGLE_API_KEY    = os.getenv("GOOGLE_API_KEY") if os.getenv("GOOGLE_API_KEY") else os.getenv("GEMINI_API_KEY")
 #OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY")
 #ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
 
 
 #llm  = ChatGroq(model="llama3-8b-8192", temperature=0)
 #llm  = ChatGoogleGenerativeAI(model="gemini-pro", temperature=0)
 #llm  = ChatGroq(model="gemma2-9b-it", temperature=0.7)
-llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.5)
+llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.2)
 #llm2 = ChatOpenAI(model="gpt-4", temperature=0.5)
 #llm3 = ChatAnthropic(model="claude-3-5-sonnet-20240620", temperature=0)
