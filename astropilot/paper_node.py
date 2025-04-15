@@ -26,15 +26,37 @@ def keywords_node(state: GraphState, config: RunnableConfig):
 
     # Extract keywords
     PROMPT = keyword_prompt(state)
-    result = llm.invoke(PROMPT).content
-    keywords = extract_latex_block(state, result, "Keywords")
+    # result = llm.invoke(PROMPT).content
+    # keywords = extract_latex_block(state, result, "Keywords")
     
-    # Avoid adding \ to the end
-    keywords = keywords.replace("\\", "")
+    # # Avoid adding \ to the end
+    # keywords = keywords.replace("\\", "")
 
-    print(f'Selected keywords: {keywords}')
+    # print(f'Selected keywords: {keywords}')
     
-    return {'paper': {**state['paper'], 'Keywords': keywords}}
+    # return {'paper': {**state['paper'], 'Keywords': keywords}}
+    cmbagent = CMBAgent()
+    PROMPT = f"""
+Idea:
+{state['idea']['Idea']}
+
+Methods:
+{state['idea']['Methods']}
+"""
+    cmbagent.solve(task="Find the relevant AAS keywords",
+               max_rounds=50,
+               initial_agent='aas_keyword_finder',
+               mode = "one_shot",
+               shared_context={
+               'text_input_for_AAS_keyword_finder': PROMPT,
+               'N_AAS_keywords': 8,
+                              }
+              )
+    aas_keywords = cmbagent.final_context['aas_keywords'] ## here you get the dict with urls
+    # Extract keys and join them with a comma.
+    aas_keywords_str = ", ".join(aas_keywords.keys())
+    return {'paper': {**state['paper'], 'Keywords': aas_keywords_str}}
+
 
 
 def abstract_node(state: GraphState, config: RunnableConfig):
