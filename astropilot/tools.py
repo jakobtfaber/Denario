@@ -2,9 +2,9 @@ import requests
 import sys,os,re,json
 from langchain_core.messages import HumanMessage
 from dotenv import load_dotenv
-from src.prompts import fixer_prompt, LaTeX_prompt
-from src.parameters import GraphState
-from src.llm import llm
+from .prompts import fixer_prompt, LaTeX_prompt
+from .parameters import GraphState
+from .llm import llm
 
 
 def json_parser(text):

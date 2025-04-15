@@ -1,8 +1,8 @@
 from langgraph.graph import START, StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
-from src.parameters import GraphState
-from src.paper_node import *
-from src.reader import *
+from .parameters import GraphState
+from .paper_node import *
+from .reader import *
 
 
 def build_graph(mermaid_diagram=False):
@@ -41,14 +41,23 @@ def build_graph(mermaid_diagram=False):
     memory = MemorySaver()
     graph  = builder.compile(checkpointer=memory)
 
-    # generate an scheme with the graph
+    # # generate an scheme with the graph
     if mermaid_diagram:
         try:
+            import requests
+            original_post = requests.post
+
+            def patched_post(*args, **kwargs):
+                kwargs.setdefault("timeout", 30)  # Increase timeout to 30 seconds
+                return original_post(*args, **kwargs)
+
+            requests.post = patched_post
             graph_image = graph.get_graph(xray=True).draw_mermaid_png()
             with open("graph_diagram.png", "wb") as f:
                 f.write(graph_image)
             print("✅ Graph diagram saved to graph_diagram.png")
         except Exception as e:
             print(f"⚠️ Failed to generate or save graph diagram: {e}")
+            
     
     return graph

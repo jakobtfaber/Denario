@@ -2,7 +2,7 @@ import subprocess
 import sys,os
 from pathlib import Path
 
-from src.parameters import GraphState
+from .parameters import GraphState
 
 
 

@@ -174,8 +174,9 @@ class AstroPilot:
         return None
 
 
-    def get_paper(self):
-        return write_paper(self.params)
+    async def get_paper(self):
+        await write_paper(self.params)
+        return None
     
 
     def research_pilot(self, data_description: str = None):
