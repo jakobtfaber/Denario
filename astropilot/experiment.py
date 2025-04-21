@@ -13,7 +13,6 @@ class Experiment:
 
         {methodology}
 
-        We use Eisentein and Hu approximation for the matter power spectrum. Don't use CAMB or CLASS.
 
         Given these datasets, and information on the features and project idea and methodology, we want to perform the project analysis and generate the results, plots and insights.
         The goal is to perform the in-depth research and analysis. 
@@ -51,7 +50,6 @@ class Experiment:
 
         {methodology}
 
-        We use Eisentein and Hu approximation for the matter power spectrum. Don't use CAMB or CLASS.
 
         Given these datasets, and information on the features and project idea and methodology, we want to perform the project analysis and generate the results, plots and key statistics.
         The goal is to perform the in-depth research and analysis. This means that you must generate the results, plots and key statistics.
@@ -61,8 +59,10 @@ class Experiment:
         - make sure dynamical ranges are well captured (carefully adjust the limits, binning, and log or linear axes scales, for each feature).
 
         For histograms (if needed):
-        -Use log-scale for features with values spanning several orders of magnitudes. 
-        **IMPORTANT**: You must print out in the console ALL the quantitative information that you think the researcher will need to interpret the results. (The researcher does not have access to saved data files, only to what you print out!)
+        -Use log-scale for features with values spanning several orders of magnitudes.
+
+
+        **GENERAL IMPORTANT INSTRUCTIONS**: You must print out in the console ALL the quantitative information that you think the researcher will need to interpret the results. (The researcher does not have access to saved data files, only to what you print out!)
 
         """
 

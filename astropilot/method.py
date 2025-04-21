@@ -69,14 +69,13 @@ The goal of the task is to write a plan that will be used to generate a detailed
         The goal of the task is to generate a detailed description of the methodology that will be used to carry out the research project.
 
         Warnings: 
-        Some feature columns have around 40k non-null entries. Although vectorized operations (like np.percentile, np.concatenate) are efficient, they do take longer on larger arrays. 
+        Some feature columns may have a large number of non-null entries. Although vectorized operations (like np.percentile, np.concatenate) are efficient, they do take longer on larger arrays. 
         You must make sure the code is well optimized for operations on large arrays. 
 
         For plots involving features: 
         - making sure dynamical ranges are well captured (carefully adjust the binning, and log or linear axes scales, for each feature).
         For histograms (if needed):
         - Use log-scale for features with values spanning several orders of magnitudes. 
-        - Use linear scale for Photometrics feature, but **in general log-log in both x and y axes will be useful!**
         - Don't include null or nan values in the histogram counts, nonetheless, although the NaN entries are useless, it might be useful to keep track of the zero counts for some features.
 
         """
