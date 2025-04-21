@@ -55,7 +55,6 @@ class Experiment:
         The goal is to perform the in-depth research and analysis. This means that you must generate the results, plots and key statistics.
 
         Warnings for computing and plotting: 
-        - Matter P(k) should always be plotted/processed in log-log scale.
         - make sure dynamical ranges are well captured (carefully adjust the limits, binning, and log or linear axes scales, for each feature).
 
         For histograms (if needed):
