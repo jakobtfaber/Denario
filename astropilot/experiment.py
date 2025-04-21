@@ -20,7 +20,7 @@ class Experiment:
         The plan must strictly involve only the following agents: engineer and researcher.
         
 
-        In the final step of the plan, researcher should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
+        In the final step of the plan, the researcher agent should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
         Thus, the last agent in the plan must be the researcher.
 
         The goal here is to do the in-depth research and analysis, not the EDAs.
@@ -122,7 +122,7 @@ class Experiment:
         results = cmbagent.planning_and_control(data_description,
                             n_plan_reviews = 1,
                             max_n_attempts = 4,
-                            max_plan_steps = 7,
+                            max_plan_steps = 6,
                             max_rounds_control = 500,
                             engineer_model = "gpt-4.1-2025-04-14",
                             researcher_model = "gpt-4.1-2025-04-14",
