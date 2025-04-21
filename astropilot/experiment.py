@@ -119,17 +119,20 @@ class Experiment:
         #                 )
         
 
-        chat_history, final_context =cmbagent.planning_and_control(data_description,
+        results = cmbagent.planning_and_control(data_description,
                             n_plan_reviews = 1,
                             max_n_attempts = 4,
-                            max_plan_steps = 4,
-                            max_rounds_control = 100,
+                            max_plan_steps = 7,
+                            max_rounds_control = 500,
                             engineer_model = "gpt-4.1-2025-04-14",
                             researcher_model = "gpt-4.1-2025-04-14",
                             plan_instructions=self.planner_append_instructions,
                             researcher_instructions=self.researcher_append_instructions,
                             engineer_instructions=self.engineer_append_instructions
                             )
+        chat_history = results['chat_history']
+        final_context = results['final_context']
+        
         try:
             for obj in chat_history[::-1]:
                 if obj['name'] == 'researcher_response_formatter':

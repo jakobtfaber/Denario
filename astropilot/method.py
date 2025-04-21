@@ -75,9 +75,9 @@ The goal of the task is to write a plan that will be used to generate a detailed
         For plots involving features: 
         - making sure dynamical ranges are well captured (carefully adjust the binning, and log or linear axes scales, for each feature).
         For histograms (if needed):
-        -Use log-scale for features with values spanning several orders of magnitudes. 
-        -Use linear scale for Photometrics feature, but **in general log-log in both x and y axes will be useful!**
-        -Don't include null or nan values in the histogram counts, nonetheless, although the NaN entries are useless, it might be useful to keep track of the zero counts for some features.
+        - Use log-scale for features with values spanning several orders of magnitudes. 
+        - Use linear scale for Photometrics feature, but **in general log-log in both x and y axes will be useful!**
+        - Don't include null or nan values in the histogram counts, nonetheless, although the NaN entries are useless, it might be useful to keep track of the zero counts for some features.
 
         """
 
@@ -93,7 +93,7 @@ The goal of the task is to write a plan that will be used to generate a detailed
         - When asked about generating the Methodology description, your focus should be strictly on the statistical and machine learning methods for this specific project to be performed. **Do not include** any discussion of future directions, future work, project extensions, or limitations.
         the methodology description should be written as if it were a senior researcher explaining to her research assistant how to perform the project. 
 
-        The methodology should focus on describing the deep research and analysis that will be performed, it should not mention exploratory data analysis that has already been performed.
+        The designed methodology should focus on describing the deep research and analysis that will be performed, it should not mention exploratory data analysis (which will have been performed already).
         """
 
     def develop_method(self, data_description: str, **kwargs):
@@ -135,7 +135,7 @@ The goal of the task is to write a plan that will be used to generate a detailed
         #             shared_context = planning_output
         #             )
 
-        chat_history, final_context =cmbagent.planning_and_control(data_description,
+        results = cmbagent.planning_and_control(data_description,
                               n_plan_reviews = 1,
                               max_n_attempts = 4,
                               max_plan_steps = 4,
@@ -145,6 +145,9 @@ The goal of the task is to write a plan that will be used to generate a detailed
                               researcher_instructions=self.researcher_append_instructions,
                               engineer_instructions=self.engineer_append_instructions
                              )
+        
+        chat_history = results['chat_history']
+        final_context = results['final_context']
         
         try:
             for obj in chat_history[::-1]:
