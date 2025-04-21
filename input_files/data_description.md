@@ -62,10 +62,10 @@ There a no missing values.
 
 Example Usage: Loading and Analyzing the DataFrames
 Load the full galaxy DataFrame:
-df_galaxies = pd.read_parquet('data/galaxies_full_optimal.parquet')
+df_galaxies = pd.read_parquet(root+'/galaxies_full_optimal.parquet')
 
 Load the catalog-level DataFrame:
-df_catalogs = pd.read_parquet('data/catalog_params_optimal.parquet')
+df_catalogs = pd.read_parquet(root+'/catalog_params_optimal.parquet')
 
 
 
