@@ -1,12 +1,15 @@
 # from cmbagent import CMBAgent
 import cmbagent
+from typing import List
 import copy
 import os
 import re
 class Experiment:
 
 
-    def __init__(self, research_idea: str, methodology: str):
+    def __init__(self, research_idea: str, methodology: str, involved_agents: List[str] = ['engineer', 'researcher']):
+        involved_agents_str = ', '.join(involved_agents)
+
         self.planner_append_instructions = rf"""
 
         {research_idea}
@@ -17,7 +20,7 @@ class Experiment:
         Given these datasets, and information on the features and project idea and methodology, we want to perform the project analysis and generate the results, plots and insights.
         The goal is to perform the in-depth research and analysis. 
 
-        The plan must strictly involve only the following agents: engineer and researcher.
+        The plan must strictly involve only the following agents: {involved_agents_str}.
         
 
         In the final step of the plan, the researcher agent should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
