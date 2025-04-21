@@ -291,16 +291,16 @@ async def citations_node(state: GraphState, config: RunnableConfig):
     compile_latex(state, state['files']['Paper_v3'])
 
     # make a last clean up of the sections
-    print("Making a final check to the sections...", end="", flush=True)
+    print("Making a final check to the sections...")
     for section_name in sections:
         PROMPT = clean_section_prompt(state, state['paper'][section_name])
         result = llm.invoke(PROMPT).content
         section_text = extract_latex_block(state, result, "Text")
-        section_text = clean_section(section_text, section_name)
+        section_text = LaTeX_checker(state, section_text)          #check LaTeX
+        section_text = clean_section(section_text, section_name)   #remove unwanted LaTeX text
         state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v4'])
     compile_latex(state, state['files']['Paper_v4'])
-    print('done')
 
     return {'paper': state['paper']}
 #######################################################################################

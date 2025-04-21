@@ -1,4 +1,5 @@
 from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, AIMessage
+import re
 
 
 def idea_prompt(topic):
@@ -296,7 +297,7 @@ Follow these guidelines:
 - Write in LaTex
 - Do not write subsections titles in capital letters
 - The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections
-- You can summarize the results, but do not write a conclusions subsection as there will be a conclusions section writen later on
+- You can summarize the results, but do not write a conclusions subsection as there will be a conclusions section written later on
 - The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{{aastex631}}. Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
 - Do not add figures or placeholders for figures. The figures will be added later on
 
@@ -306,7 +307,7 @@ Respond in this format:
 <Results>
 \end{{Results}}
 
-In <Results> put the results section writen in LaTeX.
+In <Results> put the results section written in LaTeX.
 """)]
 
 
@@ -363,6 +364,7 @@ Follow these guidelines:
 - Do not write the bibliography
 - Write in LaTex
 - Do not write subsections titles in capital letters
+- Do not write words or sentences between *. E.g. instead of *integrated*, write integrated
 
 Respond in this format:
 
@@ -370,7 +372,7 @@ Respond in this format:
 <Conclusions>
 \end{{Conclusions}}
 
-In <Conclusions> put the conclusion section writen in LaTeX.
+In <Conclusions> put the conclusion section written in LaTeX.
 """)]
 
 
@@ -386,7 +388,7 @@ def caption_prompt(state, image, name=None):
 <Caption>
 \\end{{Caption}}
 
-In <Caption> place the figure caption writen in LaTeX.
+In <Caption> place the figure caption written in LaTeX.
 """},
             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image}"}}
         ])
@@ -414,25 +416,25 @@ In <Section>, put the new section with the images and their captions. The locati
 
 def LaTeX_prompt(text):
     
-    return [HumanMessage(content=fr'''Given the text below, make minimal modifications to parts that are not compatible with LaTeX. For instance:
+    return [HumanMessage(content=fr'''fr"""Given the original text below, make minimal modifications to parts that are not compatible with LaTeX. For instance:
 
-- Subhalo_A: change to Subhalo\_A
+- Subhalo\_A: change to Subhalo\ensuremath{{\_}}A
 - Eisenstein & Hu: change to Eisenstein \& Hu
-- SubhaloStellarPhotometrics\\_{{i}}: change to SubhaloStellarPhotometrics\_{{i}}
+- SubhaloStellarPhotometrics\_{{i}}: change to SubhaloStellarPhotometrics\ensuremath{{\_}}{{i}}
 
-Pay special attentions to underscores, _. Follow these rules to make it LaTeX compatible:
+Pay special attentions to underscores, \_. Follow these rules to make it LaTeX compatible:
 
 - If the underscore is inside an equation, do not modify it
 - If the underscore is inside the location of a figure, do not modify it
-- If the underscore is inside a reference, e.g. \\ref{{fig:plot_A.png}}, do not modify it
-- In other conditions, change _ by \_
-- Change from _ to \_ if you think that having as _ will raise an error in LaTeX
-- In general, dont do \\_ or \\% as that is not valid
+- If the underscore is inside a reference, e.g. \ref{{fig:plot\_A.png}}, do not modify it
+- In other conditions, change \_ by \ensuremath{{\_}}
+- Change from \_ to \ensuremath{{\_}} if you think that having as \_ will raise an error in LaTeX
+- In general, dont do \\\_ or \\% as that is not valid
 - Be careful about the symbol %. In LaTeX, if not used properly it will comment everything after it.
 - Make sure in-line equations are between $
 - Do not use or create commands, e.g. \hMpc 
 
-Text: 
+Original text: 
 {text}
 
 **Respond in this format**:
@@ -443,6 +445,7 @@ Text:
 
 In <Text>, insert the LaTeX compatible text. 
 ''')]
+
 
 
 def clean_section_prompt(state,text):
@@ -458,6 +461,7 @@ Do **not**:
 - Change the order of paragraphs or figures
 - Create new sections or restructure the content
 - Remove or rewrite content outside the above allowances
+- Remove all the citations in the text, only those inside figures or tables
 
 Ensure the modified output can still be compiled in LaTeX without error.
 
@@ -498,7 +502,7 @@ In <Summary> put the total summary.
 
 def references_prompt(state, text):
 
-    return [HumanMessage(content=f"""You are provided an original text from a scientific paper writen in LaTeX. In the text, there are figures and references to figures. Your task is to make sure that the references to the figures are correct. If there are errors, please correct the text to fix it. Follow these guidelines:
+    return [HumanMessage(content=f"""You are provided an original text from a scientific paper written in LaTeX. In the text, there are figures and references to figures. Your task is to make sure that the references to the figures are correct. If there are errors, please correct the text to fix it. Follow these guidelines:
 
 - Do not add or remove text
 - Focus on fixing errors in references to figures
