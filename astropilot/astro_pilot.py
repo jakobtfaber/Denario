@@ -123,7 +123,11 @@ class AstroPilot:
         ## Clearing the folder
         if os.path.exists(plots_folder):
             for file in os.listdir(plots_folder):
-                os.remove(os.path.join(plots_folder, file))
+                file_path = os.path.join(plots_folder, file)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
         for plot_path in self.research.plot_paths:
             shutil.move(plot_path, plots_folder)
 
