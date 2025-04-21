@@ -17,11 +17,11 @@ class PAPER(TypedDict):
 
 # Class for Input/Output files
 class FILES(TypedDict):
+    Folder: str       #name of the file containing input and output files
     Idea: str
     Methods: str
     Results: str
     Plots: str
-    Paper_folder: str #name of folder containing the paper
     Paper_v1: str     #name of the file containing the version 1 of the paper 
     Paper_v2: str     #name of the file containing the version 2 of the paper 
     Paper_V3: str     #name of the file containing the version 3 of the paper 

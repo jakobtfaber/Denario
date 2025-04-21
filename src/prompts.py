@@ -194,6 +194,7 @@ In <INTRODUCTION>, place the introduction of the paper. Please, follow these gui
 - How do we solve it (i.e. our contribution!)
 - How do we verify that we solved it (e.g. Experiments and results)
 - Extra space? Future work!
+- Do not write subsections titles in capital letters
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTeX.
 """)]
@@ -234,6 +235,7 @@ In <INTRODUCTION>, place the Introduction of the paper. Follow these guidelines:
 - How do we solve it (i.e. our contribution!)
 - How do we verify that we solved it (e.g. Experiments and results)
 - Extra space? Future work!
+- Do not write subsections titles in capital letters
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTex.
 """)]
@@ -261,6 +263,7 @@ Follow these guidelines:
 - Describe in detail each step and write about the datatset, numerical simulations, evaluation metrics or any other element needed.
 - Do not write the bibliography.
 - Write in LaTex.
+- Do not write subsections titles in capital letters
 
 Respond in this format:
 
@@ -290,6 +293,7 @@ Follow these guidelines:
 - Describe what we have learned from the experiments
 - Do not write the bibliography
 - Write in LaTex
+- Do not write subsections titles in capital letters
 
 Respond in this format:
 
@@ -314,6 +318,7 @@ Your task is to rewrite the text to make it more coherent with the figures and t
 - Reorder figures and paragraphs only if it improves the clarity of the text
 - Do not remove technical or scientific content
 - Write the text in LaTeX
+- Do not write subsections titles in capital letters
 
 Results section:
 {state['paper']['Results']}
@@ -352,6 +357,7 @@ Follow these guidelines:
 - Describe what we have learned from the results and this paper
 - Do not write the bibliography
 - Write in LaTex
+- Do not write subsections titles in capital letters
 
 Respond in this format:
 
@@ -397,7 +403,7 @@ Respond in this format:
 <Section>
 \end{{Section}}
 
-In <Section>, put the new section with the images and their captions. The location of each image should be '../Input_Files/plots/image_name'. Choose a label for each image given its caption. The width of the images should be half the page. Note that all text in <Section> should be compatible with LaTex.
+In <Section>, put the new section with the images and their captions. The location of each image should be "../{state['files']['Folder']}/plots/image_name". Choose a label for each image given its caption. The width of the images should be half the page. Note that all text in <Section> should be compatible with LaTex. Make sure you do not put extra brackets at the end of the captions. The captions of the figures must be on a single paragraph. Do create enumerates or itemize inside the caption.
 """)]
 
 
@@ -406,6 +412,16 @@ def LaTeX_prompt(text):
     return [HumanMessage(content=fr'''Given the text below, make minimal modifications to parts that are not compatible with LaTeX. For instance:
 
 - Subhalo_A: change to Subhalo\_A
+- Eisenstein & Hu: change to Eisenstein \& Hu
+
+Pay special attentions to underscores, _. Follow these rules to make it LaTeX compatible:
+
+- If the underscore is inside an equation, do not modify it
+- If the underscore is inside the location of a figure, do not modify it
+- If the underscore is inside a reference, e.g. \\ref{{fig:plot_A.png}}, do not modify it
+- In other conditions, change _ by \_
+- Change from _ to \_ if you think that having as _ will raise an error in LaTeX
+- Be careful about the symbol %. In LaTeX, if not used properly it will comment everything after it.
 
 Text: 
 {text}
@@ -416,8 +432,35 @@ Text:
 <Text>
 \\end{{Text}}
 
-In <Text>, insert the LaTeX compatible text.
+In <Text>, insert the LaTeX compatible text. 
 ''')]
+
+
+def clean_section_prompt(state,text):
+
+    return [HumanMessage(content=fr"""You are given the below LaTeX text and your task is to read it, understand it, and perform minimal modifications to improve its clarity. For instance:
+
+- split a long paragraph into several paragraphs
+- if a table is too wide, make it to occupy the full paper width
+- Remove citations that appear inside figures and tables
+- do not create new sections
+- do not change the meaning of the text
+- do not change the order of the paragraphs and figures
+- You are only allowed to remove citations if they are inside figures and tables
+
+However, any modification made need to keep the text valid to compile it in LaTeX.
+
+Text:
+{text}
+
+**Respond in this format**:
+
+\\begin{{Text}}
+<Text>
+\\end{{Text}}
+
+In <Text>, insert the new text.
+""")]
 
 
 def summary_prompt(summary, text):
@@ -440,7 +483,7 @@ In <Summary> put the total summary.
 """)]
 
 
-def references_prompt(text):
+def references_prompt(state, text):
 
     return [HumanMessage(content=f"""You are provided an original text from a scientific paper writen in LaTeX. In the text, there are figures and references to figures. Your task is to make sure that the references to the figures are correct. If there are errors, please correct the text to fix it. Follow these guidelines:
 
@@ -451,7 +494,7 @@ def references_prompt(text):
 
 \\begin{{figure}}[h!]
     \\centering
-    \\includegraphics[width=0.5\textwidth]{{../Input_Files/plots/A.png}}
+    \\includegraphics[width=0.5\textwidth]{{../{state['files']['Folder']}/plots/A.png}}
     \\caption{{Histogram of GroupSFR for two different values of non-Gaussianities. The blue histogram represents $f = 200$ and the red histogram represents $f = -200$. Large differences are seen in the normalized density of GroupSFR for the two different values of $f$.}}
     \\label{{fig:GroupSFR_hist}}
 \\end{{figure}}

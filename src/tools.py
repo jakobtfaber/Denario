@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 from src.prompts import fixer_prompt, LaTeX_prompt
 from src.parameters import GraphState
 from src.llm import llm
+from pathlib import Path
 
 
 def json_parser(text):
@@ -100,5 +101,6 @@ def clean_section(text, section):
     text = text.replace(fr"</PARAGRAPH>", "")
     text = text.replace(fr"```latex", "")
     text = text.replace(fr"```", "")
+    text = text.replace(r"\usepackage{amsmath}", "")
 
     return text

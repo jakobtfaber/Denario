@@ -1,5 +1,9 @@
 from src.graph import build_graph
 import asyncio
+import time
+
+# Start timer
+start_time = time.time()
 
 # Thread
 config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
@@ -9,11 +13,11 @@ graph = build_graph(mermaid_diagram=True)
 
 # run the graph
 result = asyncio.run(graph.ainvoke(
-    {"files":{"Idea":         "Input_Files/idea.md",
-              "Methods":      "Input_Files/methods.md",
-              "Results":      "Input_Files/results.md",
-              "Plots":        "Input_Files/plots",
-              "Paper_folder": "LaTeX",
+    {"files":{"Folder":       "Project2",   #name of folder containing input files
+              "Idea":         "idea.md",    #name of file containing idea description
+              "Methods":      "methods.md", #name of file with methods description
+              "Results":      "results.md", #name of file with results description
+              "Plots":        "plots",      #name of folder containing plots
               "Paper_v1":     "paper_v1.tex",
               "Paper_v2":     "paper_v2.tex",
               "Paper_v3":     "paper_v3.tex",
@@ -23,3 +27,10 @@ result = asyncio.run(graph.ainvoke(
      "paper":{"summary":""}},
     config)
 )
+
+# End timer and report duration in minutes and seconds
+end_time = time.time()
+elapsed_time = end_time - start_time
+minutes = int(elapsed_time // 60)
+seconds = int(elapsed_time % 60)
+print(f"Paper written in {minutes} min {seconds} sec.")

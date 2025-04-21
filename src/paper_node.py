@@ -11,7 +11,7 @@ from src.prompts import *
 from src.llm import llm
 from src.tools import json_parser, fixer, LaTeX_checker, clean_section, extract_latex_block
 from src.literature import process_tex_file_with_references
-from src.latex import compile_latex, save_paper, save_bib
+from src.latex import compile_latex, save_paper, save_bib, process_bib_file
 
 
 def keywords_node(state: GraphState, config: RunnableConfig):
@@ -87,14 +87,15 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     print(f'Writing {section_name}...', end="", flush=True)
     prompt = prompt_fn(state)
     result = llm.invoke(prompt).content
+    section_text = extract_latex_block(state, result, section_name)
 
     # Try to extract section content via markers
-    pattern = fr"\\begin{{{section_name}}}(.*?)\\end{{{section_name}}}"
-    match = re.search(pattern, result, re.DOTALL)
-    if match:
-        section_text = match.group(1).strip()
-    else:
-        raise ValueError(f"No valid \\begin{{{section_name}}} section found.")
+    #pattern = fr"\\begin{{{section_name}}}(.*?)\\end{{{section_name}}}"
+    #match = re.search(pattern, result, re.DOTALL)
+    #if match:
+    #    section_text = match.group(1).strip()
+    #else:
+    #    raise ValueError(f"No valid \\begin{{{section_name}}} section found.")
     state['paper'][section_name] = section_text
 
     # --- Step 2: Optional self-reflection ---
@@ -158,11 +159,12 @@ def plots_node(state: GraphState, config: RunnableConfig):
     This function deals with the plots generated
     """
 
-    folder_path = Path(state['files']['Plots'])
+    folder_path = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
     files = [f for f in folder_path.iterdir() if f.is_file()]
     num_images = len(files)
 
     # Select a random subset of up to 10 images
+    random.seed(1)  #use a seed to be able to reproduce results
     selected_files = random.sample(files, min(num_images, 10))
 
     # do a loop over all images
@@ -182,6 +184,9 @@ def plots_node(state: GraphState, config: RunnableConfig):
     result = llm.invoke(PROMPT).content
     results = extract_latex_block(state, result, "Section")
 
+    # Check LaTeX
+    results = LaTeX_checker(state, results)
+
     # --- Remove unwanted LaTeX wrappers ---
     results = clean_section(results, 'Results')
     
@@ -200,10 +205,13 @@ def refine_results(state: GraphState, config: RunnableConfig):
     This agent takes the results section with plots and improves it
     """
 
-    print('Refining results...', end="")
+    print('Refining results...', end="", flush=True)
     PROMPT = refine_results_prompt(state)
     result = llm.invoke(PROMPT).content
     results = extract_latex_block(state, result, "Results")
+
+    # Check LaTeX
+    results = LaTeX_checker(state, results)
     
     # --- Remove unwanted LaTeX wrappers ---
     section_text = clean_section(results, 'Results')
@@ -225,18 +233,23 @@ def check_references(state: GraphState, text: str)-> str:
     This function will check for wrong references to figures
     """
 
-    PROMPT = references_prompt(text)
+    PROMPT = references_prompt(state, text)
     result = llm.invoke(PROMPT).content
     section_text = extract_latex_block(state, result, "Text")
 
     return section_text
         
 #######################################################################################
-async def add_citations_async(text, section_name):
+async def add_citations_async(state, text, section_name):
     loop = asyncio.get_event_loop()
     func = partial(process_tex_file_with_references, text)
     new_text, references = await loop.run_in_executor(None, func)
-    new_text = clean_section(new_text, section_name)
+    
+    PROMPT = clean_section_prompt(state, new_text)
+    result = llm.invoke(PROMPT).content
+    section_text = extract_latex_block(state, result, "Text")
+    
+    new_text = clean_section(section_text, section_name)
     print(f'    {section_name} done')
     return section_name, new_text, references
 
@@ -247,8 +260,9 @@ async def citations_node(state: GraphState, config: RunnableConfig):
 
     print("Adding citations...")
 
-    sections = ['Introduction', 'Methods', 'Results', 'Conclusions']
-    tasks = [add_citations_async(state['paper'][section], section) for section in sections]
+    #sections = ['Introduction', 'Methods', 'Results', 'Conclusions']
+    sections = ['Introduction', 'Methods']
+    tasks = [add_citations_async(state, state['paper'][section], section) for section in sections]
     results = await asyncio.gather(*tasks)
 
     # Deduplicate full BibTeX entries
@@ -256,6 +270,7 @@ async def citations_node(state: GraphState, config: RunnableConfig):
     bib_entries_list = []
 
     for section_name, updated_text, references in results:
+
         state['paper'][section_name] = updated_text
 
         # Break the full .bib string into entries by \n\n
@@ -270,7 +285,13 @@ async def citations_node(state: GraphState, config: RunnableConfig):
 
     save_paper(state, state['files']['Paper_v3'])
     save_bib(state)
+
+    # sanitize bibliography
+    process_bib_file(f"{state['files']['Folder']}/bibliography_temp.bib",
+                     f"{state['files']['Folder']}/bibliography.bib")
     print("✅ Citations added to all sections.")
+
+    # 
 
     # compile latex
     compile_latex(state, state['files']['Paper_v3'])

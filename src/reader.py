@@ -13,7 +13,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # read input files
     for key in ["Idea", "Methods", "Results"]:
         try:
-            path = Path(state["files"][key])
+            path = Path(f"{state['files']['Folder']}/{state['files'][key]}")
             with path.open("r", encoding="utf-8") as f:
                 state["idea"][key] = f.read()
         except Exception as e:
@@ -21,23 +21,31 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
     # remove these files if they already exist
     for f in ['Paper_v1', 'Paper_v2', 'Paper_v3']:
-        f_in = f"{state['files']['Paper_folder']}/{state['files'][f]}"
+        f_in = f"{state['files']['Folder']}/{state['files'][f]}"
         if os.path.exists(f_in): os.remove(f"{f_in}")
 
         # get the root of the paper file (if paper.tex, root=paper)
         root = Path(state['files'][f]).stem
         
         for f_in in [f'{root}.pdf', f'{root}.aux', f'{root}.log', f'{root}.out',
-                     f'{root}.bbl', f'{root}.blg', f'{root}.synctex.gz', f'{root}.synctex(busy)',
-                     'bibliography.bib',]:
-            fin = f"{state['files']['Paper_folder']}/{f_in}"
+                     f'{root}.bbl', f'{root}.blg', f'{root}.synctex.gz',
+                     f'{root}.synctex(busy)', 'bibliography.bib',
+                     'bibliography_temp.bib',]:
+            fin = f"{state['files']['Folder']}/{f_in}"
             if os.path.exists(fin): os.remove(f"{fin}")
 
     for f_in in [state['files']['Error']]:
         if os.path.exists(f_in):  os.remove(f"{f_in}")
 
-    f_in = f"{state['files']['Paper_folder']}/{state['files']['LaTeX_log']}"
+    # remove LaTeX compilation log file
+    f_in = f"{state['files']['Folder']}/{state['files']['LaTeX_log']}"
     if os.path.exists(f_in):  os.remove(f"{f_in}")
+
+    # copy LaTeX files to project folder
+    for f in ['aasjournal.bst', 'aastex631.cls']:
+        f_in = f"{state['files']['Folder']}/{f}"
+        if not(os.path.exists(f_in)):
+            os.system(f"cp LaTeX/{f} {state['files']['Folder']}")
 
     return {"idea":{**state['idea'],
                     "idea":state["idea"]["Idea"],
