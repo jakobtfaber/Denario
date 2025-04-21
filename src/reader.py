@@ -7,20 +7,30 @@ from src.parameters import GraphState
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
     """
-    This agent just read the input files and clean up files
+    This agent reads the input files, clean up files, and set the name of some files
     """
 
+    # set the names of standard files
+    state['files'] = {**state['files'],
+                      "Paper_v1":  "paper_v1.tex",
+                      "Paper_v2":  "paper_v2.tex",
+                      "Paper_v3":  "paper_v3.tex",
+                      "Paper_v4":  "paper_v4.tex",
+                      "Error":     "Error.txt",
+                      "LaTeX_log": "LaTeX_compilation.log"}
+    idea = {}
+    
     # read input files
     for key in ["Idea", "Methods", "Results"]:
         try:
             path = Path(f"{state['files']['Folder']}/{state['files'][key]}")
             with path.open("r", encoding="utf-8") as f:
-                state["idea"][key] = f.read()
+                idea[key] = f.read()
         except Exception as e:
             raise RuntimeError(f"Failed to read {key} file: {e}")
 
     # remove these files if they already exist
-    for f in ['Paper_v1', 'Paper_v2', 'Paper_v3']:
+    for f in ['Paper_v1', 'Paper_v2', 'Paper_v3', 'Paper_v4']:
         f_in = f"{state['files']['Folder']}/{state['files'][f]}"
         if os.path.exists(f_in): os.remove(f"{f_in}")
 
@@ -47,8 +57,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         if not(os.path.exists(f_in)):
             os.system(f"cp LaTeX/{f} {state['files']['Folder']}")
 
-    return {"idea":{**state['idea'],
-                    "idea":state["idea"]["Idea"],
-                    "methods":state["idea"]["Methods"],
-                    "results":state["idea"]["Results"]}}
+
+    return {"idea": idea,  "files": state['files'],  "paper": {"summary": ""}}
 

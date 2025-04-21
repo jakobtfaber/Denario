@@ -33,6 +33,9 @@ def compile_latex(state: GraphState, paper_name: str):
     # go to the folder containing the paper
     os.chdir(state['files']['Folder'])
 
+    # get the stem of the paper paper name
+    paper_stem = Path(paper_name).stem
+    
     # try to compile twice for citations and links
     for i in range(3):  #compile three times to add citations
         try:
@@ -48,7 +51,7 @@ def compile_latex(state: GraphState, paper_name: str):
                 f.write(result.stdout)
 
             if i==0:
-                result = subprocess.run(["bibtex", Path(paper_name).stem],
+                result = subprocess.run(["bibtex", paper_stem],
                                         capture_output=True,
                                         text=True, check=True)
 
@@ -59,6 +62,12 @@ def compile_latex(state: GraphState, paper_name: str):
                 f.write(f"\n==== ERROR on Pass {i + 1} ====\n")
                 f.write(e.stdout or "")
                 f.write(e.stderr or "")
+
+    # remove auxiliary files
+    for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
+                f'{paper_stem}.bbl', f'{paper_stem}.blg', f'{paper_stem}.synctex.gz',
+                f'{paper_stem}.synctex(busy)']:
+        if os.path.exists(fin):  os.remove(fin)
                         
     os.chdir(original_dir)
 

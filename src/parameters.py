@@ -18,13 +18,14 @@ class PAPER(TypedDict):
 # Class for Input/Output files
 class FILES(TypedDict):
     Folder: str       #name of the file containing input and output files
-    Idea: str
-    Methods: str
-    Results: str
-    Plots: str
+    Idea: str         #name of the file containing the project idea
+    Methods: str      #name of the file containing the methods 
+    Results: str      #name of the file containing the results
+    Plots: str        #name of the folder containing the plots
     Paper_v1: str     #name of the file containing the version 1 of the paper 
     Paper_v2: str     #name of the file containing the version 2 of the paper 
-    Paper_V3: str     #name of the file containing the version 3 of the paper 
+    Paper_v3: str     #name of the file containing the version 3 of the paper
+    Paper_v4: str     #name of the file containing the version 4 of the paper
     Error: str        #name of the error file
     LaTeX_log: str    #name of the file with the LaTeX log (when compiling it)
 

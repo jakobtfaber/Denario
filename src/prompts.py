@@ -143,7 +143,7 @@ def abstract_reflection(state):
 
 Original Idea
 Title: {state['paper']['Title']}
-Description: {state['idea']['idea']}
+Description: {state['idea']['Idea']}
 
 Abstract: {state['paper']['Abstract']}
 
@@ -171,7 +171,7 @@ Title:
 {state['paper']['Title']}
 
 Description: 
-{state['idea']['idea']}
+{state['idea']['Idea']}
 
 Methods:
 {state['idea']['Methods']}
@@ -259,11 +259,12 @@ Paper abstract:
 {state['paper']['Abstract']}
 
 Follow these guidelines:
-- Reason about the steps needed to solve the problem and write them with detail.
-- Describe in detail each step and write about the datatset, numerical simulations, evaluation metrics or any other element needed.
-- Do not write the bibliography.
-- Write in LaTex.
+- Reason about the steps needed to solve the problem and write them with detail
+- Describe in detail each step and write about the datatset, numerical simulations, evaluation metrics or any other element needed
+- Do not write the bibliography
+- Write in LaTex
 - Do not write subsections titles in capital letters
+- The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections 
 
 Respond in this format:
 
@@ -294,6 +295,10 @@ Follow these guidelines:
 - Do not write the bibliography
 - Write in LaTex
 - Do not write subsections titles in capital letters
+- The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections
+- You can summarize the results, but do not write a conclusions subsection as there will be a conclusions section writen later on
+- The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{{aastex631}}. Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
+- Do not add figures or placeholders for figures. The figures will be added later on
 
 Respond in this format:
 
@@ -413,6 +418,7 @@ def LaTeX_prompt(text):
 
 - Subhalo_A: change to Subhalo\_A
 - Eisenstein & Hu: change to Eisenstein \& Hu
+- SubhaloStellarPhotometrics\\_{{i}}: change to SubhaloStellarPhotometrics\_{{i}}
 
 Pay special attentions to underscores, _. Follow these rules to make it LaTeX compatible:
 
@@ -421,7 +427,10 @@ Pay special attentions to underscores, _. Follow these rules to make it LaTeX co
 - If the underscore is inside a reference, e.g. \\ref{{fig:plot_A.png}}, do not modify it
 - In other conditions, change _ by \_
 - Change from _ to \_ if you think that having as _ will raise an error in LaTeX
+- In general, dont do \\_ or \\% as that is not valid
 - Be careful about the symbol %. In LaTeX, if not used properly it will comment everything after it.
+- Make sure in-line equations are between $
+- Do not use or create commands, e.g. \hMpc 
 
 Text: 
 {text}
@@ -438,28 +447,32 @@ In <Text>, insert the LaTeX compatible text.
 
 def clean_section_prompt(state,text):
 
-    return [HumanMessage(content=fr"""You are given the below LaTeX text and your task is to read it, understand it, and perform minimal modifications to improve its clarity. For instance:
+    return [HumanMessage(content=fr"""You are given a section of LaTeX text. Your task is to make **minimal, clarity-focused edits** while ensuring the result is valid LaTeX and preserves the original meaning.
 
-- split a long paragraph into several paragraphs
-- if a table is too wide, make it to occupy the full paper width
-- Remove citations that appear inside figures and tables
-- do not create new sections
-- do not change the meaning of the text
-- do not change the order of the paragraphs and figures
-- You are only allowed to remove citations if they are inside figures and tables
+You may:
+- Split long paragraphs for better readability
+- Adjust wide tables to occupy the full page width
+- Remove individual citations **only if they appear inside figures or tables**
 
-However, any modification made need to keep the text valid to compile it in LaTeX.
+Do **not**:
+- Change the order of paragraphs or figures
+- Create new sections or restructure the content
+- Remove or rewrite content outside the above allowances
 
-Text:
+Ensure the modified output can still be compiled in LaTeX without error.
+
+---
+
+**Original Text:**
 {text}
 
-**Respond in this format**:
+---
+
+**Respond in this exact format**:
 
 \\begin{{Text}}
-<Text>
+<Insert the cleaned LaTeX text here>
 \\end{{Text}}
-
-In <Text>, insert the new text.
 """)]
 
 

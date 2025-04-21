@@ -17,16 +17,8 @@ result = asyncio.run(graph.ainvoke(
               "Idea":         "idea.md",    #name of file containing idea description
               "Methods":      "methods.md", #name of file with methods description
               "Results":      "results.md", #name of file with results description
-              "Plots":        "plots",      #name of folder containing plots
-              "Paper_v1":     "paper_v1.tex",
-              "Paper_v2":     "paper_v2.tex",
-              "Paper_v3":     "paper_v3.tex",
-              "Error":        "Error.txt",
-              "LaTeX_log":    "LaTeX_compilation.log"},
-     "idea": {},
-     "paper":{"summary":""}},
-    config)
-)
+              "Plots":        "plots"}      #name of folder containing plots
+     }, config))
 
 # End timer and report duration in minutes and seconds
 end_time = time.time()

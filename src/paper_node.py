@@ -38,7 +38,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     """
 
     print(f"Writing Abstract...", end="", flush=True)
-    PROMPT = abstract_prompt(state['idea']['idea'])
+    PROMPT = abstract_prompt(state['idea']['Idea'])
     result = llm.invoke(PROMPT).content
     
     # Get the abstract
@@ -244,12 +244,7 @@ async def add_citations_async(state, text, section_name):
     loop = asyncio.get_event_loop()
     func = partial(process_tex_file_with_references, text)
     new_text, references = await loop.run_in_executor(None, func)
-    
-    PROMPT = clean_section_prompt(state, new_text)
-    result = llm.invoke(PROMPT).content
-    section_text = extract_latex_block(state, result, "Text")
-    
-    new_text = clean_section(section_text, section_name)
+    new_text = clean_section(new_text, section_name)
     print(f'    {section_name} done')
     return section_name, new_text, references
 
@@ -283,6 +278,7 @@ async def citations_node(state: GraphState, config: RunnableConfig):
     # Save all combined deduplicated BibTeX entries as a single string
     state['paper']['References'] = "\n\n".join(bib_entries_list)
 
+    # save paper and bibliography
     save_paper(state, state['files']['Paper_v3'])
     save_bib(state)
 
@@ -291,10 +287,20 @@ async def citations_node(state: GraphState, config: RunnableConfig):
                      f"{state['files']['Folder']}/bibliography.bib")
     print("✅ Citations added to all sections.")
 
-    # 
-
     # compile latex
     compile_latex(state, state['files']['Paper_v3'])
+
+    # make a last clean up of the sections
+    print("Making a final check to the sections...", end="", flush=True)
+    for section_name in sections:
+        PROMPT = clean_section_prompt(state, state['paper'][section_name])
+        result = llm.invoke(PROMPT).content
+        section_text = extract_latex_block(state, result, "Text")
+        section_text = clean_section(section_text, section_name)
+        state['paper'][section_name] = section_text
+    save_paper(state, state['files']['Paper_v4'])
+    compile_latex(state, state['files']['Paper_v4'])
+    print('done')
 
     return {'paper': state['paper']}
 #######################################################################################
