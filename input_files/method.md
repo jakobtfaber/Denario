@@ -1,92 +1,120 @@
-### Methodology for Evaluating Neural Network Architectures for Matter Power Spectrum Emulation
+### Methodology for Hierarchical Inference of Cosmological and Feedback Parameters
 
-#### 1. Data Preparation and Preprocessing
+#### Overview
 
-**a. Dataset Structure**  
-Utilize the synthetic dataset comprising 4,000 samples, each with four cosmological parameters (Ωm, σ8, h, ns) and a 64-point matter power spectrum P(k) vector spanning 0.01–1.0 h/Mpc.
-
-**b. Input Preprocessing**  
-- Standardize each input parameter to zero mean and unit variance using statistics computed from the training set.
-- No feature selection is performed; all four parameters are retained as inputs.
-
-**c. Output Preprocessing**  
-- Apply a logarithmic transformation to each P(k) value to stabilize variance across the k-range.
-- Standardize the log-transformed P(k) values to zero mean and unit variance (per k-point) using training set statistics.
-
-**d. Data Splitting**  
-- Randomly split the dataset into training (70%), validation (15%), and test (15%) sets, ensuring that augmented samples are distributed across all splits to maintain realistic variability in each subset.
-
-#### 2. Model Architecture Selection
-
-**a. Baseline Models**  
-- Implement a fully connected (dense) neural network as a baseline, with several hidden layers and ReLU activations.
-
-**b. Convolutional Architectures**  
-- Design and implement 1D convolutional neural networks (CNNs) with varying kernel sizes and depths.
-- Develop dilated 1D CNNs, systematically varying dilation rates to capture multi-scale dependencies in P(k).
-- Optionally, include residual connections or attention mechanisms to assess their impact on performance.
-
-**c. Hyperparameter Grid**  
-- For each architecture, define a grid of hyperparameters (number of layers, kernel size, dilation rate, number of filters, learning rate, batch size).
-- Use the validation set for hyperparameter optimization.
-
-#### 3. Model Training
-
-**a. Training Procedure**  
-- Use the Adam optimizer with an initial learning rate selected from the hyperparameter grid.
-- Employ early stopping based on validation loss to prevent overfitting.
-- Train each model for a maximum of 200 epochs, with batch normalization and dropout as regularization options.
-
-**b. Loss Function**  
-- Use mean squared error (MSE) on the standardized, log-transformed P(k) as the primary loss function.
-
-#### 4. Model Evaluation
-
-**a. Primary Metrics**  
-- **Mean Absolute Percent Error (MAPE)** and **Root Mean Squared Error (RMSE)** on the test set, computed for each k-point and averaged over all k.
-- **Maximum Percent Error** at each k-point to assess worst-case performance.
-- **Computational Efficiency:** Record training time per epoch and inference time per sample for each architecture.
-
-**b. Physics-Informed Metrics**  
-- **Percent Error in P(k):**  
-  \( \text{Percent Error}(k) = 100 \times \frac{|P_{\text{pred}}(k) - P_{\text{true}}(k)|}{P_{\text{true}}(k)} \)  
-  Compute this for each k and report the mean, median, and 95th percentile across the test set.
-- **Scale-Dependent Performance:**  
-  Report metrics separately for large scales (k < 0.1 h/Mpc), intermediate (0.1 ≤ k < 0.3 h/Mpc), and small scales (k ≥ 0.3 h/Mpc).
-
-**c. Model Comparison**  
-- Tabulate and plot the performance of all architectures across the above metrics.
-- Highlight the trade-off between accuracy and computational efficiency.
-
-#### 5. Justification of Methodological Choices
-
-- **Multi-Scale Structure:**  
-  The EDA revealed strong scale-dependent parameter influence and multi-scale structure in P(k), justifying the use of dilated CNNs to efficiently capture both local and global features.
-- **Log-Transformation:**  
-  The wide dynamic range of P(k) values motivates log-transformation to stabilize variance and improve regression accuracy.
-- **Augmentation and Standardization:**  
-  Data augmentation and standardization are retained to enhance generalization and ensure stable training.
-- **Evaluation Metrics:**  
-  Percent error at different k-scales is critical for cosmological applications, as accuracy requirements vary by scale.
-
-#### 6. Reporting and Visualization
-
-- Present summary tables of model performance, including the following (example based on EDA results):
-
-| Model Type      | Mean MAPE (%) | Max Error (%) | RMSE (log P(k)) | Train Time (s/epoch) | Inference Time (ms/sample) |
-|-----------------|---------------|---------------|-----------------|----------------------|----------------------------|
-| Dense NN        | ...           | ...           | ...             | ...                  | ...                        |
-| 1D CNN          | ...           | ...           | ...             | ...                  | ...                        |
-| Dilated 1D CNN  | ...           | ...           | ...             | ...                  | ...                        |
-
-- Plot percent error as a function of k for each architecture.
-- Visualize example predictions versus true P(k) for randomly selected test samples.
-
-#### 7. Reproducibility
-
-- All preprocessing steps, model definitions, and evaluation scripts will be version-controlled and documented.
-- Random seeds will be fixed for all data splits and model initializations to ensure reproducibility.
+This methodology outlines a step-by-step approach for inferring cosmological and feedback parameters from the simulated galaxy catalogs, leveraging both galaxy-level and catalog-level summary statistics. The approach is informed by the EDA and is designed to maximize parameter sensitivity, minimize degeneracies, and operate efficiently within computational constraints.
 
 ---
 
-This methodology provides a rigorous, EDA-informed framework for the systematic evaluation and comparison of neural network architectures for efficient, accurate emulation of the matter power spectrum.
+#### 1. **Feature Engineering and Preprocessing**
+
+**a. Feature Selection and Transformation**
+- Select the following galaxy properties as primary observables: $M_{star}$, $M_t$, $V_{max}$, $M_{BH}$, $SFR$, $Z_{star}$, and $K$-band magnitude.
+- For each property, compute the following summary statistics within each catalog:
+  - Mean, standard deviation, median, 1st and 99th percentiles.
+  - For $M_{star}$, $V_{max}$, and $M_{BH}$, stratify statistics by mass/luminosity bins (e.g., low, intermediate, high).
+- Apply logarithmic transformation to all mass, velocity, and size features.
+- Standardize all summary statistics (subtract mean, divide by standard deviation across catalogs).
+
+**b. Dimensionality Reduction**
+- Perform Principal Component Analysis (PCA) on the standardized summary statistics across all catalogs.
+- Retain the first 3–4 principal components, as these capture the majority of variance and are less redundant.
+
+---
+
+#### 2. **Summary Statistic Construction**
+
+**a. Catalog-Level Summary Table**
+- For each catalog, construct a feature vector \(\mathbf{s}_i\) containing:
+  - The selected summary statistics (means, stds, percentiles) for each property and bin.
+  - The retained principal components.
+- The final summary vector for catalog \(i\) is \(\mathbf{s}_i \in \mathbb{R}^d\), where \(d\) is the total number of selected statistics and PCs.
+
+**b. Data Matrix**
+- Assemble the data matrix \(S = [\mathbf{s}_1, \ldots, \mathbf{s}_N]^T\) for all \(N=1000\) catalogs.
+- Construct the parameter matrix \(\Theta = [\boldsymbol{\theta}_1, \ldots, \boldsymbol{\theta}_N]^T\), where \(\boldsymbol{\theta}_i\) contains the 6 parameters for catalog \(i\).
+
+---
+
+#### 3. **Hierarchical Statistical Modeling**
+
+**a. Model Structure**
+- Adopt a Bayesian hierarchical model to capture the relationship between summary statistics and parameters, accounting for catalog-to-catalog variation and parameter degeneracies.
+- The generative model is:
+  \[
+  \mathbf{s}_i \sim \mathcal{N}(\boldsymbol{\mu}(\boldsymbol{\theta}_i), \Sigma)
+  \]
+  where \(\boldsymbol{\mu}(\boldsymbol{\theta}_i)\) is a function mapping parameters to expected summary statistics, and \(\Sigma\) is the covariance of the summary statistics (estimated empirically from the simulations).
+
+**b. Likelihood Construction**
+- For each catalog, the likelihood of observing summary statistics \(\mathbf{s}_i\) given parameters \(\boldsymbol{\theta}_i\) is:
+  \[
+  \mathcal{L}_i = \mathcal{N}(\mathbf{s}_i \mid \boldsymbol{\mu}(\boldsymbol{\theta}_i), \Sigma)
+  \]
+- The joint likelihood over all catalogs is:
+  \[
+  \mathcal{L}_{\text{joint}} = \prod_{i=1}^N \mathcal{L}_i
+  \]
+
+**c. Emulator for \(\boldsymbol{\mu}(\boldsymbol{\theta})\)**
+- Since \(\boldsymbol{\mu}(\boldsymbol{\theta})\) is not analytically known, train a regression emulator (e.g., Gaussian Process Regression, Random Forest, or Neural Network) to map from parameter space to summary statistics using the simulated catalogs.
+- Use cross-validation to select the emulator with the best predictive performance and lowest bias.
+
+---
+
+#### 4. **Parameter Inference**
+
+**a. Posterior Sampling**
+- For a given set of observed or test summary statistics, infer the posterior distribution of parameters using the trained emulator and the hierarchical likelihood.
+- Use Markov Chain Monte Carlo (MCMC) or Hamiltonian Monte Carlo (HMC) for posterior sampling, leveraging efficient libraries (e.g., emcee, PyMC, or Stan).
+
+**b. Marginalization and Uncertainty Quantification**
+- Marginalize over nuisance summary statistics and propagate emulator uncertainty into the posterior.
+- Quantify parameter degeneracies by examining the joint and marginal posterior distributions.
+
+---
+
+#### 5. **Computational Implementation**
+
+**a. Parallelization**
+- All per-catalog summary statistic calculations and emulator training should be parallelized across the 8 available CPUs.
+- Precompute and cache all summary statistics and PCA components to minimize repeated computation.
+
+**b. Runtime Optimization**
+- Limit the number of summary statistics and principal components to ensure that emulator training and posterior sampling complete within the 10-minute constraint.
+- Use batch evaluation and vectorized operations for likelihood and posterior calculations.
+
+**c. Validation**
+- Perform posterior predictive checks by simulating new catalogs at inferred parameter values and comparing their summary statistics to the observed/test data.
+- Assess emulator accuracy using held-out catalogs.
+
+---
+
+#### 6. **Mathematical Formulation**
+
+- **Summary Statistic Model:**
+  \[
+  \mathbf{s}_i = f(\boldsymbol{\theta}_i) + \boldsymbol{\epsilon}_i, \quad \boldsymbol{\epsilon}_i \sim \mathcal{N}(0, \Sigma)
+  \]
+  where \(f\) is the trained emulator.
+
+- **Posterior:**
+  \[
+  p(\boldsymbol{\theta} \mid \mathbf{s}) \propto \mathcal{N}(\mathbf{s} \mid f(\boldsymbol{\theta}), \Sigma) \; p(\boldsymbol{\theta})
+  \]
+  where \(p(\boldsymbol{\theta})\) is the prior over parameters (uniform or informed by simulation design).
+
+---
+
+#### 7. **Actionable Steps for Implementation**
+
+1. **Compute and standardize summary statistics and principal components for all catalogs.**
+2. **Train an emulator to map parameters to summary statistics using the simulation grid.**
+3. **Construct the hierarchical likelihood using the empirical covariance of summary statistics.**
+4. **For new data or test catalogs, use the emulator and likelihood to sample the posterior over parameters.**
+5. **Validate inference by comparing posterior predictive summaries to actual catalog statistics.**
+6. **Document all code, parameter choices, and runtime performance for reproducibility.**
+
+---
+
+This methodology ensures robust, efficient, and interpretable inference of cosmological and feedback parameters from multi-scale galaxy statistics, leveraging the full information content of the simulated catalogs while respecting computational constraints.
