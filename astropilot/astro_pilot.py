@@ -73,6 +73,12 @@ class AstroPilot:
             f.write(idea)
         return None
     
+    def set_idea(self, idea: str = None):
+        # write idea to idea.md file
+        with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'w') as f:
+            f.write(idea)
+        return None
+    
     def show_idea(self):
         display(Markdown(self.research.idea))
         return None
