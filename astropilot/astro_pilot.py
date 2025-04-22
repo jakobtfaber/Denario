@@ -103,6 +103,12 @@ class AstroPilot:
             f.write(methododology)
         return None
     
+    def set_method(self, method: str = None):
+        # write method to method.md file
+        with open(os.path.join(self.repo_dir, 'input_files', 'method.md'), 'w') as f:
+            f.write(method)
+        return None
+    
     def show_method(self):
         display(Markdown(self.research.methodology))
         return None
