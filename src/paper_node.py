@@ -165,7 +165,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
     # Select a random subset of up to 10 images
     random.seed(1)  #use a seed to be able to reproduce results
-    selected_files = random.sample(files, min(num_images, 10))
+    selected_files = random.sample(files, min(num_images, 15))
 
     # do a loop over all images
     images = {}
