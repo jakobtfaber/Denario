@@ -135,6 +135,8 @@ class AstroPilot:
 
         # move plots to the plots folder in input_files/plots 
         plots_folder = os.path.join(self.repo_dir, 'input_files', 'plots')
+        # Ensure the folder exists
+        os.makedirs(plots_folder, exist_ok=True)
         ## Clearing the folder
         if os.path.exists(plots_folder):
             for file in os.listdir(plots_folder):
