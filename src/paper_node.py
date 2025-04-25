@@ -154,49 +154,108 @@ def image_to_base64(image_path):
         image_data = base64.b64encode(binary_data).decode('utf-8')
         return image_data
 
+#def plots_node(state: GraphState, config: RunnableConfig):
+#    """
+#    This function deals with the plots generated
+#    """
+
+#    folder_path = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
+#    files = [f for f in folder_path.iterdir() if f.is_file()]
+#    num_images = len(files)
+
+#    # Select a random subset of up to 10 images
+#    random.seed(1)  #use a seed to be able to reproduce results
+#    selected_files = random.sample(files, min(num_images, 15))
+
+#    # do a loop over all images
+#    images = {}
+#    for i, file in enumerate(tqdm(selected_files, desc="Processing figures")):
+
+#        image = image_to_base64(file)
+
+#        PROMPT = caption_prompt(state, image)
+#        result = llm.invoke(PROMPT).content
+#        caption = extract_latex_block(state, result, "Caption")
+#        caption = LaTeX_checker(state, caption)  #make sure is written in LaTeX
+#        images[f"image{i}"] = {'name': file.name, 'caption': caption}
+
+#    print('Inserting figures...', end="", flush=True)
+#    PROMPT = plot_prompt(state, images)
+#    result = llm.invoke(PROMPT).content
+#    results = extract_latex_block(state, result, "Section")
+
+#    # Check LaTeX
+#    results = LaTeX_checker(state, results)
+
+#    # --- Remove unwanted LaTeX wrappers ---
+#    results = clean_section(results, 'Results')
+    
+#    # save paper and compile it
+#    state['paper']['Results'] = results
+#    save_paper(state, state['files']['Paper_v1'])
+#    print('done')
+#    compile_latex(state, state['files']['Paper_v1'])
+    
+#    return {'paper':{**state['paper'], 'Results': results}}
+
+
+
 def plots_node(state: GraphState, config: RunnableConfig):
     """
-    This function deals with the plots generated
+    This function deals with the plots generated, processing all files in batches of 10.
     """
 
     folder_path = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
     files = [f for f in folder_path.iterdir() if f.is_file()]
     num_images = len(files)
 
-    # Select a random subset of up to 10 images
-    random.seed(1)  #use a seed to be able to reproduce results
-    selected_files = random.sample(files, min(num_images, 15))
+    batch_size = 7
+    all_results = []
 
-    # do a loop over all images
-    images = {}
-    for i, file in enumerate(tqdm(selected_files, desc="Processing figures")):
+    # Process in batches
+    for start in range(0, num_images, batch_size):
+        batch_files = files[start:start + batch_size]
 
-        image = image_to_base64(file)
+        images = {}
+        for i, file in enumerate(tqdm(batch_files, desc=f"Processing figures {start+1}-{min(start+batch_size, num_images)}")):
+            image = image_to_base64(file)
 
-        PROMPT = caption_prompt(state, image)
+            PROMPT = caption_prompt(state, image)
+            result = llm.invoke(PROMPT).content
+            caption = extract_latex_block(state, result, "Caption")
+            caption = LaTeX_checker(state, caption)  #make sure is written in LaTeX
+            images[f"image{i}"] = {'name': file.name, 'caption': caption}
+
+        print('Inserting figures...', end="", flush=True)
+        PROMPT = plot_prompt(state, images)
         result = llm.invoke(PROMPT).content
-        caption = extract_latex_block(state, result, "Caption")
-        caption = LaTeX_checker(state, caption)  #make sure is written in LaTeX
-        images[f"image{i}"] = {'name': file.name, 'caption': caption}
+        results = extract_latex_block(state, result, "Section")
 
-    print('Inserting figures...', end="", flush=True)
-    PROMPT = plot_prompt(state, images)
-    result = llm.invoke(PROMPT).content
-    results = extract_latex_block(state, result, "Section")
+        # Check LaTeX
+        results = LaTeX_checker(state, results)
 
-    # Check LaTeX
-    results = LaTeX_checker(state, results)
+        # --- Remove unwanted LaTeX wrappers ---
+        state['paper']['Results'] = clean_section(results, 'Results')
 
-    # --- Remove unwanted LaTeX wrappers ---
-    results = clean_section(results, 'Results')
-    
-    # save paper and compile it
-    state['paper']['Results'] = results
-    save_paper(state, state['files']['Paper_v1'])
+        # save paper
+        save_paper(state, state['files']['Paper_v1'])
+
+        #all_results.append(results)
+
+    # Optionally, combine all sections into one
+    #final_results = "\n".join(all_results)
+
+    # Save and compile
+    #state['paper']['Results'] = final_results
+    #state['paper']['Results'] = results
+    #save_paper(state, state['files']['Paper_v1'])
     print('done')
     compile_latex(state, state['files']['Paper_v1'])
-    
-    return {'paper':{**state['paper'], 'Results': results}}
+
+    return {'paper':{**state['paper'], 'Results': state['paper']['Results']}}
+
+
+
 #######################################################################################
 
 
