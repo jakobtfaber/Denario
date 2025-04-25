@@ -396,7 +396,7 @@ In <Caption> place the figure caption written in LaTeX.
 
 def plot_prompt(state, images):
     return [SystemMessage(content="""You are a cosmologist writing a scientific paper."""),
-            HumanMessage(content=rf"""Your task is to insert a set of images in the section of a paper. You are given the current Results section and a dictionary that contains the name and the caption of each image. Your task is to place these images in the best locations in the text together with their captions.
+            HumanMessage(content=rf"""Your task is to insert a set of images in the section of a paper. You are given the current Results section and a dictionary that contains the name and the caption of each image. Your task is to place these images in the best locations in the text together with their captions. Note that the text may contain some plots there already. If so, do not remove these images, and do not change the location of the images, just add the news plots.
 
 section:
 {state['paper']['Results']}

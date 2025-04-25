@@ -1,6 +1,8 @@
 from langchain_core.runnables import RunnableConfig
 import sys,os
 from pathlib import Path
+import hashlib
+import shutil
 
 from src.parameters import GraphState
 
@@ -56,6 +58,29 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         f_in = f"{state['files']['Folder']}/{f}"
         if not(os.path.exists(f_in)):
             os.system(f"cp LaTeX/{f} {state['files']['Folder']}")
+
+    # deal with repeated plots
+    plots_dir    = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
+    repeated_dir = Path(f"{plots_dir}_repeated")
+    repeated_dir.mkdir(exist_ok=True)
+
+    # Hash dictionary
+    hash_dict = {}
+
+    # Walk through all PNG files
+    for file in plots_dir.iterdir():
+        if file.is_file():
+
+            # Compute hash
+            with open(file, "rb") as f:
+                file_hash = hashlib.md5(f.read()).hexdigest()
+    
+            if file_hash in hash_dict:
+                # This is a repeated file: copy it to repeated_plots
+                print(f"Repeated: {file.name} (same as {hash_dict[file_hash].name})")
+                shutil.move(file, repeated_dir / file.name)
+            else:
+                hash_dict[file_hash] = file
 
 
     return {"idea": idea,  "files": state['files'],  "paper": {"summary": ""}}
