@@ -111,10 +111,10 @@ Respond in the following format:
 
 
 
-def abstract_prompt(idea):
+def abstract_prompt(state):
     
     return [SystemMessage(content="""You are a scientific writer"""),
-            HumanMessage(content=rf"""Given the context below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
+            HumanMessage(content=rf"""Given the idea, methods, and results below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
 - What are we trying to do and why is it relevant?
 - Why is this hard? 
 - How do we solve it (i.e. our contribution!)
@@ -123,17 +123,23 @@ def abstract_prompt(idea):
 
 Please make sure the abstract reads smoothly and is well-motivated. This should be one continuous paragraph with no breaks between the lines.
 
-Context:
-{idea}
+Idea:
+{state['idea']['Idea']}
 
-**Respond in this format**
+Methods:
+{state['idea']['Methods']}
+
+Results:
+{state['idea']['Results']}
+
+**Respond in exactly this format**
 
 ```json
 {{"Title": "The title of the paper",
 "Abstract": "The abstract of the paper"}}
 ```
 
-Make sure the text is in LaTex. 
+Make sure the text is in LaTex. Do not write equations or citations in the abstract.
 """)]
 
 

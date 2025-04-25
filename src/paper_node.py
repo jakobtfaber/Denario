@@ -38,7 +38,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     """
 
     print(f"Writing Abstract...", end="", flush=True)
-    PROMPT = abstract_prompt(state['idea']['Idea'])
+    PROMPT = abstract_prompt(state)
     result = llm.invoke(PROMPT).content
     
     # Get the abstract
@@ -209,6 +209,12 @@ def plots_node(state: GraphState, config: RunnableConfig):
     files = [f for f in folder_path.iterdir() if f.is_file()]
     num_images = len(files)
 
+    # If more than 25, randomly select 25
+    if num_images > 25:
+        random.seed(1)  # for reproducibility
+        files = random.sample(files, 25)
+        num_images = 25
+
     batch_size = 7
     all_results = []
 
@@ -240,15 +246,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
         # save paper
         save_paper(state, state['files']['Paper_v1'])
 
-        #all_results.append(results)
-
-    # Optionally, combine all sections into one
-    #final_results = "\n".join(all_results)
-
-    # Save and compile
-    #state['paper']['Results'] = final_results
-    #state['paper']['Results'] = results
-    #save_paper(state, state['files']['Paper_v1'])
+    # compile paper
     print('done')
     compile_latex(state, state['files']['Paper_v1'])
 
