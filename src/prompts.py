@@ -195,13 +195,13 @@ Please respond in this format:
 In <INTRODUCTION>, place the introduction of the paper. Please, follow these guidelines:
 - Write in LaTex
 - Longer version of the Abstract, i.e. of the entire paper
-- Text should contain at least 10 paragraphs. Each paragraph should have 5 sentences
 - What are we trying to do and why is it relevant?
 - Why is this hard? 
 - How do we solve it (i.e. our contribution!)
 - How do we verify that we solved it (e.g. Experiments and results)
 - Extra space? Future work!
 - Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTeX.
 """)]
@@ -271,6 +271,7 @@ Follow these guidelines:
 - Do not write the bibliography
 - Write in LaTex
 - Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
 - The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections 
 
 Respond in this format:
@@ -302,6 +303,7 @@ Follow these guidelines:
 - Do not write the bibliography
 - Write in LaTex
 - Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
 - The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections
 - You can summarize the results, but do not write a conclusions subsection as there will be a conclusions section written later on
 - The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{{aastex631}}. Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
@@ -370,6 +372,7 @@ Follow these guidelines:
 - Do not write the bibliography
 - Write in LaTex
 - Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
 - Do not write words or sentences between *. E.g. instead of *integrated*, write integrated
 
 Respond in this format:
