@@ -28,6 +28,7 @@ class FILES(TypedDict):
     Paper_v4: str     #name of the file containing the version 4 of the paper
     Error: str        #name of the error file
     LaTeX_log: str    #name of the file with the LaTeX log (when compiling it)
+    Temp: str         #name of the folder with the temporary LaTeX files
 
 # Idea class
 class IDEA(TypedDict):

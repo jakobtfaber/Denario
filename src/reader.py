@@ -19,7 +19,8 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "Paper_v3":  "paper_v3.tex",
                       "Paper_v4":  "paper_v4.tex",
                       "Error":     "Error.txt",
-                      "LaTeX_log": "LaTeX_compilation.log"}
+                      "LaTeX_log": "LaTeX_compilation.log",
+                      "Temp":      f"{state['files']['Folder']}/Temp"}
     idea = {}
     
     # read input files
@@ -59,10 +60,12 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         if not(os.path.exists(f_in)):
             os.system(f"cp LaTeX/{f} {state['files']['Folder']}")
 
+    # create a folder to save LaTeX progress
+    os.makedirs(state['files']['Temp'], exist_ok=True)
+
     # deal with repeated plots
     plots_dir    = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
     repeated_dir = Path(f"{plots_dir}_repeated")
-    repeated_dir.mkdir(exist_ok=True)
 
     # Hash dictionary
     hash_dict = {}
@@ -76,6 +79,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                 file_hash = hashlib.md5(f.read()).hexdigest()
     
             if file_hash in hash_dict:
+                repeated_dir.mkdir(exist_ok=True)
                 # This is a repeated file: copy it to repeated_plots
                 print(f"Repeated: {file.name} (same as {hash_dict[file_hash].name})")
                 shutil.move(file, repeated_dir / file.name)
