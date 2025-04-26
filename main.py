@@ -13,7 +13,7 @@ graph = build_graph(mermaid_diagram=True)
 
 # run the graph
 result = asyncio.run(graph.ainvoke(
-    {"files":{"Folder":       "Project4",   #name of folder containing input files
+    {"files":{"Folder":       "Project7",   #name of folder containing input files
               "Idea":         "idea.md",    #name of file containing idea description
               "Methods":      "methods.md", #name of file with methods description
               "Results":      "results.md", #name of file with results description

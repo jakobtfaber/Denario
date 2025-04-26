@@ -1,10 +1,10 @@
 from langchain_core.runnables import RunnableConfig
-import sys,os,re,base64
+import sys,os,re,random,base64
 from pathlib import Path
 from tqdm import tqdm
 import asyncio
 from functools import partial
-import random
+import fitz  # PyMuPDF
 
 from src.parameters import GraphState
 from src.prompts import *
@@ -89,13 +89,6 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     result = llm.invoke(prompt).content
     section_text = extract_latex_block(state, result, section_name)
 
-    # Try to extract section content via markers
-    #pattern = fr"\\begin{{{section_name}}}(.*?)\\end{{{section_name}}}"
-    #match = re.search(pattern, result, re.DOTALL)
-    #if match:
-    #    section_text = match.group(1).strip()
-    #else:
-    #    raise ValueError(f"No valid \\begin{{{section_name}}} section found.")
     state['paper'][section_name] = section_text
 
     # --- Step 2: Optional self-reflection ---
@@ -149,55 +142,18 @@ def conclusions_node(state: GraphState, config: RunnableConfig):
 
 #######################################################################################
 def image_to_base64(image_path):
-    with open(image_path, "rb") as file:
-        binary_data = file.read()
-        image_data = base64.b64encode(binary_data).decode('utf-8')
-        return image_data
-
-#def plots_node(state: GraphState, config: RunnableConfig):
-#    """
-#    This function deals with the plots generated
-#    """
-
-#    folder_path = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
-#    files = [f for f in folder_path.iterdir() if f.is_file()]
-#    num_images = len(files)
-
-#    # Select a random subset of up to 10 images
-#    random.seed(1)  #use a seed to be able to reproduce results
-#    selected_files = random.sample(files, min(num_images, 15))
-
-#    # do a loop over all images
-#    images = {}
-#    for i, file in enumerate(tqdm(selected_files, desc="Processing figures")):
-
-#        image = image_to_base64(file)
-
-#        PROMPT = caption_prompt(state, image)
-#        result = llm.invoke(PROMPT).content
-#        caption = extract_latex_block(state, result, "Caption")
-#        caption = LaTeX_checker(state, caption)  #make sure is written in LaTeX
-#        images[f"image{i}"] = {'name': file.name, 'caption': caption}
-
-#    print('Inserting figures...', end="", flush=True)
-#    PROMPT = plot_prompt(state, images)
-#    result = llm.invoke(PROMPT).content
-#    results = extract_latex_block(state, result, "Section")
-
-#    # Check LaTeX
-#    results = LaTeX_checker(state, results)
-
-#    # --- Remove unwanted LaTeX wrappers ---
-#    results = clean_section(results, 'Results')
-    
-#    # save paper and compile it
-#    state['paper']['Results'] = results
-#    save_paper(state, state['files']['Paper_v1'])
-#    print('done')
-#    compile_latex(state, state['files']['Paper_v1'])
-    
-#    return {'paper':{**state['paper'], 'Results': results}}
-
+    ext = image_path.suffix.lower() #get the file extension
+    if ext == '.pdf':
+        # Convert first page of PDF to PNG bytes using PyMuPDF
+        with fitz.open(str(image_path)) as doc:
+            img_bytes = doc.load_page(0).get_pixmap().tobytes("png")
+        data = img_bytes
+    elif ext in {'.jpg', '.jpeg', '.png', '.bmp', '.gif'}:
+        with open(image_path, "rb") as file:
+            data = file.read()
+    else:
+        raise ValueError(f"Unsupported image file: {image_path}")
+    return base64.b64encode(data).decode('utf-8')
 
 
 def plots_node(state: GraphState, config: RunnableConfig):
@@ -206,7 +162,8 @@ def plots_node(state: GraphState, config: RunnableConfig):
     """
 
     folder_path = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
-    files = [f for f in folder_path.iterdir() if f.is_file()]
+    files = [f for f in folder_path.iterdir()
+         if f.is_file() and f.name != '.DS_Store']
     num_images = len(files)
 
     # If more than 25, randomly select 25
@@ -255,8 +212,6 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
 
 #######################################################################################
-
-
 def refine_results(state: GraphState, config: RunnableConfig):
     """
     This agent takes the results section with plots and improves it
