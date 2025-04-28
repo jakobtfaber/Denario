@@ -195,13 +195,10 @@ Please respond in this format:
 In <INTRODUCTION>, place the introduction of the paper. Please, follow these guidelines:
 - Write in LaTex
 - Longer version of the Abstract, i.e. of the entire paper
-- What are we trying to do and why is it relevant?
-- Why is this hard? 
-- How do we solve it (i.e. our contribution!)
-- How do we verify that we solved it (e.g. Experiments and results)
-- Extra space? Future work!
-- Do not write subsections titles in capital letters
-- The first letter of subsection titles should be in capital
+- Describe what is the problem and why it is difficult
+- Describe how we attempt to solve it in this paper
+- Describe how we verify that we have solved the problem
+- Do not create subsections
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTeX.
 """)]
@@ -236,13 +233,11 @@ Respond with in the following format:
 In <INTRODUCTION>, place the Introduction of the paper. Follow these guidelines:
 - Write in LaTex
 - Longer version of the Abstract, i.e. of the entire paper
-- Text should contain at least 10 paragraphs. Each paragraph should have 5 sentences
-- What are we trying to do and why is it relevant?
-- Why is this hard? 
-- How do we solve it (i.e. our contribution!)
-- How do we verify that we solved it (e.g. Experiments and results)
-- Extra space? Future work!
-- Do not write subsections titles in capital letters
+- Describe what is the problem and why it is difficult
+- Describe how we attempt to solve it in this paper
+- Describe how we verify that we have solved the problem
+- Do not create subsections
+
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTex.
 """)]
