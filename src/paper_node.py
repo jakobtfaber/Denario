@@ -341,10 +341,29 @@ def check_references(state: GraphState, text: str)-> str:
         
 #######################################################################################
 async def add_citations_async(state, text, section_name):
-    loop = asyncio.get_event_loop()
-    func = partial(process_tex_file_with_references, text)
-    new_text, references = await loop.run_in_executor(None, func)
-    new_text = clean_section(new_text, section_name)
+    """
+    This is the actual function that calls perplexity and gets the new text 
+    and the references.
+    """
+    f_temp1 = Path(f"{state['files']['Temp']}/{section_name}_w_citations.tex")
+    f_temp2 = Path(f"{state['files']['Temp']}/{section_name}.bib")
+
+    # check if this has already been done
+    if f_temp1.exists():
+        new_text   = temp_file(f_temp1, 'read')
+        references = temp_file(f_temp2, 'read')
+
+    else:
+        
+        loop = asyncio.get_event_loop()
+        func = partial(process_tex_file_with_references, text)
+        new_text, references = await loop.run_in_executor(None, func)
+        new_text = clean_section(new_text, section_name)
+
+        # save temporary file
+        temp_file(f_temp2, 'write', references)
+        temp_file(f_temp1, 'write', new_text)
+        
     print(f'    {section_name} done')
     return section_name, new_text, references
 
@@ -393,11 +412,20 @@ async def citations_node(state: GraphState, config: RunnableConfig):
     # make a last clean up of the sections
     print("Making a final check to the sections...")
     for section_name in sections:
-        PROMPT = clean_section_prompt(state, state['paper'][section_name])
-        result = llm.invoke(PROMPT).content
-        section_text = extract_latex_block(state, result, "Text")
-        section_text = LaTeX_checker(state, section_text)          #check LaTeX
-        section_text = clean_section(section_text, section_name)   #remove unwanted LaTeX text
+
+        f_temp = Path(f"{state['files']['Temp']}/{section_name}_w_citations2.tex")
+
+        # check if this has already been done
+        if f_temp.exists():
+            section_text = temp_file(f_temp, 'read')
+        else:
+            PROMPT = clean_section_prompt(state, state['paper'][section_name])
+            result = llm.invoke(PROMPT).content
+            section_text = extract_latex_block(state, result, "Text")
+            section_text = LaTeX_checker(state, section_text)          #check LaTeX
+            section_text = clean_section(section_text, section_name)   #remove unwanted LaTeX text
+            temp_file(f_temp, 'write', section_text)
+            
         state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v4'])
     compile_latex(state, state['files']['Paper_v4'])
