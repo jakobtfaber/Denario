@@ -1,5 +1,5 @@
 from langchain_core.runnables import RunnableConfig
-import sys,os,re,random,base64,json
+import sys,os,re,random,base64,json,time
 from pathlib import Path
 from tqdm import tqdm
 import asyncio
@@ -8,35 +8,10 @@ import fitz  # PyMuPDF
 
 from src.parameters import GraphState
 from src.prompts import *
-from src.llm import llm
-from src.tools import json_parser, fixer, LaTeX_checker, clean_section, extract_latex_block
+from src.tools import json_parser, fixer, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file
 from src.literature import process_tex_file_with_references
 from src.latex import compile_latex, save_paper, save_bib, process_bib_file
 
-
-def temp_file(fin, action, text=None, json_file=False):
-    """
-    This function reads or writes the content of a temporary file
-    fin:  the name of the file
-    action: either 'read' of 'write'
-    text: when action is 'write', the text to write
-    json: whether the file is json or not
-    """
-
-    if action=='read':
-        with open(fin, 'r', encoding='utf-8') as f:
-            if json_file:
-                return json.load(f)
-            else:
-                return f.read()
-    elif action=='write':
-        with open(fin, 'w', encoding='utf-8') as f:
-            if json_file:
-                json.dump(text, f, indent=2)
-            else:
-                f.write(text)
-    else:
-        raise Exception("wrong action chosen!")
     
 
 def keywords_node(state: GraphState, config: RunnableConfig):
@@ -54,7 +29,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
 
         # Extract keywords
         PROMPT = keyword_prompt(state)
-        result = llm.invoke(PROMPT).content
+        state, result = LLM_call(PROMPT, state)
         keywords = extract_latex_block(state, result, "Keywords")
     
         # Avoid adding \ to the end
@@ -62,9 +37,11 @@ def keywords_node(state: GraphState, config: RunnableConfig):
 
         # write results to temporary file
         temp_file(f_temp, 'write', keywords)
-        print(f'Selected keywords: {keywords}')
+        
+    print(f"Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
     
-    return {'paper': {**state['paper'], 'Keywords': keywords}}
+    return {'paper': {**state['paper'], 'Keywords': keywords},
+            'tokens': state['tokens']}
 
 
 def abstract_node(state: GraphState, config: RunnableConfig):
@@ -83,20 +60,28 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         state['paper']['Title'] = temp_file(f_temp2, 'read')
 
     else:
-        PROMPT = abstract_prompt(state)
-        result = llm.invoke(PROMPT).content
-    
-        # Get the abstract
-        parsed_json = json_parser(result)
-        state['paper']['Title']    = parsed_json["Title"]
-        state['paper']['Abstract'] = parsed_json["Abstract"]
+        for i in range(3):
+            PROMPT = abstract_prompt(state)
+            state, result = LLM_call(PROMPT, state)
+
+            try:
+                parsed_json = json_parser(result)
+                state['paper']['Title'] = parsed_json["Title"]
+                state['paper']['Abstract'] = parsed_json["Abstract"]
+                break  # success
+            except Exception as e:
+                print(f"[Attempt {i+1}] Failed to parse JSON: {e}")
+                time.sleep(2)
+        else:
+            raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
+
     
         # several self-reflection rounds
         for i in range(1):
 
             # improve abstract
             PROMPT = abstract_reflection(state)
-            result = (llm.invoke(PROMPT)).content
+            state, result = LLM_call(PROMPT, state)
             abstract = extract_latex_block(state, result, "Abstract")
 
         # save temporary file
@@ -111,11 +96,12 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     # Save paper and temporary file
     state['paper']['Abstract'] = abstract
     save_paper(state, state['files']['Paper_v1'])
-    print('done')
+    print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
     return {'paper':{**state['paper'],
                      'Title': state['paper']['Title'],
-                     'Abstract': abstract}}
+                     'Abstract': abstract},
+            'tokens': state['tokens']}
                      #'summary': summary}}
 
 
@@ -142,8 +128,8 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     else:
         
         # --- Step 1: Prompt and parse section ---
-        prompt = prompt_fn(state)
-        result = llm.invoke(prompt).content
+        PROMPT = prompt_fn(state)
+        state, result = LLM_call(PROMPT, state)
         section_text = extract_latex_block(state, result, section_name)
 
         state['paper'][section_name] = section_text
@@ -151,8 +137,8 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
         # --- Step 2: Optional self-reflection ---
         if reflection_fn:
             for _ in range(2):
-                prompt = reflection_fn(state)
-                section_text = llm.invoke(prompt).content
+                PROMPT = reflection_fn(state)
+                state, section_text = LLM_call(PROMPT, state)
 
         # --- Step 3: Check LaTeX ---
         section_text = LaTeX_checker(state, section_text)
@@ -171,11 +157,12 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     # --- Step 5: Save paper ---
     state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v1'])
-    print('done')
+    print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
     # --- Step 7: Update state ---
     return {"paper": {**state["paper"],
-                      section_name: section_text}}
+                      section_name: section_text},
+            'tokens': state['tokens']}
                       #"summary": summary}}
 
 
@@ -227,11 +214,11 @@ def plots_node(state: GraphState, config: RunnableConfig):
          if f.is_file() and f.name != '.DS_Store']
     num_images = len(files)
 
-    # If more than 25, randomly select 25
-    if num_images > 25:
+    # If more than 21, randomly select 21
+    if num_images > 21:
         random.seed(1)  # for reproducibility
-        files = random.sample(files, 25)
-        num_images = 25
+        files = random.sample(files, 21)
+        num_images = 21
 
     # Process in batches
     all_results = []
@@ -252,7 +239,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
                 image = image_to_base64(file)
 
                 PROMPT = caption_prompt(state, image)
-                result = llm.invoke(PROMPT).content
+                state, result = LLM_call(PROMPT, state)
                 caption = extract_latex_block(state, result, "Caption")
                 caption = LaTeX_checker(state, caption)  #make sure is written in LaTeX
                 images[f"image{i}"] = {'name': file.name, 'caption': caption}
@@ -261,13 +248,14 @@ def plots_node(state: GraphState, config: RunnableConfig):
             temp_file(f_temp, 'write', images, json_file=True)
 
         # temporary file with the images
-        print(f'   Inserting figures {start+1}-{min(start+batch_size, num_images)}...', flush=True)
+        print(f'   Inserting figures {start+1}-{min(start+batch_size, num_images)}...', end="", flush=True)
         f_temp = Path(f"{state['files']['Temp']}/Results_{start+1}_{min(start+batch_size, num_images)}.tex")
         if f_temp.exists():
             state['paper']['Results'] = temp_file(f_temp, 'read')
+            print("")
         else:
             PROMPT = plot_prompt(state, images)
-            result = llm.invoke(PROMPT).content
+            state, result = LLM_call(PROMPT, state)
             results = extract_latex_block(state, result, "Section")
 
             # Check LaTeX
@@ -275,9 +263,10 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
             # --- Remove unwanted LaTeX wrappers ---
             state['paper']['Results'] = clean_section(results, 'Results')
-
+            
             # save temporary file
             temp_file(f_temp, 'write', state['paper']['Results'])
+            print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
         # save paper
         save_paper(state, state['files']['Paper_v1'])
@@ -285,7 +274,8 @@ def plots_node(state: GraphState, config: RunnableConfig):
     # compile paper
     compile_latex(state, state['files']['Paper_v1'])
 
-    return {'paper':{**state['paper'], 'Results': state['paper']['Results']}}
+    return {'paper':{**state['paper'], 'Results': state['paper']['Results']},
+            'tokens': state['tokens']}
 
 
 
@@ -304,7 +294,7 @@ def refine_results(state: GraphState, config: RunnableConfig):
         section_text = temp_file(f_temp, 'read')
     else:
         PROMPT = refine_results_prompt(state)
-        result = llm.invoke(PROMPT).content
+        state, result = LLM_call(PROMPT, state)
         results = extract_latex_block(state, result, "Results")
 
         # Check LaTeX
@@ -322,10 +312,11 @@ def refine_results(state: GraphState, config: RunnableConfig):
     # save paper and compile it
     state['paper']['Results'] = section_text
     save_paper(state, state['files']['Paper_v2'])
-    print('done')
+    print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
     compile_latex(state, state['files']['Paper_v2'])
 
-    return {'paper':{**state['paper'], 'Results': section_text}}
+    return {'paper':{**state['paper'], 'Results': section_text},
+            'tokens': state['tokens']}
     
 
 def check_references(state: GraphState, text: str)-> str:
@@ -334,7 +325,7 @@ def check_references(state: GraphState, text: str)-> str:
     """
 
     PROMPT = references_prompt(state, text)
-    result = llm.invoke(PROMPT).content
+    state, result = LLM_call(PROMPT, state)
     section_text = extract_latex_block(state, result, "Text")
 
     return section_text
@@ -420,7 +411,7 @@ async def citations_node(state: GraphState, config: RunnableConfig):
             section_text = temp_file(f_temp, 'read')
         else:
             PROMPT = clean_section_prompt(state, state['paper'][section_name])
-            result = llm.invoke(PROMPT).content
+            state, result = LLM_call(PROMPT, state)
             section_text = extract_latex_block(state, result, "Text")
             section_text = LaTeX_checker(state, section_text)          #check LaTeX
             section_text = clean_section(section_text, section_name)   #remove unwanted LaTeX text
@@ -430,6 +421,7 @@ async def citations_node(state: GraphState, config: RunnableConfig):
     save_paper(state, state['files']['Paper_v4'])
     compile_latex(state, state['files']['Paper_v4'])
 
-    return {'paper': state['paper']}
+    return {'paper': state['paper'],
+            'tokens': state['tokens']}
 #######################################################################################
 
