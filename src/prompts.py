@@ -171,20 +171,20 @@ Please make sure the abstract reads smoothly and is well-motivated. This should 
 
 def introduction_prompt(state):
 
-    return [SystemMessage(content="You are a cosmologist."),
+    return [SystemMessage(content="You are an astrophysicist"),
             HumanMessage(content=rf"""Given the title, idea, and methods below, write an introduction for a paper in LaTex.
 
-Title: 
+Paper title: 
 {state['paper']['Title']}
-
-Description: 
-{state['idea']['Idea']}
-
-Methods:
-{state['idea']['Methods']}
 
 Paper abstract: 
 {state['paper']['Abstract']}
+
+Paper general idea: 
+{state['idea']['Idea']}
+
+Paper methods:
+{state['idea']['Methods']}
 
 Please respond in this format:
 
@@ -193,8 +193,8 @@ Please respond in this format:
 \\end{{Introduction}}
 
 In <INTRODUCTION>, place the introduction of the paper. Please, follow these guidelines:
-- Write in LaTex
-- Longer version of the Abstract, i.e. of the entire paper
+- Write your response in LaTex
+- Expand on the key points mentioned in the abstract, providing more background and context as appropriate for an introduction.
 - Describe what is the problem and why it is difficult
 - Describe how we attempt to solve it in this paper
 - Describe how we verify that we have solved the problem
@@ -206,23 +206,24 @@ Please make sure the introduction reads smoothly and is well-motivated. If you u
 
 def introduction_reflection(state):
 
-    return [SystemMessage(content="""Your are a cosmologist writing a scientific paper."""),
-            HumanMessage(content=rf"""Rewrite the introduction below to make it more clear. Take into account the previous introduction and the original idea to make it more clear.
+    return [SystemMessage(content="""Your are an astrophysicist"""),
+            HumanMessage(content=rf"""Rewrite the paper introduction below to make it more clear. Take into account the paper title, abstract, idea, and methods.
 
-Original Idea
-Title: 
+
+Paper title: 
 {state['paper']['Title']}
 
-Description: 
-{state['idea']['Idea']}
-
-Methods:
-{state['idea']['Methods']}
-
-Abstract: 
+Paper abstract: 
 {state['paper']['Abstract']}
 
-Introduction: 
+Paper idea: 
+{state['idea']['Idea']}
+
+Paper methods:
+{state['idea']['Methods']}
+
+Previous paper introduction: 
+```latex
 {state['paper']['Introduction']}
 
 Respond with in the following format:
@@ -230,14 +231,14 @@ Respond with in the following format:
 \begin{{Introduction}}
 <INTRODUCTION>
 \end{{Introduction}}
-In <INTRODUCTION>, place the Introduction of the paper. Follow these guidelines:
+
+In <INTRODUCTION>, place the new Introduction of the paper. Follow these guidelines:
 - Write in LaTex
-- Longer version of the Abstract, i.e. of the entire paper
+- Expand on the key points mentioned in the abstract, providing more background and context as appropriate for an introduction
 - Describe what is the problem and why it is difficult
 - Describe how we attempt to solve it in this paper
 - Describe how we verify that we have solved the problem
 - Do not create subsections
-
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTex.
 """)]
@@ -245,64 +246,59 @@ Please make sure the introduction reads smoothly and is well-motivated. If you u
 
 def methods_prompt(state):
 
-    return [SystemMessage(content='''You are a cosmologist writing a scientific paper'''),
-            HumanMessage(content=rf"""Given the idea and methods below, write a detailed and technical method section describing the methods and techniques used in the paper. Describe each method in detail.
+    return [SystemMessage(content='''You are an astrophysicist'''),
+            HumanMessage(content=rf"""Given the below paper title, abstract, introduction, and methods, write the methods section for the paper. Describe in detail each of the methods and techniques use in the paper.
 
-Title: 
+Paper title: 
 {state['paper']['Title']}
-
-Description: 
-{state['idea']['Idea']}
-
-Methods:
-{state['idea']['Methods']}
 
 Paper abstract: 
 {state['paper']['Abstract']}
 
-Follow these guidelines:
-- Reason about the steps needed to solve the problem and write them with detail
-- Describe in detail each step and write about the datatset, numerical simulations, evaluation metrics or any other element needed
-- Do not write the bibliography
-- Write in LaTex
-- Do not write subsections titles in capital letters
-- The first letter of subsection titles should be in capital
-- The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections 
+Paper introduction:
+{state['paper']['Introduction']}
+
+Short description of paper methods:
+{state['idea']['Methods']}
 
 Respond in this format:
 
 \begin{{Methods}}
 <METHODS>
 \end{{Methods}}
+
+In <METHODS> put the paper methods section written in LaTeX.
+
+Follow these guidelines:
+- Write in LaTex
+- Describe in detail the different methods used, the dataset, evaluation metrics, and any other element relevant
+- Do not write citations. References will be added later on
+- Try to connect the text in this section with the one in the introduction
+- Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
+- The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections.
 """)]
 
 
 def results_prompt(state):
 
-    return [SystemMessage(content='''You are a cosmologist writing a scientific paper'''),
-            HumanMessage(content=rf"""Given the title, idea and results below, write a detailed and technical results section describing results obtained.
+    return [SystemMessage(content='''You are an astrophysicist'''),
+            HumanMessage(content=rf"""Given the paper title, abstract, introduction, and short results below, write the results section for a scientific paper. Describe in detail the results obtained and try to intepret them
 
-Title: 
+Paper title: 
 {state['paper']['Title']}
 
-Description: 
-{state['idea']['Idea']}
+Paper abstract: 
+{state['paper']['Abstract']}
 
-Results: 
+Paper introduction: 
+{state['paper']['Introduction']}
+
+Paper methods: 
+{state['paper']['Methods']}
+
+Paper short results: 
 {state['idea']['Results']}
-
-Follow these guidelines:
-- Explain carefully the experiment conducted and its outcome
-- Do not put placeholders for plots
-- Describe what we have learned from the experiments
-- Do not write the bibliography
-- Write in LaTex
-- Do not write subsections titles in capital letters
-- The first letter of subsection titles should be in capital
-- The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections
-- You can summarize the results, but do not write a conclusions subsection as there will be a conclusions section written later on
-- The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{{aastex631}}. Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
-- Do not add figures or placeholders for figures. The figures will be added later on
 
 Respond in this format:
 
@@ -311,6 +307,19 @@ Respond in this format:
 \end{{Results}}
 
 In <Results> put the results section written in LaTeX.
+
+Follow these guidelines:
+- Write in LaTex
+- Explain carefully the results obtained
+- Do not add plots or placeholders for plots. Plots will be added later on
+- Describe what we have learned from the results
+- Do not write the bibliography
+- Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
+- The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections
+- You can summarize the results, but do not write a conclusions subsection as there will be a conclusions section written later on
+- The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{{aastex631}}. Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
+- Try to connect the text written with the one in the introduction and methods
 """)]
 
 
@@ -360,12 +369,12 @@ Results:
 {state['idea']['Results']}
 
 Follow these guidelines:
+- Write in LaTex
 - Explain the idea of the project
 - Describe what datasets and methods used
 - Describe the results obtained
 - Describe what we have learned from the results and this paper
-- Do not write the bibliography
-- Write in LaTex
+- Do not add citations. 
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
 - Do not write words or sentences between *. E.g. instead of *integrated*, write integrated
@@ -376,7 +385,7 @@ Respond in this format:
 <Conclusions>
 \end{{Conclusions}}
 
-In <Conclusions> put the conclusion section written in LaTeX.
+In <Conclusions> put the paper conclusions section written in LaTeX.
 """)]
 
 
