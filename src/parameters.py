@@ -1,4 +1,4 @@
-from typing_extensions import TypedDict
+from typing_extensions import TypedDict, Any
 from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, AIMessage
 from typing import Annotated, Literal
 from langgraph.graph.message import add_messages
@@ -29,12 +29,26 @@ class FILES(TypedDict):
     Error: str        #name of the error file
     LaTeX_log: str    #name of the file with the LaTeX log (when compiling it)
     Temp: str         #name of the folder with the temporary LaTeX files
+    LLM_calls: str    #name of the file with the calls to the LLM
 
 # Idea class
 class IDEA(TypedDict):
     Idea: str
     Methods: str
     Results: str
+
+# Token class
+class TOKENS(TypedDict):
+    ti: int #total input tokens
+    to: int #total output tokens 
+    i:  int #input tokens (just for individual calls or functions)
+    o:  int #output tokens (just for individual calls or functions)
+
+# LLM class
+class LLM(TypedDict):
+    model: str
+    max_output_tokens: int
+    llm: Any
     
 # Graph state class
 class GraphState(TypedDict):
@@ -42,3 +56,5 @@ class GraphState(TypedDict):
     files: FILES
     idea: IDEA
     paper: PAPER
+    tokens: TOKENS
+    llm: LLM

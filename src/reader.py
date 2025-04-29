@@ -3,8 +3,21 @@ import sys,os
 from pathlib import Path
 import hashlib
 import shutil
+from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
+from langchain_google_genai import ChatGoogleGenerativeAI
+from dotenv import load_dotenv
 
 from src.parameters import GraphState
+
+
+load_dotenv()
+GOOGLE_API_KEY     = os.getenv("GOOGLE_API_KEY")
+PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
+#OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY")
+#ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+#GROQ_API_KEY      = os.getenv("GROQ_API_KEY")
 
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
@@ -12,6 +25,24 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     This agent reads the input files, clean up files, and set the name of some files
     """
 
+    # set the LLM
+    if state['llm']['model']=='gemini-2.0-flash':
+        state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7,
+                                                     max_output_tokens=8192)
+        state['llm']['max_output_tokens'] = 8192
+    elif state['llm']['model']=='gemini-2.5-flash-preview-04-17':
+        state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17",
+                                                     temperature=0.7)
+        state['llm']['max_output_tokens'] = 65536
+        
+    
+    # set the tokens usage
+    state['tokens'] = {}
+    state['tokens']['ti']  = 0
+    state['tokens']['to']  = 0
+    state['tokens']['i']   = 0
+    state['tokens']['o']   = 0
+    
     # set the names of standard files
     state['files'] = {**state['files'],
                       "Paper_v1":  "paper_v1.tex",
@@ -20,7 +51,8 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "Paper_v4":  "paper_v4.tex",
                       "Error":     "Error.txt",
                       "LaTeX_log": "LaTeX_compilation.log",
-                      "Temp":      f"{state['files']['Folder']}/Temp"}
+                      "Temp":      f"{state['files']['Folder']}/Temp",
+                      "LLM_calls": f"{state['files']['Folder']}/LLM_calls.txt"}
     idea = {}
     
     # read input files
@@ -47,7 +79,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             fin = f"{state['files']['Folder']}/{f_in}"
             if os.path.exists(fin): os.remove(f"{fin}")
 
-    for f_in in [state['files']['Error']]:
+    for f_in in [state['files']['Error'], state['files']['LLM_calls']]:
         if os.path.exists(f_in):  os.remove(f"{f_in}")
 
     # remove LaTeX compilation log file
@@ -87,5 +119,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                 hash_dict[file_hash] = file
 
 
-    return {"idea": idea,  "files": state['files'],  "paper": {"summary": ""}}
+    return {"idea": idea,  "files": state['files'],  "paper": {"summary": ""},
+            "tokens": state['tokens']}
 

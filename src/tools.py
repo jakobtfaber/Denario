@@ -1,11 +1,55 @@
 import requests
 import sys,os,re,json
 from langchain_core.messages import HumanMessage
-from dotenv import load_dotenv
+from pathlib import Path
+#from dotenv import load_dotenv
 from src.prompts import fixer_prompt, LaTeX_prompt
 from src.parameters import GraphState
-from src.llm import llm
-from pathlib import Path
+
+
+def LLM_call(prompt, state):
+    """
+    This function calls the LLM and update tokens
+    """
+
+    message = state['llm']['llm'].invoke(prompt)
+    input_tokens  = message.usage_metadata['input_tokens']
+    output_tokens = message.usage_metadata['output_tokens']
+    if output_tokens>state['llm']['max_output_tokens']:
+        print('WARNING!! Max output tokens reach!')
+    state['tokens']['ti'] += input_tokens
+    state['tokens']['to'] += output_tokens
+    state['tokens']['i'] = input_tokens
+    state['tokens']['o'] = output_tokens
+    with open(state['files']['LLM_calls'], 'a') as f:
+        f.write(f"{state['tokens']['i']} {state['tokens']['o']} {state['tokens']['ti']} {state['tokens']['to']}\n")
+    
+    return state, message.content
+
+
+def temp_file(fin, action, text=None, json_file=False):
+    """
+    This function reads or writes the content of a temporary file
+    fin:  the name of the file
+    action: either 'read' of 'write'
+    text: when action is 'write', the text to write
+    json: whether the file is json or not
+    """
+
+    if action=='read':
+        with open(fin, 'r', encoding='utf-8') as f:
+            if json_file:
+                return json.load(f)
+            else:
+                return f.read()
+    elif action=='write':
+        with open(fin, 'w', encoding='utf-8') as f:
+            if json_file:
+                json.dump(text, f, indent=2)
+            else:
+                f.write(text)
+    else:
+        raise Exception("wrong action chosen!")
 
 
 def json_parser(text):
@@ -22,8 +66,8 @@ def json_parser(text):
         try:
             json_string = json_string.replace("'", "\"")
             parsed_json = json.loads(json_string)
-        except:
-            raise Exception('Failed to extract json from text')
+        except Exception as e:
+            raise ValueError(f"Failed to parse JSON: {e}")
     return parsed_json
 
 
@@ -62,7 +106,8 @@ def fixer(state: GraphState, section_name):
         Text = f.read()
     
     PROMPT = fixer_prompt(Text, section_name)
-    result = llm.invoke(PROMPT).content
+    state, result = LLM_call(PROMPT, state)
+    #result = llm.invoke(PROMPT).content
     
     # Extract caption
     pattern = rf"\\begin{{{section_name}}}(.*?)\\end{{{section_name}}}"
@@ -79,7 +124,8 @@ def fixer(state: GraphState, section_name):
 def LaTeX_checker(state, text):
 
     PROMPT = LaTeX_prompt(text)
-    result = llm.invoke(PROMPT).content
+    state, result = LLM_call(PROMPT, state)
+    #result = llm.invoke(PROMPT).content
     text = extract_latex_block(state, result, "Text")
     return text
 
