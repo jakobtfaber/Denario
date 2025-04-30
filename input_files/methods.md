@@ -1,103 +1,110 @@
-### Methodology for Quantifying the Dependence of Black Hole–Galaxy Scaling Relations on Feedback and Cosmological Parameters
+### Methodology for Quantifying Star Formation Quenching Efficiency Across Feedback and Cosmological Parameter Space
 
 #### 1. Data Preparation and Integration
 
 - **Data Loading:**  
-  Load the galaxy-level DataFrame (`galaxies_full_optimal.parquet`) and the catalog-level DataFrame (`catalog_params_optimal.parquet`) using efficient I/O routines.
+  Load the full galaxy-level DataFrame (`galaxies_full_optimal.parquet`) and the catalog-level DataFrame (`catalog_params_optimal.parquet`) using efficient I/O operations (e.g., `pandas.read_parquet`).  
+  Ensure all relevant columns are loaded, including SFR, M_star, catalog_number, and the six cosmological/feedback parameters.
 
-- **Galaxy Selection:**  
-  Filter the galaxy-level data to include only galaxies with non-zero black hole mass (\( M_\mathrm{BH} > 0 \)), as motivated by the EDA and physical considerations.
+- **Derived Quantities:**  
+  Compute the specific star formation rate (sSFR = SFR / M_star) for each galaxy.  
+  Add a boolean column indicating whether each galaxy is "quenched" (sSFR < 10⁻¹¹ yr⁻¹).
+
+- **Data Integration:**  
+  For each galaxy, ensure catalog-level parameters (A_SN1, A_SN2, A_AGN1, A_AGN2, Omega_m, sigma_8) are available.  
+  If not already present, merge the catalog-level DataFrame onto the galaxy-level DataFrame using `catalog_number` as the key.
+
+#### 2. Binning Strategy
 
 - **Stellar Mass Binning:**  
-  Assign each galaxy to one of three stellar mass bins:
-  - Low: \( M_\mathrm{star} < 10^9\,M_\odot \)
-  - Intermediate: \( 10^9 \leq M_\mathrm{star} < 10^{10}\,M_\odot \)
-  - High: \( M_\mathrm{star} \geq 10^{10}\,M_\odot \)
+  Bin galaxies by stellar mass using logarithmic bins, e.g., log(M_star/M_sun) = [8.5–9.5], [9.5–10.5], [10.5–11.5].  
+  These bins are chosen to ensure sufficient statistics in each bin, as indicated by the EDA summary.
 
-- **Data Merging:**  
-  Ensure that each galaxy is associated with its parent catalog’s cosmological and feedback parameters, either by using the columns already present in the galaxy DataFrame or by merging with the catalog-level DataFrame on `catalog_number`.
+- **Parameter Binning:**  
+  For each mass bin, further stratify galaxies by catalog-level parameters:
+  - **Feedback parameters:** Bin each of A_SN1, A_SN2, A_AGN1, A_AGN2 into quantiles (e.g., quartiles or quintiles) to ensure uniform sampling across their broad ranges.
+  - **Cosmological parameters:** Similarly, bin Omega_m and sigma_8 into quantiles.
 
-#### 2. Per-Catalog Scaling Relation Fitting
+- **Multi-dimensional Binning:**  
+  For higher-order analysis, consider 2D bins (e.g., A_SN1 vs. A_AGN1) or use regression techniques to disentangle effects without excessive binning.
 
-- **Catalog-wise Analysis:**  
-  For each of the 1,000 catalogs:
-  - Select all galaxies belonging to the catalog and with \( M_\mathrm{BH} > 0 \).
-  - For each stellar mass bin, fit the following scaling relations:
-    - \( \log_{10} M_\mathrm{BH} = \alpha + \beta \log_{10} M_\mathrm{star} + \epsilon \)
-    - \( \log_{10} M_\mathrm{BH} = \alpha' + \beta' \log_{10} \sigma_v + \epsilon' \)
-  - Use ordinary least squares (OLS) linear regression in log–log space to estimate the slope (\( \beta \)), intercept (\( \alpha \)), and intrinsic scatter (\( \sigma_\mathrm{int} \)), where scatter is defined as the standard deviation of the residuals.
-  - If the number of galaxies in a bin is below a minimum threshold (e.g., 20), skip the fit for that bin to avoid unreliable estimates.
+#### 3. Calculation of Quenching Metrics
 
-- **Parallelization:**  
-  Distribute the per-catalog fitting tasks across the available 8 CPUs using multiprocessing or joblib, ensuring that each process handles a subset of catalogs. This approach keeps each calculation well within the 10-minute runtime constraint.
+- **Quenched Fraction:**  
+  For each combination of stellar mass bin and parameter bin, calculate the quenched fraction:
+  - f_quenched = N_quenched / N_total
+  - Also compute the median sSFR in each bin for a continuous measure.
 
-#### 3. Construction of the Catalog-Level Summary Table
+- **Uncertainty Estimation:**  
+  Use bootstrap resampling within each bin to estimate uncertainties on f_quenched and median sSFR.  
+  For each bin, resample galaxies with replacement (e.g., 1000 times), recalculate the metric, and use the standard deviation as the uncertainty.
 
-- **Summary Table:**  
-  For each catalog and each stellar mass bin, record:
-  - Best-fit slope, intercept, and scatter for both \( M_\mathrm{BH} \)–\( M_\mathrm{star} \) and \( M_\mathrm{BH} \)–\( \sigma_v \) relations.
-  - The catalog’s cosmological and feedback parameters (\( \Omega_m, \sigma_8, A_\mathrm{SN1}, A_\mathrm{SN2}, A_\mathrm{AGN1}, A_\mathrm{AGN2} \)).
-  - The number of galaxies used in each fit.
+#### 4. Statistical Modeling and Regression
 
-- **Data Structure:**  
-  The resulting summary table will have one row per (catalog, mass bin) combination, with columns for all fit parameters and catalog-level parameters.
+- **Regression Analysis:**  
+  To quantify the dependence of quenching efficiency on feedback and cosmological parameters, perform multivariate logistic regression:
+  - Dependent variable: quenched status (binary)
+  - Independent variables: A_SN1, A_SN2, A_AGN1, A_AGN2, Omega_m, sigma_8, and log(M_star)
+  - Include interaction terms (e.g., A_SN1 × A_AGN1) to capture non-linear effects.
 
-#### 4. Quantifying Parameter Dependence
+- **Partial Correlation Analysis:**  
+  Compute partial correlations between each parameter and the quenched fraction, controlling for stellar mass and other parameters, to isolate direct effects.
 
-- **Exploratory Visualization:**  
-  - Plot the distribution of best-fit slopes, intercepts, and scatter as a function of each cosmological and feedback parameter, for each mass bin.
-  - Use scatter plots, violin plots, and heatmaps to visually assess trends and correlations.
+- **Model Validation:**  
+  Use k-fold cross-validation (e.g., k=5) to assess the robustness of regression results.  
+  For each fold, fit the model on 80% of the data and test on the remaining 20%, recording performance metrics (e.g., accuracy, AUC).
 
-- **Statistical Analysis:**
-  - **Partial Correlation Analysis:**  
-    Compute partial correlation coefficients between each scaling relation parameter (slope, intercept, scatter) and each cosmological/feedback parameter, controlling for the others. This helps disentangle the effects of correlated parameters.
-  - **Multivariate Regression:**  
-    Fit linear models of the form:
-    \[
-    \text{Slope} = c_0 + c_1 \Omega_m + c_2 \sigma_8 + c_3 A_\mathrm{SN1} + c_4 A_\mathrm{SN2} + c_5 A_\mathrm{AGN1} + c_6 A_\mathrm{AGN2} + \epsilon
-    \]
-    and similarly for intercept and scatter, for each mass bin and scaling relation.
-    - Use standardized coefficients to compare the relative importance of each parameter.
-    - Assess statistical significance and goodness-of-fit.
-  - **Feature Importance (Machine Learning):**  
-    As a complementary approach, use random forest regression or gradient boosting to predict the slope/intercept/scatter from the six catalog parameters. Extract feature importances to quantify the relative influence of cosmology versus feedback.
-    - Use cross-validation to ensure robustness.
-    - Restrict tree depth and number of estimators to maintain computational efficiency.
+#### 5. Handling Computational Constraints
 
-- **Nonlinear Effects:**  
-  If strong nonlinearities are observed, consider fitting polynomial or interaction terms, or use kernel-based methods, but only if justified by initial results and computationally feasible.
+- **Efficient Data Processing:**  
+  Use vectorized operations in pandas/numpy for all calculations.  
+  For bootstrap and cross-validation, leverage parallel processing (e.g., Python’s `concurrent.futures` or `joblib`) to utilize all 8 CPUs.
 
-#### 5. Results Summarization
+- **Memory Management:**  
+  Process data in chunks if necessary, especially for bootstrap resampling or when working with large intermediate tables.
 
-- **Tables and Figures:**  
-  - Present tables of mean and standard deviation of slopes, intercepts, and scatter as a function of each parameter (binned or continuous).
-  - Provide summary plots showing the dependence of scaling relation parameters on cosmological and feedback parameters, for each mass bin.
-  - Highlight the most influential parameters as determined by regression coefficients and feature importances.
+- **Sampling for Exploratory Analysis:**  
+  For initial exploratory plots or model prototyping, use stratified random subsamples (e.g., 10% of the data, preserving mass and parameter distributions) to ensure rapid iteration.
 
-- **Key Statistics:**  
-  - Report the range and typical values of slopes and scatter across the parameter space.
-  - Quantify the fraction of variance in scaling relation parameters explained by cosmology versus feedback.
+#### 6. Visualization Strategy
 
-#### 6. Computational Considerations
+- **Quenched Fraction vs. Parameter Plots:**  
+  For each stellar mass bin, plot f_quenched as a function of each feedback and cosmological parameter (e.g., line plots with error bars from bootstrap uncertainties).
 
-- **Batch Processing:**  
-  - If memory or runtime becomes limiting, process catalogs in batches (e.g., 100 at a time), aggregating results after each batch.
+- **2D Heatmaps:**  
+  For pairs of parameters (e.g., A_SN1 vs. A_AGN1), create 2D heatmaps showing f_quenched or median sSFR, with color indicating the metric value.
 
-- **Catalog Sampling (if needed):**  
-  - For initial tests or if full-sample analysis is infeasible, select a stratified random sample of catalogs that span the full range of cosmological and feedback parameters.
+- **Regression Coefficient Plots:**  
+  Visualize the fitted coefficients from the logistic regression, with error bars from cross-validation, to highlight the relative importance of each parameter.
 
-- **Efficient Storage:**  
-  - Store intermediate and final results in compressed, columnar formats (e.g., Parquet) to facilitate rapid access and downstream analysis.
+- **Summary Tables:**  
+  Tabulate f_quenched and median sSFR for each mass and parameter bin, including uncertainties.
 
-#### 7. Reproducibility and Robustness
+- **Interactive Plots (Optional):**  
+  For in-depth exploration, consider generating interactive plots (e.g., using Plotly) to allow dynamic slicing by mass or parameter.
 
-- **Code Modularity:**  
-  - Structure the analysis pipeline so that each step (data loading, fitting, summary, regression) can be rerun independently.
+#### 7. Statistical Validation
 
-- **Validation:**  
-  - Perform sanity checks by comparing aggregate scaling relations (across all catalogs) to those in the literature and to the EDA results.
-  - Test the sensitivity of results to binning choices and fitting thresholds.
+- **Bootstrap Resampling:**  
+  For all key metrics (f_quenched, regression coefficients), use bootstrap resampling to estimate uncertainties and confidence intervals.
+
+- **Cross-Validation:**  
+  For regression models, use k-fold cross-validation to ensure results are not driven by overfitting or sample variance.
+
+- **Robustness Checks:**  
+  Repeat key analyses with alternative binning schemes and sSFR thresholds to confirm the stability of results.
+
+#### 8. Documentation and Reproducibility
+
+- **Code Organization:**  
+  Structure analysis scripts into modular functions for data loading, binning, metric calculation, regression, and visualization.
+
+- **Parameter Logging:**  
+  Record all bin edges, thresholds, and model parameters used in the analysis for full reproducibility.
+
+- **Output Management:**  
+  Save all intermediate and final results (tables, plots, model outputs) with clear filenames and metadata.
 
 ---
 
-This methodology ensures a rigorous, efficient, and interpretable quantification of how black hole–galaxy scaling relations depend on cosmological and feedback parameters, leveraging the statistical power and parameter coverage of the CAMELS dataset while respecting computational constraints.
+This methodology ensures a rigorous, efficient, and statistically robust analysis of star formation quenching efficiency across the full feedback and cosmological parameter space sampled by the CAMELS simulations. Each step is designed to maximize scientific insight while respecting computational constraints and leveraging the rich structure of the dataset.
