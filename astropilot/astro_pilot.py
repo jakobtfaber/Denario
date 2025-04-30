@@ -98,14 +98,14 @@ class AstroPilot:
         self.research.methodology = methododology
 
         # Write idea to file
-        method_path = os.path.join(self.repo_dir, 'input_files', 'method.md')
+        method_path = os.path.join(self.repo_dir, 'input_files', 'methods.md')
         with open(method_path, 'w') as f:
             f.write(methododology)
         return None
     
     def set_method(self, method: str = None):
         # write method to method.md file
-        with open(os.path.join(self.repo_dir, 'input_files', 'method.md'), 'w') as f:
+        with open(os.path.join(self.repo_dir, 'input_files', 'methods.md'), 'w') as f:
             f.write(method)
         return None
     
@@ -124,7 +124,7 @@ class AstroPilot:
                 self.research.idea = f.read()
 
         if self.research.methodology == "":
-            with open(os.path.join(self.repo_dir, 'input_files', 'method.md'), 'r') as f:
+            with open(os.path.join(self.repo_dir, 'input_files', 'methods.md'), 'r') as f:
                 self.research.methodology = f.read()
 
 
