@@ -31,9 +31,11 @@ dependencies = [
   "langgraph-sdk==0.1.61",
   "langsmith==0.3.25",
   "google-generativeai",
+  # "google-cloud-aiplatform==1.85.0",
   "numpy==1.26.4",
   "jupyterlab",
   "ipywidgets",
+  "pymupdf"
 ]
 
 

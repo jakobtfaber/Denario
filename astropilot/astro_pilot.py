@@ -1,17 +1,18 @@
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
-from .paper import write_paper
 from pydantic import BaseModel, Field
 from typing import List, Dict
 from IPython.display import display, Markdown
+from .graph import build_graph
+import asyncio
+import time
 import os
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 
 from .config import REPO_DIR as repo_dir_default
-
-from cmbagent import CMBAgent
+import cmbagent
 import shutil
 
 
@@ -59,7 +60,8 @@ class AstroPilot:
         return None
 
     def show_data_description(self):
-        display(Markdown(self.research.data_description))
+        # display(Markdown(self.research.data_description))
+        print(self.research.data_description)
         return None
 
     def get_idea(self, **kwargs):
@@ -74,13 +76,26 @@ class AstroPilot:
         return None
     
     def set_idea(self, idea: str = None):
+        if idea is None:
+            with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'r') as f:
+                idea = f.read()
+        elif idea.endswith(".md"):
+            with open(idea, 'r') as f:
+                idea = f.read()
+        elif isinstance(idea, str):
+            pass
+        else:
+            raise ValueError("Idea must be a string, a path to a markdown file or None if you want to load idea from input_files/idea.md")
+        
+        self.research.idea = idea
         # write idea to idea.md file
         with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'w') as f:
             f.write(idea)
         return None
     
     def show_idea(self):
-        display(Markdown(self.research.idea))
+        # display(Markdown(self.research.idea))
+        print(self.research.idea)
         return None
     
     def get_method(self, **kwargs):
@@ -170,20 +185,8 @@ class AstroPilot:
         Returns:
             dict: Dictionary mapping AAS keywords to their URLs
         """
-        cmbagent = CMBAgent()
-        PROMPT = f"""
-        {input_text}
-        """
-        cmbagent.solve(task="Find the relevant AAS keywords",
-                max_rounds=50,
-                initial_agent='aas_keyword_finder',
-                mode = "one_shot",
-                shared_context={
-                'text_input_for_AAS_keyword_finder': PROMPT,
-                'N_AAS_keywords': n_keywords,
-                                }
-                )
-        aas_keywords = cmbagent.final_context['aas_keywords'] ## here you get the dict with urls
+        
+        aas_keywords = cmbagent.get_keywords(input_text, n_keywords = n_keywords)
         self.research.keywords = aas_keywords
         return None
     
@@ -196,7 +199,32 @@ class AstroPilot:
 
 
     def get_paper(self):
-        return write_paper(self.params)
+        # Start timer
+        start_time = time.time()
+        config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
+
+
+        # build graph
+        graph = build_graph(mermaid_diagram=False)
+        path_to_input_files = os.path.join(self.repo_dir, "input_files")
+        
+        # run the graph
+        result = asyncio.run(graph.ainvoke(
+            {"files":{  "Folder":      path_to_input_files,   #name of folder containing input files
+                        "Idea":         "idea.md",    #name of file containing idea description
+                        "Methods":      "methods.md", #name of file with methods description
+                        "Results":      "results.md", #name of file with results description
+                        "Plots":        "plots"},     #name of folder containing plots
+            "llm": {"model": "gemini-2.0-flash"},  #name of the LLM model to use
+            }, config))
+
+        # End timer and report duration in minutes and seconds
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        minutes = int(elapsed_time // 60)
+        seconds = int(elapsed_time % 60)
+        print(f"Paper written in {minutes} min {seconds} sec.")
+        return None
     
 
     def research_pilot(self, data_description: str = None):
