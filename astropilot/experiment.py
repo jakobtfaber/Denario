@@ -1,27 +1,29 @@
 # from cmbagent import CMBAgent
 import cmbagent
+from typing import List
 import copy
 import os
 import re
 class Experiment:
 
 
-    def __init__(self, research_idea: str, methodology: str):
+    def __init__(self, research_idea: str, methodology: str, involved_agents: List[str] = ['engineer', 'researcher']):
+        involved_agents_str = ', '.join(involved_agents)
+
         self.planner_append_instructions = rf"""
 
         {research_idea}
 
         {methodology}
 
-        We use Eisentein and Hu approximation for the matter power spectrum. Don't use CAMB or CLASS.
 
         Given these datasets, and information on the features and project idea and methodology, we want to perform the project analysis and generate the results, plots and insights.
         The goal is to perform the in-depth research and analysis. 
 
-        The plan must strictly involve only the following agents: engineer and researcher.
+        The plan must strictly involve only the following agents: {involved_agents_str}.
         
 
-        In the final step of the plan, researcher should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
+        In the final step of the plan, the researcher agent should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
         Thus, the last agent in the plan must be the researcher.
 
         The goal here is to do the in-depth research and analysis, not the EDAs.
@@ -51,18 +53,19 @@ class Experiment:
 
         {methodology}
 
-        We use Eisentein and Hu approximation for the matter power spectrum. Don't use CAMB or CLASS.
 
         Given these datasets, and information on the features and project idea and methodology, we want to perform the project analysis and generate the results, plots and key statistics.
         The goal is to perform the in-depth research and analysis. This means that you must generate the results, plots and key statistics.
 
         Warnings for computing and plotting: 
-        - Matter P(k) should always be plotted/processed in log-log scale.
         - make sure dynamical ranges are well captured (carefully adjust the limits, binning, and log or linear axes scales, for each feature).
 
         For histograms (if needed):
-        -Use log-scale for features with values spanning several orders of magnitudes. 
-        **IMPORTANT**: You must print out in the console ALL the quantitative information that you think the researcher will need to interpret the results. (The researcher does not have access to saved data files, only to what you print out!)
+        -Use log-scale for features with values spanning several orders of magnitudes.
+
+
+        **GENERAL IMPORTANT INSTRUCTIONS**: You must print out in the console ALL the quantitative information that you think the researcher will need to interpret the results. (The researcher does not have access to saved data files, only to what you print out!)
+        Remember that the researcher agent can not load information from files, so you must print ALL necessary info in the console (without truncation). For this, it may be necessary to change pandas (if using it) display options.
 
         """
 
@@ -119,17 +122,20 @@ class Experiment:
         #                 )
         
 
-        chat_history, final_context =cmbagent.planning_and_control(data_description,
+        results = cmbagent.planning_and_control(data_description,
                             n_plan_reviews = 1,
                             max_n_attempts = 4,
-                            max_plan_steps = 4,
-                            max_rounds_control = 100,
+                            max_plan_steps = 6,
+                            max_rounds_control = 500,
                             engineer_model = "gpt-4.1-2025-04-14",
                             researcher_model = "gpt-4.1-2025-04-14",
                             plan_instructions=self.planner_append_instructions,
                             researcher_instructions=self.researcher_append_instructions,
                             engineer_instructions=self.engineer_append_instructions
                             )
+        chat_history = results['chat_history']
+        final_context = results['final_context']
+        
         try:
             for obj in chat_history[::-1]:
                 if obj['name'] == 'researcher_response_formatter':

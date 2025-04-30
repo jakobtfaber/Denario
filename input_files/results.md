@@ -1,140 +1,117 @@
-## Results and Discussion
+## Scientific Interpretation and Discussion
 
-This section presents a comprehensive analysis of the performance of three neural network architectures—Dense Neural Network (Dense NN), standard 1D Convolutional Neural Network (1D CNN), and Dilated 1D CNN—for the emulation of the matter power spectrum, \( P(k) \), from cosmological parameters. The evaluation is based on a synthetic dataset generated using the Eisenstein & Hu (1998) approximation, with 4,000 samples spanning physically relevant ranges of cosmological parameters. The discussion is organized into five subsections: (1) overall performance comparison, (2) scale-dependent accuracy, (3) computational efficiency, (4) sensitivity to cosmological parameters, and (5) recommendations for architecture selection.
+### 1. Introduction
 
----
+In this study, we have leveraged the CAMELS simulations to quantitatively map the efficiency of star formation quenching across a broad range of feedback and cosmological parameters. By systematically varying parameters such as the supernova (SN) and active galactic nucleus (AGN) feedback, along with the cosmological parameters \(\Omega_m\) (matter density parameter) and \(\sigma_8\) (power spectrum normalization), the analysis provides a unique opportunity to disentangle the internal and external factors that jointly determine whether a galaxy ceases forming stars.
 
-### 1. Overall Performance Comparison
+### 2. Key Numerical Findings
 
-#### Quantitative Summary
+#### 2.1. Quenched Fraction Trends
 
-The following table summarizes the key performance metrics for each architecture, as measured on the held-out test set:
+- **Stellar Mass Dependence:**
+  - The quenched fraction (\(f_{quenched}\)) increases steeply with stellar mass. For galaxies in the highest mass bin (\(10.5 \leq \log_{10}(M_{star}/M_\odot) < 11.5\)), quenched fractions exceed 80% across all feedback parameter values, indicating near-universal quenching among massive galaxies.
 
-| Model Type      | Mean MAPE (%) | Max Error (%) | RMSE (log P(k)) | Train Time (s/epoch) | Total Train Time (s) | Inference Time (ms/sample) | Model Size (MB) |
-|-----------------|---------------|---------------|-----------------|----------------------|----------------------|----------------------------|-----------------|
-| Dense NN        | 1.19          | 7.85          | 0.0308          | 0.092                | 6.24                 | 0.282                      | 0.163           |
-| 1D CNN          | 1.41          | 12.59         | 0.0375          | 0.544                | 40.24                | 0.368                      | 2.113           |
-| Dilated 1D CNN  | 1.48          | 15.31         | 0.0400          | 0.834                | 67.56                | 0.395                      | 2.129           |
+- **Supernova Feedback (A_SN1):**
+  - In low and intermediate mass bins, an increase in the SN wind energy per unit star formation rate (\(A_{SN1}\)) correlates with a *decrease* in the quenched fraction. For instance, within the lowest mass bin, \(f_{quenched}\) drops from approximately 0.40 in the lowest quartile of \(A_{SN1}\) to about 0.24 in the highest quartile. This trend suggests that enhanced SN feedback can suppress quenching, possibly by sustaining high levels of turbulence in the interstellar medium (ISM) and inhibiting the conditions necessary for abrupt star formation shutdown.
 
-**Key observations:**
-- The Dense NN achieves the lowest mean absolute percent error (MAPE) and root mean squared error (RMSE), outperforming both convolutional architectures in overall accuracy.
-- The maximum percent error is also lowest for the Dense NN (7.85%), compared to 12.59% for the 1D CNN and 15.31% for the Dilated 1D CNN.
-- The Dense NN is significantly more compact (0.163 MB) and faster to train and infer than the CNN-based models, which are an order of magnitude larger in parameter count and memory footprint.
+- **AGN Feedback (A_AGN1):**
+  - In contrast, the AGN feedback energy per accretion (\(A_{AGN1}\)) exhibits a positive correlation with \(f_{quenched}\) across all mass bins. Notably, in the highest mass bin, quenched fractions rise sharply from ~0.72 in the lowest quartile to ~0.94 in the highest quartile. This relationship supports the scenario in which AGN feedback provides the energetic output required for the maintenance of quenching in massive systems, by heating or expelling gas from the galaxy.
 
-#### Visual Inspection
+- **Additional Feedback Parameters:**
+  - Other parameters such as \(A_{SN2}\) (SN wind speed) and \(A_{AGN2}\) (AGN kinetic mode ejection speed) display more modest and less systematic trends, suggesting that the energy budget (e.g., \(A_{SN1}\) and \(A_{AGN1}\)) is more critical for regulating quenching than the velocity of the outflows.
 
-Plots of percent error versus \( k \) (see Figure 1) and example predictions versus true \( P(k) \) (see Figure 2) further corroborate the quantitative findings. The Dense NN consistently tracks the true power spectrum across the full \( k \)-range, with only minor deviations at the smallest and largest scales. The CNN-based models, while still accurate, exhibit slightly larger deviations, particularly at high \( k \).
+- **Cosmological Parameters:**
+  - Higher values of both \(\Omega_m\) and \(\sigma_8\) are associated with an increased quenched fraction. This reflects the idea that denser cosmic environments and enhanced clustering (which lead to earlier structure formation) trigger processes which promote quenching, such as accelerated black hole growth and more massive halo formation.
 
----
+#### 2.2. Statistical Modeling and Feature Importance
 
-### 2. Scale-Dependent Accuracy Analysis
+- **Permutation Feature Importance (Top Findings):**
+  - \(\sigma_8\) is the most important parameter (importance mean ~0.155), followed by \(A_{AGN1}\) (~0.148), \(\Omega_m\) (~0.128), and log-transformed stellar mass (logMstar, ~0.104). \(A_{SN1}\) also ranks significantly (~0.094).
 
-Given the scale-dependent nature of cosmological inference, it is crucial to assess model performance across different \( k \)-regimes. The following table summarizes the mean, median, 95th percentile, and maximum percent errors for each model in three \( k \)-bins: large scales (\( k < 0.1 \) h/Mpc), intermediate (\( 0.1 \leq k < 0.3 \) h/Mpc), and small scales (\( k \geq 0.3 \) h/Mpc).
+- **Logistic Regression Coefficients:**
+  - The regression coefficients further highlight the key influencers: \(A_{AGN1}\) has a strong positive coefficient (+1.87), \(\sigma_8\) (+1.66), logMstar (+1.41), and \(\Omega_m\) (+1.13), while \(A_{SN1}\) is negatively correlated (–0.97). The magnitudes of these coefficients indicate that AGN feedback and cosmological parameters have a substantial role in driving quenching.
 
-#### Scale-Dependent Percent Error Metrics (mean/median/95th/max) [%]
+- **Partial Correlations:**
+  - Partial correlation analysis reinforces these results, showing that \(A_{AGN1}\), \(\sigma_8\), and \(\Omega_m\) are positively correlated with quenching (with partial correlations around +0.15, +0.16, and +0.14 respectively), while \(A_{SN1}\) exhibits a negative association (–0.11).
 
-**Dense NN**
-- **Large scales:** mean=1.32, median=1.03, 95th=3.68, max=7.85
-- **Intermediate:** mean=0.82, median=0.72, 95th=1.93, max=3.79
-- **Small scales:** mean=1.27, median=1.07, 95th=3.16, max=5.74
+- **Model Performance:**
+  - The full logistic regression model (including all interactions) achieves a mean accuracy of ~66.5% and an AUC of ~0.685. A simplified model using only the top three features yields slightly lower performance (accuracy ~64.5% and AUC ~0.645), indicating that most predictive power is concentrated in a few key parameters.
 
-**1D CNN**
-- **Large scales:** mean=1.41, median=1.04, 95th=3.95, max=12.59
-- **Intermediate:** mean=1.17, median=1.01, 95th=2.79, max=5.85
-- **Small scales:** mean=1.61, median=1.39, 95th=3.83, max=9.10
+#### 2.3. Mass Dependence and Parameter Interplay
 
-**Dilated 1D CNN**
-- **Large scales:** mean=1.49, median=1.07, 95th=4.37, max=15.31
-- **Intermediate:** mean=1.20, median=1.00, 95th=3.00, max=6.91
-- **Small scales:** mean=1.71, median=1.43, 95th=4.20, max=10.74
+- **Mass Differentiation:**
+  - The analysis reveals that AGN feedback becomes the dominant quenching mechanism in high-mass galaxies (with quenching fractions above 80%), while in low to intermediate mass systems, SN feedback emerges as a coupler that regulates rather than completely suppresses star formation.
 
-#### Interpretation
+- **2D Heatmap Insights:**
+  - Two-dimensional visualizations illustrate that the highest quenched fractions occur in regions where \(A_{AGN1}\) is high and \(A_{SN1}\) is low. This suggests a synergistic interplay, where the suppression of star formation is maximized when the influence of AGN feedback is unopposed by strong SN-driven turbulence.
 
-- **Large Scales (\( k < 0.1 \) h/Mpc):** All models perform well, with mean errors below 1.5%. The Dense NN achieves the lowest maximum error, while the Dilated 1D CNN exhibits the highest.
-- **Intermediate Scales (\( 0.1 \leq k < 0.3 \) h/Mpc):** Errors are minimized in this regime, with mean errors below 1.2% for all models. The Dense NN again leads in both mean and maximum error.
-- **Small Scales (\( k \geq 0.3 \) h/Mpc):** Errors increase slightly for all models, reflecting the greater complexity and dynamic range of \( P(k) \) at small scales. The Dense NN maintains the lowest mean and maximum errors, while the Dilated 1D CNN shows the largest deviations.
+### 3. Scientific Interpretation and Discussion
 
-The percent error versus \( k \) plots (Figure 1) reveal that all models exhibit a mild increase in error at the smallest and largest \( k \), consistent with the physical expectation that these regimes are more challenging to emulate due to the steepness and nonlinearity of the power spectrum.
+#### 3.1. Internal vs. External Drivers of Quenching
 
----
+- **AGN Feedback:**
+  - The evidence overwhelmingly supports the notion that AGN feedback is the principal driver of quenching in massive galaxies. The progressive increase in quenched fraction with \(A_{AGN1}\), particularly high in systems with \(\log_{10}(M_{star}/M_\odot) \geq 10.5\), reflects the capability of AGN to heat and expel gas on galaxy-wide scales. This effect, sometimes described as "maintenance mode," is critical in halting the cooling flows necessary for continued star formation. Observational studies (e.g., Croton et al. 2006; Fabian 2012) have long attributed the quenching of star formation in the most massive galaxies to AGN activity, and our simulation-based results quantitatively affirm this perspective.
 
-### 3. Computational Efficiency Trade-Offs
+- **SN Feedback:**
+  - In contrast, SN feedback shows a regulation effect in lower-mass galaxies. The negative correlation between \(A_{SN1}\) and \(f_{quenched}\) implies that vigorous SN-driven winds may help maintain a more turbulent ISM. This turbulence can inhibit the collapse of gas clouds into stars, keeping these galaxies in a more prolonged state of low-level star formation rather than full quenching. Such a finding is consistent with theoretical models wherein SN feedback acts as an effective regulator (e.g., Dekel & Silk 1986; Hopkins et al. 2012).
 
-#### Training and Inference
+- **Cosmological Context:**
+  - The positive influence of \(\Omega_m\) and \(\sigma_8\) on quenching efficiency suggests that the broader cosmological environment plays a non-negligible role. Higher matter density and stronger clustering not only set the stage for more rapid halo assembly but may also indirectly trigger stronger internal feedback by fostering conditions conducive to early, robust black hole growth. Thus, external cosmological conditions frame the threshold at which internal processes, particularly AGN feedback, become effective at quenching.
 
-- **Dense NN:** Fastest to train (0.092 s/epoch; 6.24 s total) and infer (0.282 ms/sample), with the smallest model size (0.163 MB).
-- **1D CNN:** Training is slower (0.544 s/epoch; 40.24 s total), inference is slightly slower (0.368 ms/sample), and the model is significantly larger (2.113 MB).
-- **Dilated 1D CNN:** Slowest to train (0.834 s/epoch; 67.56 s total) and infer (0.395 ms/sample), with the largest model size (2.129 MB).
+#### 3.2. Nonlinear Interactions and 2D Parameter Space
 
-#### Discussion
+- The presence of significant interaction terms (e.g., between AGN feedback and logMstar, as well as between cosmological parameters and stellar mass) underscores a complex, nonlinear dependency. Our 2D heatmaps illustrate that the interplay between A_SN1 and A_AGN1 is particularly critical: quenching is maximized when AGN feedback dominates but SN feedback is relatively weak. This nonlinearity implies that simple, linear scaling relations may be insufficient to fully capture the nuances of galaxy quenching, and more sophisticated models that account for these interactions are warranted.
 
-The Dense NN is clearly the most computationally efficient, both in terms of training and inference. The convolutional models, while potentially offering advantages in capturing local structure, do not translate these into improved accuracy for this dataset and problem formulation. The increased parameter count and memory footprint of the CNNs are not justified by a corresponding gain in predictive performance.
+#### 3.3. Model Evaluation and Predictability
 
----
+- **Predictive Power:**
+  - Both the full multivariate logistic regression model and its simplified counterpart confirm that a relatively small set of parameters (primarily \(A_{AGN1}\), \(\sigma_8\), \(\Omega_m\), and stellar mass) captures a significant fraction of the variance in quenching efficiency. The performance metrics, while modest (with accuracies in the mid-60% range and AUCs near 0.68), demonstrate the inherent stochasticity of galaxy evolution. Factors such as mergers, environment, and unmodeled physics likely contribute to the residual scatter.
 
-### 4. Sensitivity to Cosmological Parameters
+- **Simplified vs. Full Model:**
+  - The slight drop in performance when moving from the full model to a simplified model (using only the top three features) suggests that the bulk of the quenching signal is encoded in a few physical drivers. This has practical implications: future observational campaigns might prioritize these key diagnostics as proxies for quenching, reducing the need for high-dimensional parameter space mapping in large survey datasets.
 
-While the primary focus of this study is architectural efficiency, it is instructive to consider the models' ability to generalize across the sampled cosmological parameter space. The synthetic dataset was constructed to uniformly sample the ranges:
+#### 3.4. Comparison with Observational Studies
 
-- \( \Omega_m \): 0.1–0.5
-- \( \sigma_8 \): 0.6–1.0
-- \( h \): 0.6–0.8
-- \( n_s \): 0.9–1.1
+- The trends emerging from the CAMELS simulations are broadly consistent with observational findings from surveys such as SDSS and GAMA. The steep increase in quenching with stellar mass, the dominant role of AGN feedback in massive galaxies, and the more moderate governing influence of SN feedback at low mass all echo results reported in observational studies (e.g., Peng et al. 2010, 2012; Bluck et al. 2016). Moreover, the positive correlation between quenched fraction and cosmological parameters aligns with the environmental dependencies observed in galaxy surveys.
 
-Histograms of the parameter distributions confirm uniform coverage, and example predictions (Figure 2) demonstrate that all models are able to accurately emulate \( P(k) \) across a diverse set of parameter combinations. No systematic degradation in performance is observed at the edges of the parameter space, indicating robust generalization.
+#### 3.5. Uncertainties and Future Investigations
 
-However, the slightly higher errors at extreme \( k \) may be partially attributable to parameter combinations that push the limits of the physical model, where the mapping from parameters to \( P(k) \) becomes more nonlinear. The Dense NN appears to be more robust in these regimes, likely due to its fully connected structure and greater flexibility in modeling global dependencies.
+- **Residual Scatter and Model Limitations:**
+  - AUC values around 0.68 indicate that while the simulations capture the main quenching trends, there remains significant variability. This scatter likely arises from secondary processes (e.g., stochasticity in merger histories, variations in accretion, and local environmental effects) that are not fully encapsulated by the current models.
 
----
+- **Role of Kinetic Feedback Parameters:**
+  - An unexpected finding is the relatively minor role played by SN wind speed (\(A_{SN2}\)) and AGN kinetic mode ejection speed (\(A_{AGN2}\)). This suggests that, at least within the CAMELS framework, the energetics of feedback (as represented by \(A_{SN1}\) and \(A_{AGN1}\)) are more critical than the velocities of the outflows. Future work might explore whether this result holds in simulations with alternative feedback prescriptions.
 
-### 5. Recommendations for Architecture Selection
+- **Path Forward:**
+  - Improvements can be made by incorporating more complex, non-linear models (such as deep learning architectures) to better capture the intricate dependencies observed. Additionally, extending the redshift range of the analysis could reveal how quenching mechanisms evolve over cosmic time.
 
-#### Accuracy vs. Efficiency
+### 4. Implications for Galaxy Evolution Models
 
-- **For applications prioritizing accuracy and speed** (e.g., large-scale cosmological parameter inference, real-time emulation, or deployment on resource-constrained hardware), the Dense NN is the clear choice. It achieves the lowest errors across all metrics, is orders of magnitude faster to train and infer, and has a minimal memory footprint.
-- **For applications where multi-scale or local structure is critical** (e.g., emulation of more complex, non-Gaussian features or higher-dimensional outputs), convolutional architectures may offer advantages not fully realized in this study. However, for the present task—emulating the 1D matter power spectrum from four parameters—the added complexity of CNNs does not yield improved performance.
+- **Feedback Parameterization:**
+  - These findings reinforce the need for accurate representation of AGN feedback in models of massive galaxies. The strong association between \(A_{AGN1}\) and quenching efficiency underscores its central role, suggesting that feedback prescriptions must be tuned to reproduce the observed trends in quenched fractions.
 
-#### Potential for Further Improvement
+- **Environmental Context:**
+  - The significant impact of cosmological parameters, \(\Omega_m\) and \(\sigma_8\), calls for a more nuanced integration of large-scale structure into galaxy evolution models. This exercise emphasizes that internal feedback mechanisms cannot be fully understood without considering the external, cosmological environment in which galaxies reside.
 
-- **Dilated CNNs** are theoretically well-suited for capturing long-range dependencies and multi-scale structure. However, in this context, the relatively simple mapping from four parameters to a smooth 1D spectrum does not appear to benefit from this architectural feature. Future work could explore more complex emulation tasks (e.g., higher-dimensional fields, inclusion of baryonic effects, or non-linear corrections) where dilated convolutions may prove advantageous.
-- **Hybrid or residual architectures** could be investigated to combine the strengths of dense and convolutional layers, particularly if the input space or output dimensionality is increased.
+- **Nonlinear and Joint Effects:**
+  - The clear evidence of interactions between feedback and mass (and between feedback and cosmological parameters) suggests that future models need to adopt a joint, nonlinear approach. Simple additive models may miss critical synergistic effects that operate across different mass regimes.
 
----
+### 5. Future Directions
 
-### 6. Physical Context and Implications
+- **Advanced Modeling Techniques:**
+  - Implementing machine learning models, such as random forests or neural networks, might improve the predictive power and expose subtler dependencies, particularly those that arise from higher-order interactions.
 
-The ability to rapidly and accurately emulate the matter power spectrum is essential for modern cosmological analyses, including Markov Chain Monte Carlo (MCMC) parameter inference, survey forecasting, and model comparison. The results presented here demonstrate that, for the task of emulating the linear matter power spectrum over a broad range of cosmological parameters, a well-regularized dense neural network is both sufficient and optimal in terms of accuracy and computational efficiency.
+- **Incorporating Additional Physical Parameters:**
+  - Expanding the analysis to include environmental indicators (e.g., local galaxy density, halo mass) and structural properties (e.g., morphology, kinematics) could further elucidate the mechanisms behind quenching.
 
-The low mean and maximum percent errors achieved by the Dense NN (1.19% and 7.85%, respectively) are well within the requirements for most cosmological applications, where theoretical uncertainties and observational errors are typically larger. The rapid inference time (<0.3 ms/sample) enables real-time emulation, making this approach highly attractive for integration into larger cosmological pipelines.
+- **Temporal Evolution:**
+  - Investigating the redshift evolution of quenching mechanisms could provide insights into how the interplay between AGN and SN feedback has shaped the star formation history of the universe.
 
----
+- **Comparative Studies:**
+  - A detailed comparison between CAMELS predictions and observational quenching trends would help validate the simulation models and refine the feedback prescriptions used in galaxy evolution simulations.
 
-### 7. Summary and Conclusions
+### 6. Conclusions
 
-- The Dense NN outperforms both standard and dilated 1D CNNs in accuracy, robustness, and computational efficiency for matter power spectrum emulation from four cosmological parameters.
-- All models achieve sub-2% mean percent errors across all \( k \)-scales, with the Dense NN consistently achieving the lowest errors.
-- The added complexity and parameter count of CNN-based models do not yield improved performance for this task, suggesting that the mapping from parameters to \( P(k) \) is sufficiently simple to be captured by a dense architecture.
-- For more complex emulation tasks, or when the input/output dimensionality is increased, convolutional or hybrid architectures may become advantageous.
-- The methodology and results presented here provide a rigorous benchmark for future studies of neural network emulators in cosmology.
+In summary, our comprehensive analysis of the CAMELS simulations reveals that the efficiency of star formation quenching is governed by a delicate balance among AGN feedback, SN feedback, and cosmological parameters — with stellar mass acting as a pivotal modulator. AGN feedback, particularly as quantified by \(A_{AGN1}\), emerges as the dominant quenching mechanism in massive galaxies, while SN feedback plays a more regulatory role in lower-mass systems. Cosmological factors such as \(\Omega_m\) and \(\sigma_8\) further enhance quenching efficiency by shaping the overall dynamical environment. The quantification of these trends through regression models, permutation importance, and partial correlations, combined with robust cross-validation metrics, provides a solid framework for understanding quenching in a cosmological context.
 
----
-
-**Figures and Tables Referenced:**
-- **Figure 1:** Percent error vs. \( k \) for each architecture (see `data/percent_error_vs_k_*.png`)
-- **Figure 2:** Example predictions vs. true \( P(k) \) for randomly selected test samples (see `data/pk_pred_vs_true_*.png`)
-- **Table 1:** Model performance summary (see above)
-- **Table 2:** Scale-dependent percent error metrics (see above)
-
----
-
-**Data and Code Availability:**  
-All code, data, and evaluation scripts are available in the project repository, with full documentation and version control to ensure reproducibility. Random seeds were fixed for all data splits and model initializations.
-
----
-
-**References:**  
-- Eisenstein, D. J., & Hu, W. (1998). Baryonic Features in the Matter Transfer Function. *The Astrophysical Journal*, 496(2), 605–614. [https://arxiv.org/abs/astro-ph/9710252](https://arxiv.org/abs/astro-ph/9710252)
-
----
-
-This analysis provides a robust foundation for the selection and deployment of neural network emulators in cosmological applications, and highlights the importance of matching model complexity to the intrinsic complexity of the emulation task.
+The results offer significant insights for both theoretical models and future observational surveys, guiding the development of more sophisticated tools that can simultaneously account for the multifaceted and interdependent impacts of feedback and cosmology on galaxy evolution.

@@ -54,13 +54,16 @@ Don't suggest to perform any calculations or analyses here. The only goal of thi
         #        shared_context = planning_output
         #       )
         
-        chat_history, final_context =cmbagent.planning_and_control(data_description,
+        results = cmbagent.planning_and_control(data_description,
                               n_plan_reviews = 1,
                               max_n_attempts = 4,
                               max_plan_steps = 6,
                               engineer_model = "gpt-4.1-2025-04-14",
                               plan_instructions=self.planner_append_instructions
                              )
+
+        chat_history = results['chat_history']
+        final_context = results['final_context']
         
         try:
             for obj in chat_history[::-1]:
