@@ -89,6 +89,7 @@ pip install -e .
 cd ..
 
 pip install pdflatex
+pip install pymupdf
 pip install jsonschema==4.23.0
 
 # Install an IPython kernel for the virtual environment
