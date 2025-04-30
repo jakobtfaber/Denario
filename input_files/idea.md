@@ -1,8 +1,7 @@
 
 Project Idea:
-	* Mapping Star Formation Quenching Efficiency Across Feedback and Cosmological Parameter Space with CAMELS Simulations
-		- This study systematically quantifies how the efficiency and prevalence of star formation quenching in galaxies at z=0 depend on supernova/AGN feedback and cosmological parameters.
-		- Utilizes the CAMELS simulation suite to disentangle the physical drivers of quenching.
-		- Provides predictive insights for galaxy evolution models and future observational surveys.
+	* Mapping the Diversity of the Black Hole–Stellar Mass Relation Across Cosmological and Feedback Parameter Space
+		- This project systematically quantifies how the slope, normalization, and scatter of the black hole–stellar mass relation in simulated galaxies depend on variations in cosmological and feedback parameters.
+		- Leverages the dataset’s unprecedented parameter coverage to reveal the physical drivers of scaling relation diversity and secondary dependencies in galaxy evolution.
 
         
