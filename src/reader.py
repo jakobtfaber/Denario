@@ -82,6 +82,10 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     for f_in in [state['files']['Error'], state['files']['LLM_calls']]:
         if os.path.exists(f_in):  os.remove(f"{f_in}")
 
+    # create empty file
+    #open(state['files']['LLM_calls'], 'w').close()
+        
+
     # remove LaTeX compilation log file
     f_in = f"{state['files']['Folder']}/{state['files']['LaTeX_log']}"
     if os.path.exists(f_in):  os.remove(f"{f_in}")
