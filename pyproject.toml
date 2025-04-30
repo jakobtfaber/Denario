@@ -30,7 +30,7 @@ dependencies = [
   "langgraph-prebuilt==0.1.8",
   "langgraph-sdk==0.1.61",
   "langsmith==0.3.25",
-  "google-geneai==1.8.0",
+  "google-geneai",
   "google-cloud-aiplatform==1.85.0",
   "google-ai-generativelanguage==0.6.17",
   "flatbuffers==24.12.23",
