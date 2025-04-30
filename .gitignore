@@ -1,9 +1,15 @@
 *~
+*/plots_repeated
 LaTeX/paper*
 output.txt
 LaTeX/*.pdf
 LaTeX/bibliography.bib
 graph_diagram.png
+*/bibliography.bib
+*/bibliography_temp.bib
+*/aasjournal.bst
+*/aastex631.cls
+Error.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -198,4 +204,4 @@ AP_env/*
 paper/
 project_data/
 notebooks/bblocal
-
+Project*

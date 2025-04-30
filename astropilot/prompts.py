@@ -1,4 +1,5 @@
 from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, AIMessage
+import re
 
 
 def idea_prompt(topic):
@@ -110,74 +111,86 @@ Respond in the following format:
 
 
 
-def abstract_prompt(idea):
+def abstract_prompt(state):
     
-    return [SystemMessage(content="""You are a scientific writer"""),
-            HumanMessage(content=rf"""Given the context below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
-- What are we trying to do and why is it relevant?
-- Why is this hard? 
-- How do we solve it (i.e. our contribution!)
-- How do we verify that we solved it (e.g. Experiments and results)
+    return [SystemMessage(content="""You are an astrophysicist"""),
+            HumanMessage(content=rf"""Given the idea, methods, and results below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
+- Briefly describe the problem
+- Briefly describe how we try to solve it
+- Mention the dataset and methods used
+- Briefly describe the results
 - Write the abstract in LaTex
+- Do not write equations or citations in the abstract
+- Abstract should be a single paragraph, no sections, subsections, or breaks between lines.
+- Please make sure the abstract reads smoothly and is well-motivated.
 
-Please make sure the abstract reads smoothly and is well-motivated. This should be one continuous paragraph with no breaks between the lines.
+Idea:
+{state['idea']['Idea']}
 
-Context:
-{idea}
+Methods:
+{state['idea']['Methods']}
 
-**Respond in this format**
+Results:
+{state['idea']['Results']}
+
+**Respond in exactly this format**
 
 ```json
 {{"Title": "The title of the paper",
 "Abstract": "The abstract of the paper"}}
 ```
-
-Make sure the text is in LaTex. 
 """)]
 
 
 def abstract_reflection(state):
 
-    return [SystemMessage(content="""Your are a cosmologist writing a scientific paper."""),
-            HumanMessage(content=rf"""Rewrite the above abstract given the current abstract and the original idea to make it more clear. Abstract should be a single paragraph, no sections, subsections, or breaks between lines.
+    return [SystemMessage(content="""Your are an astrophysicist"""),
+            HumanMessage(content=rf"""Rewrite the below abstract to make it more clear. You are given the idea, methods, and results of the paper together with the previously written abstract.
 
-Original Idea
-Title: {state['paper']['Title']}
-Description: {state['idea']['idea']}
+Idea:
+{state['idea']['Idea']}
 
-Abstract: {state['paper']['Abstract']}
+Methods:
+{state['idea']['Methods']}
 
-Respond with in the following format:
+Results:
+{state['idea']['Results']}
+
+Previous abstract:
+{state['paper']['Abstract']}
+
+**Respond in exactly this format**
 
 \\begin{{Abstract}}
 <ABSTRACT>
 \\end{{Abstract}}
+            
 In <ABSTRACT>, place the Abstract of the paper. Follow these guidelines:
-- What are we trying to do and why is it relevant?
-- Why is this hard? 
-- How do we solve it (i.e. our contribution!)
-- How do we verify that we solved it (e.g. Experiments and results)
-
-Please make sure the abstract reads smoothly and is well-motivated. This should be one continuous paragraph with no breaks between the lines.
+- Abstract should be a single paragraph, no sections, subsections, or breaks between lines.
+- Briefly describe the problem
+- Briefly describe how we try to solve it
+- Mention the dataset and methods used
+- Briefly describe the results
+- Please make sure the abstract reads smoothly and is well-motivated.
 """)]
 
 
 def introduction_prompt(state):
 
-    return [SystemMessage(content="You are a cosmologist."),
+    return [SystemMessage(content="You are an astrophysicist"),
             HumanMessage(content=rf"""Given the title, idea, and methods below, write an introduction for a paper in LaTex.
 
-Title: 
+Paper title: 
 {state['paper']['Title']}
-
-Description: 
-{state['idea']['idea']}
-
-Methods:
-{state['idea']['Methods']}
 
 Paper abstract: 
 {state['paper']['Abstract']}
+
+Paper general idea: 
+{state['idea']['Idea']}
+
+Paper methods:
+{state['idea']['Methods']}
 
 Please respond in this format:
 
@@ -186,14 +199,13 @@ Please respond in this format:
 \\end{{Introduction}}
 
 In <INTRODUCTION>, place the introduction of the paper. Please, follow these guidelines:
-- Write in LaTex
-- Longer version of the Abstract, i.e. of the entire paper
-- Text should contain at least 10 paragraphs. Each paragraph should have 5 sentences
-- What are we trying to do and why is it relevant?
-- Why is this hard? 
-- How do we solve it (i.e. our contribution!)
-- How do we verify that we solved it (e.g. Experiments and results)
-- Extra space? Future work!
+- Write your response in LaTex
+- Expand on the key points mentioned in the abstract, providing more background and context as appropriate for an introduction.
+- Describe what is the problem and why it is difficult
+- Describe how we attempt to solve it in this paper
+- Describe how we verify that we have solved the problem
+- Do not create subsections
+- Do not add citations 
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTeX.
 """)]
@@ -201,23 +213,23 @@ Please make sure the introduction reads smoothly and is well-motivated. If you u
 
 def introduction_reflection(state):
 
-    return [SystemMessage(content="""Your are a cosmologist writing a scientific paper."""),
-            HumanMessage(content=rf"""Rewrite the introduction below to make it more clear. Take into account the previous introduction and the original idea to make it more clear.
+    return [SystemMessage(content="""Your are an astrophysicist"""),
+            HumanMessage(content=rf"""Rewrite the paper introduction below to make it more clear. Take into account the paper title, abstract, idea, and methods.
 
-Original Idea
-Title: 
+
+Paper title: 
 {state['paper']['Title']}
 
-Description: 
-{state['idea']['Idea']}
-
-Methods:
-{state['idea']['Methods']}
-
-Abstract: 
+Paper abstract: 
 {state['paper']['Abstract']}
 
-Introduction: 
+Paper idea: 
+{state['idea']['Idea']}
+
+Paper methods:
+{state['idea']['Methods']}
+
+Previous paper introduction: 
 {state['paper']['Introduction']}
 
 Respond with in the following format:
@@ -225,15 +237,15 @@ Respond with in the following format:
 \begin{{Introduction}}
 <INTRODUCTION>
 \end{{Introduction}}
-In <INTRODUCTION>, place the Introduction of the paper. Follow these guidelines:
+
+In <INTRODUCTION>, place the new Introduction of the paper. Follow these guidelines:
 - Write in LaTex
-- Longer version of the Abstract, i.e. of the entire paper
-- Text should contain at least 10 paragraphs. Each paragraph should have 5 sentences
-- What are we trying to do and why is it relevant?
-- Why is this hard? 
-- How do we solve it (i.e. our contribution!)
-- How do we verify that we solved it (e.g. Experiments and results)
-- Extra space? Future work!
+- Expand on the key points mentioned in the abstract, providing more background and context as appropriate for an introduction
+- Describe what is the problem and why it is difficult
+- Describe how we attempt to solve it in this paper
+- Describe how we verify that we have solved the problem
+- Do not create subsections
+- Do not add citations 
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTex.
 """)]
@@ -241,55 +253,59 @@ Please make sure the introduction reads smoothly and is well-motivated. If you u
 
 def methods_prompt(state):
 
-    return [SystemMessage(content='''You are a cosmologist writing a scientific paper'''),
-            HumanMessage(content=rf"""Given the idea and methods below, write a detailed and technical method section describing the methods and techniques used in the paper. Describe each method in detail.
+    return [SystemMessage(content='''You are an astrophysicist'''),
+            HumanMessage(content=rf"""Given the below paper title, abstract, introduction, and methods, write the methods section for the paper. Describe in detail each of the methods and techniques use in the paper.
 
-Title: 
+Paper title: 
 {state['paper']['Title']}
-
-Description: 
-{state['idea']['Idea']}
-
-Methods:
-{state['idea']['Methods']}
 
 Paper abstract: 
 {state['paper']['Abstract']}
 
-Follow these guidelines:
-- Reason about the steps needed to solve the problem and write them with detail.
-- Describe in detail each step and write about the datatset, numerical simulations, evaluation metrics or any other element needed.
-- Do not write the bibliography.
-- Write in LaTex.
+Paper introduction:
+{state['paper']['Introduction']}
+
+Short description of paper methods:
+{state['idea']['Methods']}
 
 Respond in this format:
 
 \begin{{Methods}}
 <METHODS>
 \end{{Methods}}
+
+In <METHODS> put the paper methods section written in LaTeX.
+
+Follow these guidelines:
+- Write in LaTex
+- Describe in detail the different methods used, the dataset, evaluation metrics, and any other element relevant
+- Do not write citations. References will be added later on
+- Try to connect the text in this section with the one in the introduction
+- Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
+- The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections.
 """)]
 
 
 def results_prompt(state):
 
-    return [SystemMessage(content='''You are a cosmologist writing a scientific paper'''),
-            HumanMessage(content=rf"""Given the title, idea and results below, write a detailed and technical results section describing results obtained.
+    return [SystemMessage(content='''You are an astrophysicist'''),
+            HumanMessage(content=rf"""Given the paper title, abstract, introduction, and short results below, write the results section for a scientific paper. Describe in detail the results obtained and try to intepret them
 
-Title: 
+Paper title: 
 {state['paper']['Title']}
 
-Description: 
-{state['idea']['Idea']}
+Paper abstract: 
+{state['paper']['Abstract']}
 
-Results: 
+Paper introduction: 
+{state['paper']['Introduction']}
+
+Paper methods: 
+{state['paper']['Methods']}
+
+Paper short results: 
 {state['idea']['Results']}
-
-Follow these guidelines:
-- Explain carefully the experiment conducted and its outcome
-- Do not put placeholders for plots
-- Describe what we have learned from the experiments
-- Do not write the bibliography
-- Write in LaTex
 
 Respond in this format:
 
@@ -298,12 +314,25 @@ Respond in this format:
 \end{{Results}}
 
 In <Results> put the results section written in LaTeX.
+
+Follow these guidelines:
+- Write in LaTex
+- Explain carefully the results obtained
+- Do not add plots or placeholders for plots. Plots will be added later on
+- Describe what we have learned from the results
+- Do not write the bibliography
+- Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
+- You can create subsections and subsubsections, but **you cannot create sections**
+- You can summarize the results at the end, but do not write a conclusions subsection as there will be a conclusions section written later on
+- The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{{aastex631}}. Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
+- Try to connect the text written with the one in the introduction and methods
 """)]
 
 
 def refine_results_prompt(state):
     return [
-        SystemMessage(content='You are a cosmologist writing a scientific paper.'),
+        SystemMessage(content='You are an astrophysicist'),
         HumanMessage(content=fr"""You are given the Results section of a paper that contains text and figures. The text and the figures were added independently, so there may not be a clear flow of integration between the two.
 
 Your task is to rewrite the text to make it more coherent with the figures and their captions. Follow these rules:
@@ -314,6 +343,8 @@ Your task is to rewrite the text to make it more coherent with the figures and t
 - Reorder figures and paragraphs only if it improves the clarity of the text
 - Do not remove technical or scientific content
 - Write the text in LaTeX
+- **Do not write subsections titles in capital letters**
+- The first letter of subsection titles should be in capital
 
 Results section:
 {state['paper']['Results']}
@@ -330,28 +361,34 @@ In <Results> put the new Results section.
 
 def conclusions_prompt(state):
 
-    return [SystemMessage(content='''You are a cosmologist writing a scientific paper'''),
-            HumanMessage(content=rf"""Given the title, idea and results below, write the conclusions for the scientific paper.
+    return [SystemMessage(content='''You are an astrophysicist'''),
+            HumanMessage(content=rf"""Below you can find a paper title, abstract, introduction, methods, and results. Given that information, write the conclusions for the paper
 
-Title: 
+Paper title: 
 {state['paper']['Title']}
 
-Description: 
-{state['idea']['Idea']}
+Paper abstract: 
+{state['paper']['Abstract']}
 
-Methods:
+Paper introduction: 
+{state['paper']['Introduction']}
+            
+Paper methods: 
 {state['paper']['Methods']}
 
 Results: 
-{state['idea']['Results']}
+{state['paper']['Results']}
 
 Follow these guidelines:
-- Explain the idea of the project
-- Describe what datasets and methods used
+- Write in LaTex
+- Briefly describe what is the problem and how this paper tries to solve it
+- Describe the datasets and methods used
 - Describe the results obtained
 - Describe what we have learned from the results and this paper
-- Do not write the bibliography
-- Write in LaTex
+- Do not add citations. Citations will be added later on
+- Do not write subsections titles in capital letters
+- The first letter of subsection titles should be in capital
+- Do not write words or sentences between *. 
 
 Respond in this format:
 
@@ -359,31 +396,43 @@ Respond in this format:
 <Conclusions>
 \end{{Conclusions}}
 
-In <Conclusions> put the conclusion section written in LaTeX.
+In <Conclusions> put the paper conclusions section written in LaTeX.
 """)]
 
 
 def caption_prompt(state, image, name=None):
     return [
-        SystemMessage(content="You are a cosmologist."),
+        SystemMessage(content="You are an astrophysicist"),
         HumanMessage(content=[
-            {"type": "text", "text": rf"""You are a cosmologist and your task is to create a caption for the figure. Create the caption to describe the image. Use the name of the image to know what quantity its being shown. Describe the outcome of the image. E.g. large differences are seen or small differences are found. Write the caption in LaTeX.
+            {"type": "text", "text": rf"""Your task is to create a caption for a figure for a scientific paper. 
 
-**Respond in this format**
+Follow these guidelines:
+
+- Write the caption in LaTeX
+- Describe what the image is showing
+- Use the context below to relate the content of the caption to the results section
+- Do not refer to any section or subsection in the text
+- Try to describe what we learn from the image
+- Write the caption to be as short as possible while keeping its content
+
+Context:
+{state['idea']['Results']}
+            
+**Respond in exactly this format**
 
 \\begin{{Caption}}
 <Caption>
 \\end{{Caption}}
 
-In <Caption> place the figure caption written in LaTeX.
+In <Caption> place the figure caption.
 """},
             {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{image}"}}
         ])
     ]
 
 def plot_prompt(state, images):
-    return [SystemMessage(content="""You are a cosmologist writing a scientific paper."""),
-            HumanMessage(content=rf"""Your task is to insert a set of images in the section of a paper. You are given the current Results section and a dictionary that contains the name and the caption of each image. Your task is to place these images in the best locations in the text together with their captions.
+    return [SystemMessage(content="""You are an astrophysics"""),
+            HumanMessage(content=rf"""Your task is to insert a set of images in the section of a paper. You are given the current Results section and a dictionary that contains the name and the caption of each image. Your task is to place these images in the best locations in the text together with their captions. Note that the text may contain some plots there already. If so, do not remove these images, and do not change the location of the images, just add the news plots.
 
 section:
 {state['paper']['Results']}
@@ -397,17 +446,31 @@ Respond in this format:
 <Section>
 \end{{Section}}
 
-In <Section>, put the new section with the images and their captions. The location of each image should be '../Input_Files/plots/image_name'. Choose a label for each image given its caption. The width of the images should be half the page. Note that all text in <Section> should be compatible with LaTex.
+In <Section>, put the new section with the images and their captions. The location of each image should be "../{state['files']['Folder']}/plots/image_name". Choose a label for each image given its caption. The width of the images should be half the page. Note that all text in <Section> should be compatible with LaTex. Make sure you do not put extra brackets at the end of the captions. The captions of the figures must be on a single paragraph. Do create enumerates or itemize inside the caption.
 """)]
 
 
 def LaTeX_prompt(text):
     
-    return [HumanMessage(content=fr'''Given the text below, make minimal modifications to parts that are not compatible with LaTeX. For instance:
+    return [HumanMessage(content=fr'''fr"""Given the original text below, make minimal modifications to parts that are not compatible with LaTeX. For instance:
 
-- Subhalo_A: change to Subhalo\_A
+- Subhalo\_A: change to Subhalo\ensuremath{{\_}}A
+- Eisenstein & Hu: change to Eisenstein \& Hu
+- SubhaloStellarPhotometrics\_{{i}}: change to SubhaloStellarPhotometrics\ensuremath{{\_}}{{i}}
 
-Text: 
+Pay special attentions to underscores, \_. Follow these rules to make it LaTeX compatible:
+
+- If the underscore is inside an equation, do not modify it
+- If the underscore is inside the location of a figure, do not modify it
+- If the underscore is inside a reference, e.g. \ref{{fig:plot\_A.png}}, do not modify it
+- In other conditions, change \_ by \ensuremath{{\_}}
+- Change from \_ to \ensuremath{{\_}} if you think that having as \_ will raise an error in LaTeX
+- In general, dont do \\\_ or \\% as that is not valid
+- Be careful about the symbol %. In LaTeX, if not used properly it will comment everything after it.
+- Make sure in-line equations are between $
+- Do not use or create commands, e.g. \hMpc 
+
+Original text: 
 {text}
 
 **Respond in this format**:
@@ -416,8 +479,41 @@ Text:
 <Text>
 \\end{{Text}}
 
-In <Text>, insert the LaTeX compatible text.
+In <Text>, insert the LaTeX compatible text. 
 ''')]
+
+
+
+def clean_section_prompt(state,text):
+
+    return [HumanMessage(content=fr"""You are given a section of LaTeX text. Your task is to make **minimal, clarity-focused edits** while ensuring the result is valid LaTeX and preserves the original meaning.
+
+You may:
+- Split long paragraphs for better readability
+- Adjust wide tables to occupy the full page width
+- Remove individual citations **only if they appear inside figures or tables**
+
+Do **not**:
+- Change the order of paragraphs or figures
+- Create new sections or restructure the content
+- Remove or rewrite content outside the above allowances
+- Remove all the citations in the text, only those inside figures or tables
+
+Ensure the modified output can still be compiled in LaTeX without error.
+
+---
+
+**Original Text:**
+{text}
+
+---
+
+**Respond in this exact format**:
+
+\\begin{{Text}}
+<Insert the cleaned LaTeX text here>
+\\end{{Text}}
+""")]
 
 
 def summary_prompt(summary, text):
@@ -440,9 +536,9 @@ In <Summary> put the total summary.
 """)]
 
 
-def references_prompt(text):
+def references_prompt(state, text):
 
-    return [HumanMessage(content=f"""You are provided an original text from a scientific paper writen in LaTeX. In the text, there are figures and references to figures. Your task is to make sure that the references to the figures are correct. If there are errors, please correct the text to fix it. Follow these guidelines:
+    return [HumanMessage(content=f"""You are provided an original text from a scientific paper written in LaTeX. In the text, there are figures and references to figures. Your task is to make sure that the references to the figures are correct. If there are errors, please correct the text to fix it. Follow these guidelines:
 
 - Do not add or remove text
 - Focus on fixing errors in references to figures
@@ -451,7 +547,7 @@ def references_prompt(text):
 
 \\begin{{figure}}[h!]
     \\centering
-    \\includegraphics[width=0.5\textwidth]{{../Input_Files/plots/A.png}}
+    \\includegraphics[width=0.5\textwidth]{{../{state['files']['Folder']}/plots/A.png}}
     \\caption{{Histogram of GroupSFR for two different values of non-Gaussianities. The blue histogram represents $f = 200$ and the red histogram represents $f = -200$. Large differences are seen in the normalized density of GroupSFR for the two different values of $f$.}}
     \\label{{fig:GroupSFR_hist}}
 \\end{{figure}}
