@@ -9,7 +9,7 @@ Download [installer.sh](https://github.com/AstroPilot-AI/AstroPilot/blob/bbdev/i
 ```bash
 chmod +x installer.sh, then:
 ./installer.sh
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gemini.json
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gemini.json ## is this needed? maybe not...
 source astrop_env/bin/activate
 jupyter-lab
 ```
