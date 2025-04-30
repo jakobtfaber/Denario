@@ -9,7 +9,7 @@ import os
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 
-from .config import REPO_DIR
+from .config import REPO_DIR as repo_dir_default
 
 from cmbagent import CMBAgent
 import shutil
@@ -17,6 +17,15 @@ import shutil
 
 
 class AstroPilot:
+
+
+    def __init__(self, input_data: 'AstroPilot.Research' = None, params={}, repo_dir: str = repo_dir_default):
+        if input_data is None:
+            input_data = AstroPilot.Research()  # Initialize with default values
+        self.research = input_data
+        self.params = params
+        self.repo_dir = repo_dir    
+
     class Research(BaseModel):
         data_description: str = Field(default="", description="The data description of the project")
         idea: str = Field(default="", description="The idea of the project")
@@ -26,17 +35,11 @@ class AstroPilot:
         keywords: Dict[str, str] = Field(default_factory=dict, description="The AAS keywords describing the project")
 
 
-    def __init__(self, input_data: 'AstroPilot.Research' = None, params={}):
-        if input_data is None:
-            input_data = AstroPilot.Research()  # Initialize with default values
-        self.research = input_data
-        self.params = params
-
     def set_data_description(self, data_description: str = None, **kwargs):
         if data_description is None:
-            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'r') as f:
                 data_description = f.read()
-            data_description = data_description.replace("{path_to_project_data}", str(REPO_DIR)+ "/project_data/")
+            data_description = data_description.replace("{path_to_project_data}", str(self.repo_dir)+ "/project_data/")
 
         elif data_description.endswith(".md"):
             with open(data_description, 'r') as f:
@@ -51,7 +54,7 @@ class AstroPilot:
 
         self.research.data_description = data_description
         # overwrite the data_description.md file
-        with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'w') as f:
+        with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'w') as f:
             f.write(data_description)
         return None
 
@@ -65,8 +68,14 @@ class AstroPilot:
         idea = idea.develop_idea(self.research.data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
-        idea_path = os.path.join(REPO_DIR, 'input_files', 'idea.md')
+        idea_path = os.path.join(self.repo_dir, 'input_files', 'idea.md')
         with open(idea_path, 'w') as f:
+            f.write(idea)
+        return None
+    
+    def set_idea(self, idea: str = None):
+        # write idea to idea.md file
+        with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'w') as f:
             f.write(idea)
         return None
     
@@ -77,11 +86,11 @@ class AstroPilot:
     def get_method(self, **kwargs):
 
         if self.research.data_description == "":
-            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'r') as f:
                 self.research.data_description = f.read()        
 
         if self.research.idea == "":
-            with open(os.path.join(REPO_DIR, 'input_files', 'idea.md'), 'r') as f:
+            with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'r') as f:
                 self.research.idea = f.read()
 
         method = Method(self.research.idea)
@@ -89,46 +98,58 @@ class AstroPilot:
         self.research.methodology = methododology
 
         # Write idea to file
-        method_path = os.path.join(REPO_DIR, 'input_files', 'method.md')
+        method_path = os.path.join(self.repo_dir, 'input_files', 'methods.md')
         with open(method_path, 'w') as f:
             f.write(methododology)
+        return None
+    
+    def set_method(self, method: str = None):
+        # write method to method.md file
+        with open(os.path.join(self.repo_dir, 'input_files', 'methods.md'), 'w') as f:
+            f.write(method)
         return None
     
     def show_method(self):
         display(Markdown(self.research.methodology))
         return None
 
-    def get_results(self, **kwargs):
+    def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], **kwargs):
 
         if self.research.data_description == "":
-            with open(os.path.join(REPO_DIR, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'r') as f:
                 self.research.data_description = f.read()
 
         if self.research.idea == "":
-            with open(os.path.join(REPO_DIR, 'input_files', 'idea.md'), 'r') as f:
+            with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'r') as f:
                 self.research.idea = f.read()
 
         if self.research.methodology == "":
-            with open(os.path.join(REPO_DIR, 'input_files', 'method.md'), 'r') as f:
+            with open(os.path.join(self.repo_dir, 'input_files', 'methods.md'), 'r') as f:
                 self.research.methodology = f.read()
 
 
-        experiment = Experiment(self.research.idea, self.research.methodology)
+        experiment = Experiment(self.research.idea, self.research.methodology, involved_agents=involved_agents)
         run = experiment.run_experiment(self.research.data_description, **kwargs)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
 
         # move plots to the plots folder in input_files/plots 
-        plots_folder = os.path.join(REPO_DIR, 'input_files', 'plots')
+        plots_folder = os.path.join(self.repo_dir, 'input_files', 'plots')
+        # Ensure the folder exists
+        os.makedirs(plots_folder, exist_ok=True)
         ## Clearing the folder
         if os.path.exists(plots_folder):
             for file in os.listdir(plots_folder):
-                os.remove(os.path.join(plots_folder, file))
+                file_path = os.path.join(plots_folder, file)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                elif os.path.isdir(file_path):
+                    shutil.rmtree(file_path)
         for plot_path in self.research.plot_paths:
             shutil.move(plot_path, plots_folder)
 
         # Write results to file
-        results_path = os.path.join(REPO_DIR, 'input_files', 'results.md')
+        results_path = os.path.join(self.repo_dir, 'input_files', 'results.md')
         with open(results_path, 'w') as f:
             f.write(self.research.results)
         return None

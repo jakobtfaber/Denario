@@ -1,6 +1,8 @@
 
 Project Idea:
-	* Efficient Multi-Scale Emulation of the Matter Power Spectrum with Dilated 1D Convolutional Neural Networks on Synthetic Data
-		- This research investigates the use of dilated 1D convolutional neural networks, combined with physics-informed evaluation metrics and data augmentation, to efficiently emulate the matter power spectrum from quickly-generated synthetic datasets on standard laptop hardware.
+	* Disentangling the Impact of Feedback and Cosmology on Black Hole–Galaxy Scaling Relations: Insights from the CAMELS Simulation Suite
+		- This study systematically quantifies how the slopes and scatter of the M_BH–M_star and M_BH–sigma_v relations depend on feedback and cosmological parameters.
+		- Leverages the unprecedented parameter coverage and statistical power of the CAMELS dataset.
+		- Provides new constraints on the co-evolution of galaxies and their central black holes.
 
         

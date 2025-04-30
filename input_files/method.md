@@ -1,92 +1,103 @@
-### Methodology for Evaluating Neural Network Architectures for Matter Power Spectrum Emulation
+### Methodology for Quantifying the Dependence of Black Hole–Galaxy Scaling Relations on Feedback and Cosmological Parameters
 
-#### 1. Data Preparation and Preprocessing
+#### 1. Data Preparation and Integration
 
-**a. Dataset Structure**  
-Utilize the synthetic dataset comprising 4,000 samples, each with four cosmological parameters (Ωm, σ8, h, ns) and a 64-point matter power spectrum P(k) vector spanning 0.01–1.0 h/Mpc.
+- **Data Loading:**  
+  Load the galaxy-level DataFrame (`galaxies_full_optimal.parquet`) and the catalog-level DataFrame (`catalog_params_optimal.parquet`) using efficient I/O routines.
 
-**b. Input Preprocessing**  
-- Standardize each input parameter to zero mean and unit variance using statistics computed from the training set.
-- No feature selection is performed; all four parameters are retained as inputs.
+- **Galaxy Selection:**  
+  Filter the galaxy-level data to include only galaxies with non-zero black hole mass (\( M_\mathrm{BH} > 0 \)), as motivated by the EDA and physical considerations.
 
-**c. Output Preprocessing**  
-- Apply a logarithmic transformation to each P(k) value to stabilize variance across the k-range.
-- Standardize the log-transformed P(k) values to zero mean and unit variance (per k-point) using training set statistics.
+- **Stellar Mass Binning:**  
+  Assign each galaxy to one of three stellar mass bins:
+  - Low: \( M_\mathrm{star} < 10^9\,M_\odot \)
+  - Intermediate: \( 10^9 \leq M_\mathrm{star} < 10^{10}\,M_\odot \)
+  - High: \( M_\mathrm{star} \geq 10^{10}\,M_\odot \)
 
-**d. Data Splitting**  
-- Randomly split the dataset into training (70%), validation (15%), and test (15%) sets, ensuring that augmented samples are distributed across all splits to maintain realistic variability in each subset.
+- **Data Merging:**  
+  Ensure that each galaxy is associated with its parent catalog’s cosmological and feedback parameters, either by using the columns already present in the galaxy DataFrame or by merging with the catalog-level DataFrame on `catalog_number`.
 
-#### 2. Model Architecture Selection
+#### 2. Per-Catalog Scaling Relation Fitting
 
-**a. Baseline Models**  
-- Implement a fully connected (dense) neural network as a baseline, with several hidden layers and ReLU activations.
+- **Catalog-wise Analysis:**  
+  For each of the 1,000 catalogs:
+  - Select all galaxies belonging to the catalog and with \( M_\mathrm{BH} > 0 \).
+  - For each stellar mass bin, fit the following scaling relations:
+    - \( \log_{10} M_\mathrm{BH} = \alpha + \beta \log_{10} M_\mathrm{star} + \epsilon \)
+    - \( \log_{10} M_\mathrm{BH} = \alpha' + \beta' \log_{10} \sigma_v + \epsilon' \)
+  - Use ordinary least squares (OLS) linear regression in log–log space to estimate the slope (\( \beta \)), intercept (\( \alpha \)), and intrinsic scatter (\( \sigma_\mathrm{int} \)), where scatter is defined as the standard deviation of the residuals.
+  - If the number of galaxies in a bin is below a minimum threshold (e.g., 20), skip the fit for that bin to avoid unreliable estimates.
 
-**b. Convolutional Architectures**  
-- Design and implement 1D convolutional neural networks (CNNs) with varying kernel sizes and depths.
-- Develop dilated 1D CNNs, systematically varying dilation rates to capture multi-scale dependencies in P(k).
-- Optionally, include residual connections or attention mechanisms to assess their impact on performance.
+- **Parallelization:**  
+  Distribute the per-catalog fitting tasks across the available 8 CPUs using multiprocessing or joblib, ensuring that each process handles a subset of catalogs. This approach keeps each calculation well within the 10-minute runtime constraint.
 
-**c. Hyperparameter Grid**  
-- For each architecture, define a grid of hyperparameters (number of layers, kernel size, dilation rate, number of filters, learning rate, batch size).
-- Use the validation set for hyperparameter optimization.
+#### 3. Construction of the Catalog-Level Summary Table
 
-#### 3. Model Training
+- **Summary Table:**  
+  For each catalog and each stellar mass bin, record:
+  - Best-fit slope, intercept, and scatter for both \( M_\mathrm{BH} \)–\( M_\mathrm{star} \) and \( M_\mathrm{BH} \)–\( \sigma_v \) relations.
+  - The catalog’s cosmological and feedback parameters (\( \Omega_m, \sigma_8, A_\mathrm{SN1}, A_\mathrm{SN2}, A_\mathrm{AGN1}, A_\mathrm{AGN2} \)).
+  - The number of galaxies used in each fit.
 
-**a. Training Procedure**  
-- Use the Adam optimizer with an initial learning rate selected from the hyperparameter grid.
-- Employ early stopping based on validation loss to prevent overfitting.
-- Train each model for a maximum of 200 epochs, with batch normalization and dropout as regularization options.
+- **Data Structure:**  
+  The resulting summary table will have one row per (catalog, mass bin) combination, with columns for all fit parameters and catalog-level parameters.
 
-**b. Loss Function**  
-- Use mean squared error (MSE) on the standardized, log-transformed P(k) as the primary loss function.
+#### 4. Quantifying Parameter Dependence
 
-#### 4. Model Evaluation
+- **Exploratory Visualization:**  
+  - Plot the distribution of best-fit slopes, intercepts, and scatter as a function of each cosmological and feedback parameter, for each mass bin.
+  - Use scatter plots, violin plots, and heatmaps to visually assess trends and correlations.
 
-**a. Primary Metrics**  
-- **Mean Absolute Percent Error (MAPE)** and **Root Mean Squared Error (RMSE)** on the test set, computed for each k-point and averaged over all k.
-- **Maximum Percent Error** at each k-point to assess worst-case performance.
-- **Computational Efficiency:** Record training time per epoch and inference time per sample for each architecture.
+- **Statistical Analysis:**
+  - **Partial Correlation Analysis:**  
+    Compute partial correlation coefficients between each scaling relation parameter (slope, intercept, scatter) and each cosmological/feedback parameter, controlling for the others. This helps disentangle the effects of correlated parameters.
+  - **Multivariate Regression:**  
+    Fit linear models of the form:
+    \[
+    \text{Slope} = c_0 + c_1 \Omega_m + c_2 \sigma_8 + c_3 A_\mathrm{SN1} + c_4 A_\mathrm{SN2} + c_5 A_\mathrm{AGN1} + c_6 A_\mathrm{AGN2} + \epsilon
+    \]
+    and similarly for intercept and scatter, for each mass bin and scaling relation.
+    - Use standardized coefficients to compare the relative importance of each parameter.
+    - Assess statistical significance and goodness-of-fit.
+  - **Feature Importance (Machine Learning):**  
+    As a complementary approach, use random forest regression or gradient boosting to predict the slope/intercept/scatter from the six catalog parameters. Extract feature importances to quantify the relative influence of cosmology versus feedback.
+    - Use cross-validation to ensure robustness.
+    - Restrict tree depth and number of estimators to maintain computational efficiency.
 
-**b. Physics-Informed Metrics**  
-- **Percent Error in P(k):**  
-  \( \text{Percent Error}(k) = 100 \times \frac{|P_{\text{pred}}(k) - P_{\text{true}}(k)|}{P_{\text{true}}(k)} \)  
-  Compute this for each k and report the mean, median, and 95th percentile across the test set.
-- **Scale-Dependent Performance:**  
-  Report metrics separately for large scales (k < 0.1 h/Mpc), intermediate (0.1 ≤ k < 0.3 h/Mpc), and small scales (k ≥ 0.3 h/Mpc).
+- **Nonlinear Effects:**  
+  If strong nonlinearities are observed, consider fitting polynomial or interaction terms, or use kernel-based methods, but only if justified by initial results and computationally feasible.
 
-**c. Model Comparison**  
-- Tabulate and plot the performance of all architectures across the above metrics.
-- Highlight the trade-off between accuracy and computational efficiency.
+#### 5. Results Summarization
 
-#### 5. Justification of Methodological Choices
+- **Tables and Figures:**  
+  - Present tables of mean and standard deviation of slopes, intercepts, and scatter as a function of each parameter (binned or continuous).
+  - Provide summary plots showing the dependence of scaling relation parameters on cosmological and feedback parameters, for each mass bin.
+  - Highlight the most influential parameters as determined by regression coefficients and feature importances.
 
-- **Multi-Scale Structure:**  
-  The EDA revealed strong scale-dependent parameter influence and multi-scale structure in P(k), justifying the use of dilated CNNs to efficiently capture both local and global features.
-- **Log-Transformation:**  
-  The wide dynamic range of P(k) values motivates log-transformation to stabilize variance and improve regression accuracy.
-- **Augmentation and Standardization:**  
-  Data augmentation and standardization are retained to enhance generalization and ensure stable training.
-- **Evaluation Metrics:**  
-  Percent error at different k-scales is critical for cosmological applications, as accuracy requirements vary by scale.
+- **Key Statistics:**  
+  - Report the range and typical values of slopes and scatter across the parameter space.
+  - Quantify the fraction of variance in scaling relation parameters explained by cosmology versus feedback.
 
-#### 6. Reporting and Visualization
+#### 6. Computational Considerations
 
-- Present summary tables of model performance, including the following (example based on EDA results):
+- **Batch Processing:**  
+  - If memory or runtime becomes limiting, process catalogs in batches (e.g., 100 at a time), aggregating results after each batch.
 
-| Model Type      | Mean MAPE (%) | Max Error (%) | RMSE (log P(k)) | Train Time (s/epoch) | Inference Time (ms/sample) |
-|-----------------|---------------|---------------|-----------------|----------------------|----------------------------|
-| Dense NN        | ...           | ...           | ...             | ...                  | ...                        |
-| 1D CNN          | ...           | ...           | ...             | ...                  | ...                        |
-| Dilated 1D CNN  | ...           | ...           | ...             | ...                  | ...                        |
+- **Catalog Sampling (if needed):**  
+  - For initial tests or if full-sample analysis is infeasible, select a stratified random sample of catalogs that span the full range of cosmological and feedback parameters.
 
-- Plot percent error as a function of k for each architecture.
-- Visualize example predictions versus true P(k) for randomly selected test samples.
+- **Efficient Storage:**  
+  - Store intermediate and final results in compressed, columnar formats (e.g., Parquet) to facilitate rapid access and downstream analysis.
 
-#### 7. Reproducibility
+#### 7. Reproducibility and Robustness
 
-- All preprocessing steps, model definitions, and evaluation scripts will be version-controlled and documented.
-- Random seeds will be fixed for all data splits and model initializations to ensure reproducibility.
+- **Code Modularity:**  
+  - Structure the analysis pipeline so that each step (data loading, fitting, summary, regression) can be rerun independently.
+
+- **Validation:**  
+  - Perform sanity checks by comparing aggregate scaling relations (across all catalogs) to those in the literature and to the EDA results.
+  - Test the sensitivity of results to binning choices and fitting thresholds.
 
 ---
 
-This methodology provides a rigorous, EDA-informed framework for the systematic evaluation and comparison of neural network architectures for efficient, accurate emulation of the matter power spectrum.
+This methodology ensures a rigorous, efficient, and interpretable quantification of how black hole–galaxy scaling relations depend on cosmological and feedback parameters, leveraging the statistical power and parameter coverage of the CAMELS dataset while respecting computational constraints.
