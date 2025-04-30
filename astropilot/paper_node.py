@@ -13,7 +13,7 @@ from .tools import json_parser, fixer, LaTeX_checker, clean_section, extract_lat
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file
 
-from cmbagent import CMBAgent
+import cmbagent
 
 
 
@@ -28,52 +28,50 @@ def keywords_node(state: GraphState, config: RunnableConfig):
     PROMPT = keyword_prompt(state)
 
     ### CMBAGENT template for keywords
-    #     cmbagent = CMBAgent()
-    #     PROMPT = f"""
-    # Idea:
-    # {state['idea']['Idea']}
+    PROMPT = f"""
+Idea:
+{state['idea']['Idea']}
 
-    # Methods:
-    # {state['idea']['Methods']}
-    # """
-    #     cmbagent.solve(task="Find the relevant AAS keywords",
-    #                max_rounds=50,
-    #                initial_agent='aas_keyword_finder',
-    #                mode = "one_shot",
-    #                shared_context={
-    #                'text_input_for_AAS_keyword_finder': PROMPT,
-    #                'N_AAS_keywords': 8,
-    #                               }
-    #               )
-    #     aas_keywords = cmbagent.final_context['aas_keywords'] ## here you get the dict with urls
-    #     # Extract keys and join them with a comma.
-    #     aas_keywords_str = ", ".join(aas_keywords.keys())
-    #     return {'paper': {**state['paper'], 'Keywords': aas_keywords_str}}
+Methods:
+{state['idea']['Methods']}
+    """
+
+    aas_keywords = cmbagent.get_keywords(PROMPT, n_keywords = 8)
+    # Extract keys and join them with a comma.
+    aas_keywords_str = ", ".join(aas_keywords.keys())
+    cmbagent_keywords_dict  = {'paper': {**state['paper'], 'Keywords': aas_keywords_str, 'tokens': {'i': 0, 'o': 0, 'ti': 0, 'to': 0}}}
+    # return 
     ### END CMBAGENT template for keywords
 
-    # temporary file with the selected keywords
-    f_temp = Path(f"{state['files']['Temp']}/Keywords.tex")
+    # # temporary file with the selected keywords
+    # f_temp = Path(f"{state['files']['Temp']}/Keywords.tex")
 
-    if f_temp.exists():
-        keywords = temp_file(f_temp, 'read')
+    # if f_temp.exists():
+    #     keywords = temp_file(f_temp, 'read')
 
-    else:
+    # else:
 
-        # Extract keywords
-        PROMPT = keyword_prompt(state)
-        state, result = LLM_call(PROMPT, state)
-        keywords = extract_latex_block(state, result, "Keywords")
+    #     # Extract keywords
+    #     PROMPT = keyword_prompt(state)
+    #     state, result = LLM_call(PROMPT, state)
+    #     keywords = extract_latex_block(state, result, "Keywords")
     
-        # Avoid adding \ to the end
-        keywords = keywords.replace("\\", "")
+    #     # Avoid adding \ to the end
+    #     keywords = keywords.replace("\\", "")
 
-        # write results to temporary file
-        temp_file(f_temp, 'write', keywords)
+    #     # write results to temporary file
+    #     temp_file(f_temp, 'write', keywords)
         
-    print(f"Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
+    # print(f"Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
+
+    # keywords_dict = {'paper': {**state['paper'], 'Keywords': keywords},
+    #         'tokens': state['tokens']}
     
-    return {'paper': {**state['paper'], 'Keywords': keywords},
-            'tokens': state['tokens']}
+    # import pprint
+    # pprint.pprint(keywords_dict)
+    # pprint.pprint(cmbagent_keywords_dict)
+    
+    return cmbagent_keywords_dict
 
 
 def abstract_node(state: GraphState, config: RunnableConfig):

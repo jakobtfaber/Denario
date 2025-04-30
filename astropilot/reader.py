@@ -8,6 +8,7 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
+from .config import LaTeX_DIR
 
 from .parameters import GraphState
 
@@ -90,7 +91,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     for f in ['aasjournal.bst', 'aastex631.cls']:
         f_in = f"{state['files']['Folder']}/{f}"
         if not(os.path.exists(f_in)):
-            os.system(f"cp LaTeX/{f} {state['files']['Folder']}")
+            os.system(f"cp {LaTeX_DIR}/{f} {state['files']['Folder']}")
 
     # create a folder to save LaTeX progress
     os.makedirs(state['files']['Temp'], exist_ok=True)
