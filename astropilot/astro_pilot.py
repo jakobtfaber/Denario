@@ -60,7 +60,8 @@ class AstroPilot:
         return None
 
     def show_data_description(self):
-        display(Markdown(self.research.data_description))
+        # display(Markdown(self.research.data_description))
+        print(self.research.data_description)
         return None
 
     def get_idea(self, **kwargs):
@@ -75,13 +76,26 @@ class AstroPilot:
         return None
     
     def set_idea(self, idea: str = None):
+        if idea is None:
+            with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'r') as f:
+                idea = f.read()
+        elif idea.endswith(".md"):
+            with open(idea, 'r') as f:
+                idea = f.read()
+        elif isinstance(idea, str):
+            pass
+        else:
+            raise ValueError("Idea must be a string, a path to a markdown file or None if you want to load idea from input_files/idea.md")
+        
+        self.research.idea = idea
         # write idea to idea.md file
         with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'w') as f:
             f.write(idea)
         return None
     
     def show_idea(self):
-        display(Markdown(self.research.idea))
+        # display(Markdown(self.research.idea))
+        print(self.research.idea)
         return None
     
     def get_method(self, **kwargs):
