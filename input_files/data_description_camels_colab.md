@@ -147,5 +147,4 @@ Suitability and Richness for Research
 This dataset provides a comprehensive, high-quality resource for exploring the interplay between cosmological/feedback parameters and galaxy properties, with sufficient statistical power and parameter coverage to robustly address key questions in galaxy evolution.
 
 **Computing Constraint:**
-This project analysis is carried out on a MacBook Pro with 8 available CPUs.
-Each individual calculation should not be expected to run for more than O(10minutes).
+This project analysis is carried out on a Colab A100 GPU.

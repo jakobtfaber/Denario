@@ -4,6 +4,9 @@ root=/Users/boris/CMBAgents/AstroPilot/project_data/data/
 
 Galaxy and Catalog DataFrames: Structure and Usage Guide
 
+This data is from CAMELS (Cosmology and Astrophysics with MachinE 
+Learning Simulations). CAMELS have been designed to achieve these goals by making using of machine learning techniques. With more than 4,000 numerical simulations, both N-body and (magneto-)hydrodynamic, CAMELS follow the evolution of more than 100 billion dark matter particles and fluid elements in a combined volume of ~ (400 Mpc/h). CAMELS span thousands of different cosmological and astrophysical models. 
+
 1. Full Galaxy DataFrame ('galaxies_full_optimal.parquet')
 
    - Each row: one galaxy at z=0 from one of 1000 simulated catalogs.
@@ -142,3 +145,7 @@ Suitability and Richness for Research
 
 **In summary:**  
 This dataset provides a comprehensive, high-quality resource for exploring the interplay between cosmological/feedback parameters and galaxy properties, with sufficient statistical power and parameter coverage to robustly address key questions in galaxy evolution.
+
+**Computing Constraint:**
+This project analysis is carried out on a MacBook Pro with 8 available CPUs.
+Each individual calculation should not be expected to run for more than O(10minutes).

@@ -1,143 +1,117 @@
-# Results and Discussion
+## Scientific Interpretation and Discussion
 
-## 1. Overview
+### 1. Introduction
 
-This section presents a comprehensive analysis of the performance of various neural network architectures trained to emulate the CMB temperature-polarization cross-power spectrum ($C_\ell^{TE}$) in flat $\Lambda$CDM cosmologies. The emulators were trained on a large, physically-motivated dataset of $C_\ell^{TE}$ spectra generated with `classy_sz`, with cosmological parameters sampled via Latin Hypercube Sampling (LHS) over conservative, Planck-informed ranges. The primary goal was to identify architectures that are both highly accurate and computationally efficient, with particular attention to the unique challenges posed by the oscillatory and sign-changing nature of $C_\ell^{TE}$.
+In this study, we have leveraged the CAMELS simulations to quantitatively map the efficiency of star formation quenching across a broad range of feedback and cosmological parameters. By systematically varying parameters such as the supernova (SN) and active galactic nucleus (AGN) feedback, along with the cosmological parameters \(\Omega_m\) (matter density parameter) and \(\sigma_8\) (power spectrum normalization), the analysis provides a unique opportunity to disentangle the internal and external factors that jointly determine whether a galaxy ceases forming stars.
 
-The architectures evaluated include:
-- A baseline dense (fully connected) network with ReLU activations (`dense_relu`)
-- A deeper and wider dense network (`deep_dense_relu`)
-- A dense network with residual (skip) connections (`residual_relu`)
-- A SIREN-style network with sinusoidal activations (`siren`)
-- A dense network with layer normalization (`dense_layernorm`)
+### 2. Key Numerical Findings
 
-Performance was assessed on a held-out test set of 1,200 spectra, using a suite of quantitative metrics and diagnostic plots, including:
-- Root mean squared error (RMSE) and maximum absolute error as a function of multipole $\ell$
-- Median relative error as a function of $\ell$
-- Inference speed (wall time for full test set prediction)
-- Error statistics specifically at zero-crossings of $C_\ell^{TE}$
-- Visual comparison of true vs. emulated spectra for random test samples
-- Error distributions and systematic trends
+#### 2.1. Quenched Fraction Trends
 
-The following subsections detail the quantitative results, interpret the diagnostic plots, and discuss the implications for cosmological emulation.
+- **Stellar Mass Dependence:**
+  - The quenched fraction (\(f_{quenched}\)) increases steeply with stellar mass. For galaxies in the highest mass bin (\(10.5 \leq \log_{10}(M_{star}/M_\odot) < 11.5\)), quenched fractions exceed 80% across all feedback parameter values, indicating near-universal quenching among massive galaxies.
 
----
+- **Supernova Feedback (A_SN1):**
+  - In low and intermediate mass bins, an increase in the SN wind energy per unit star formation rate (\(A_{SN1}\)) correlates with a *decrease* in the quenched fraction. For instance, within the lowest mass bin, \(f_{quenched}\) drops from approximately 0.40 in the lowest quartile of \(A_{SN1}\) to about 0.24 in the highest quartile. This trend suggests that enhanced SN feedback can suppress quenching, possibly by sustaining high levels of turbulence in the interstellar medium (ISM) and inhibiting the conditions necessary for abrupt star formation shutdown.
 
-## 2. Quantitative Performance Summary
+- **AGN Feedback (A_AGN1):**
+  - In contrast, the AGN feedback energy per accretion (\(A_{AGN1}\)) exhibits a positive correlation with \(f_{quenched}\) across all mass bins. Notably, in the highest mass bin, quenched fractions rise sharply from ~0.72 in the lowest quartile to ~0.94 in the highest quartile. This relationship supports the scenario in which AGN feedback provides the energetic output required for the maintenance of quenching in massive systems, by heating or expelling gas from the galaxy.
 
-The table below summarizes the key performance metrics for each architecture, as measured on the test set:
+- **Additional Feedback Parameters:**
+  - Other parameters such as \(A_{SN2}\) (SN wind speed) and \(A_{AGN2}\) (AGN kinetic mode ejection speed) display more modest and less systematic trends, suggesting that the energy budget (e.g., \(A_{SN1}\) and \(A_{AGN1}\)) is more critical for regulating quenching than the velocity of the outflows.
 
-| Architecture      | RMSE (mean)           | Max Abs (mean)         | Median Rel. Error | Inference Time (s) | Zero-crossing Mean Abs Error |
-|-------------------|-----------------------|------------------------|-------------------|--------------------|------------------------------|
-| dense_relu        | $1.51 \times 10^{-17}$ | $4.77 \times 10^{-17}$ | $2.28 \times 10^{-3}$  | 0.19               | $2.11 \times 10^{-17}$       |
-| deep_dense_relu   | $4.89 \times 10^{-12}$ | $4.89 \times 10^{-12}$ | $4.87 \times 10^{3}$   | 0.16               | $4.44 \times 10^{-12}$       |
-| residual_relu     | $5.55 \times 10^{-3}$  | $7.14 \times 10^{-3}$  | $5.45 \times 10^{12}$  | 0.13               | $5.24 \times 10^{-3}$        |
-| siren             | $2.08 \times 10^{-17}$ | $7.01 \times 10^{-17}$ | $3.05 \times 10^{-3}$  | 0.12               | $3.04 \times 10^{-17}$       |
-| dense_layernorm   | $2.81 \times 10^{-4}$  | $3.23 \times 10^{-4}$  | $2.79 \times 10^{11}$  | 0.17               | $3.32 \times 10^{-4}$        |
+- **Cosmological Parameters:**
+  - Higher values of both \(\Omega_m\) and \(\sigma_8\) are associated with an increased quenched fraction. This reflects the idea that denser cosmic environments and enhanced clustering (which lead to earlier structure formation) trigger processes which promote quenching, such as accelerated black hole growth and more massive halo formation.
 
-**Key observations:**
-- The `dense_relu` and `siren` architectures achieve the lowest RMSE and maximum absolute errors by several orders of magnitude, with median relative errors below $0.5\%$.
-- The `deep_dense_relu`, `residual_relu`, and `dense_layernorm` architectures exhibit much larger relative errors, with the median relative error for `deep_dense_relu` and `dense_layernorm` exceeding $10^{11}$ and $10^{3}$, respectively.
-- Inference times for all architectures are comparable and extremely fast (0.12–0.19 seconds for 1,200 spectra), with the SIREN model being the fastest.
-- Errors at zero-crossings are lowest for `dense_relu` and `siren`, indicating robust handling of sign changes.
+#### 2.2. Statistical Modeling and Feature Importance
 
----
+- **Permutation Feature Importance (Top Findings):**
+  - \(\sigma_8\) is the most important parameter (importance mean ~0.155), followed by \(A_{AGN1}\) (~0.148), \(\Omega_m\) (~0.128), and log-transformed stellar mass (logMstar, ~0.104). \(A_{SN1}\) also ranks significantly (~0.094).
 
-## 3. Diagnostic Plots and Visual Analysis
+- **Logistic Regression Coefficients:**
+  - The regression coefficients further highlight the key influencers: \(A_{AGN1}\) has a strong positive coefficient (+1.87), \(\sigma_8\) (+1.66), logMstar (+1.41), and \(\Omega_m\) (+1.13), while \(A_{SN1}\) is negatively correlated (–0.97). The magnitudes of these coefficients indicate that AGN feedback and cosmological parameters have a substantial role in driving quenching.
 
-A multi-panel diagnostic plot (see Figure 1, saved as `data/clte_emulator_diagnostics_1_20250423_000205.png`) provides further insight into emulator performance:
+- **Partial Correlations:**
+  - Partial correlation analysis reinforces these results, showing that \(A_{AGN1}\), \(\sigma_8\), and \(\Omega_m\) are positively correlated with quenching (with partial correlations around +0.15, +0.16, and +0.14 respectively), while \(A_{SN1}\) exhibits a negative association (–0.11).
 
-### 3.1. True vs. Emulated $C_\ell^{TE}$ for Random Test Samples
+- **Model Performance:**
+  - The full logistic regression model (including all interactions) achieves a mean accuracy of ~66.5% and an AUC of ~0.685. A simplified model using only the top three features yields slightly lower performance (accuracy ~64.5% and AUC ~0.645), indicating that most predictive power is concentrated in a few key parameters.
 
-- **Panel (a):** Plots of true and emulated $C_\ell^{TE}$ for three random test samples show that both `dense_relu` and `siren` architectures closely track the oscillatory structure of the true spectra across all $\ell$, including the correct reproduction of zero-crossings and amplitude modulations.
-- The other architectures (`deep_dense_relu`, `residual_relu`, `dense_layernorm`) show significant deviations, with visible phase errors, amplitude mismatches, and in some cases, failure to reproduce the sign changes.
+#### 2.3. Mass Dependence and Parameter Interplay
 
-### 3.2. RMSE as a Function of $\ell$
+- **Mass Differentiation:**
+  - The analysis reveals that AGN feedback becomes the dominant quenching mechanism in high-mass galaxies (with quenching fractions above 80%), while in low to intermediate mass systems, SN feedback emerges as a coupler that regulates rather than completely suppresses star formation.
 
-- **Panel (b):** The RMSE for `dense_relu` and `siren` remains extremely low and flat across all $\ell$, indicating uniform accuracy from large to small angular scales.
-- The RMSE for the other architectures increases at high $\ell$ and near zero-crossings, reflecting their inability to capture fine oscillatory features.
+- **2D Heatmap Insights:**
+  - Two-dimensional visualizations illustrate that the highest quenched fractions occur in regions where \(A_{AGN1}\) is high and \(A_{SN1}\) is low. This suggests a synergistic interplay, where the suppression of star formation is maximized when the influence of AGN feedback is unopposed by strong SN-driven turbulence.
 
-### 3.3. Median Relative Error as a Function of $\ell$
+### 3. Scientific Interpretation and Discussion
 
-- **Panel (c):** The median relative error for `dense_relu` and `siren` is consistently below $0.5\%$ for all $\ell$, with no significant spikes at zero-crossings.
-- The other architectures show large spikes in relative error, especially at multipoles where $C_\ell^{TE}$ crosses zero, confirming their instability in these regions.
+#### 3.1. Internal vs. External Drivers of Quenching
 
-### 3.4. Histogram of Zero-Crossing Errors
+- **AGN Feedback:**
+  - The evidence overwhelmingly supports the notion that AGN feedback is the principal driver of quenching in massive galaxies. The progressive increase in quenched fraction with \(A_{AGN1}\), particularly high in systems with \(\log_{10}(M_{star}/M_\odot) \geq 10.5\), reflects the capability of AGN to heat and expel gas on galaxy-wide scales. This effect, sometimes described as "maintenance mode," is critical in halting the cooling flows necessary for continued star formation. Observational studies (e.g., Croton et al. 2006; Fabian 2012) have long attributed the quenching of star formation in the most massive galaxies to AGN activity, and our simulation-based results quantitatively affirm this perspective.
 
-- **Panel (d):** The distribution of absolute errors at zero-crossings is sharply peaked near zero for `dense_relu` and `siren`, while the other models have broader, higher-error distributions.
-- This highlights the importance of specialized architectures or activations for handling sign-changing, oscillatory targets.
+- **SN Feedback:**
+  - In contrast, SN feedback shows a regulation effect in lower-mass galaxies. The negative correlation between \(A_{SN1}\) and \(f_{quenched}\) implies that vigorous SN-driven winds may help maintain a more turbulent ISM. This turbulence can inhibit the collapse of gas clouds into stars, keeping these galaxies in a more prolonged state of low-level star formation rather than full quenching. Such a finding is consistent with theoretical models wherein SN feedback acts as an effective regulator (e.g., Dekel & Silk 1986; Hopkins et al. 2012).
 
----
+- **Cosmological Context:**
+  - The positive influence of \(\Omega_m\) and \(\sigma_8\) on quenching efficiency suggests that the broader cosmological environment plays a non-negligible role. Higher matter density and stronger clustering not only set the stage for more rapid halo assembly but may also indirectly trigger stronger internal feedback by fostering conditions conducive to early, robust black hole growth. Thus, external cosmological conditions frame the threshold at which internal processes, particularly AGN feedback, become effective at quenching.
 
-## 4. Interpretation and Discussion
+#### 3.2. Nonlinear Interactions and 2D Parameter Space
 
-### 4.1. Why Do Some Architectures Outperform Others?
+- The presence of significant interaction terms (e.g., between AGN feedback and logMstar, as well as between cosmological parameters and stellar mass) underscores a complex, nonlinear dependency. Our 2D heatmaps illustrate that the interplay between A_SN1 and A_AGN1 is particularly critical: quenching is maximized when AGN feedback dominates but SN feedback is relatively weak. This nonlinearity implies that simple, linear scaling relations may be insufficient to fully capture the nuances of galaxy quenching, and more sophisticated models that account for these interactions are warranted.
 
-#### Dense ReLU and SIREN: The Gold Standard
+#### 3.3. Model Evaluation and Predictability
 
-- **Dense ReLU:** The baseline dense network with ReLU activations achieves near machine-precision accuracy. This is somewhat surprising, as ReLU is not inherently suited to oscillatory functions, but the relatively shallow network (4 layers, 128 units) appears sufficient to fit the smooth, low-dimensional mapping from cosmological parameters to $C_\ell^{TE}$.
-- **SIREN:** The SIREN architecture, designed for representing complex, high-frequency, and oscillatory functions, also achieves excellent accuracy. The sinusoidal activation enables the network to naturally represent the oscillatory structure of $C_\ell^{TE}$, including the correct phase and amplitude of the acoustic peaks and troughs.
+- **Predictive Power:**
+  - Both the full multivariate logistic regression model and its simplified counterpart confirm that a relatively small set of parameters (primarily \(A_{AGN1}\), \(\sigma_8\), \(\Omega_m\), and stellar mass) captures a significant fraction of the variance in quenching efficiency. The performance metrics, while modest (with accuracies in the mid-60% range and AUCs near 0.68), demonstrate the inherent stochasticity of galaxy evolution. Factors such as mergers, environment, and unmodeled physics likely contribute to the residual scatter.
 
-#### Deep, Residual, and Normalized Networks: Pitfalls
+- **Simplified vs. Full Model:**
+  - The slight drop in performance when moving from the full model to a simplified model (using only the top three features) suggests that the bulk of the quenching signal is encoded in a few physical drivers. This has practical implications: future observational campaigns might prioritize these key diagnostics as proxies for quenching, reducing the need for high-dimensional parameter space mapping in large survey datasets.
 
-- **Deep Dense ReLU:** Increasing depth and width without architectural adaptation leads to catastrophic overfitting or optimization difficulties, as evidenced by the enormous median relative error. This may be due to vanishing/exploding gradients or the inability of deep ReLU networks to efficiently represent sign-changing, oscillatory functions without explicit regularization or architectural guidance.
-- **Residual ReLU:** While residual connections are beneficial for very deep networks and for learning identity mappings, in this context they do not improve accuracy and may even hinder learning, possibly due to the mismatch between the residual structure and the global, smooth mapping required.
-- **Dense LayerNorm:** Layer normalization, while helpful for stabilizing training in some contexts, does not address the core challenge of representing oscillatory, sign-changing functions, and may even introduce additional nonlinearity that impedes learning in this low-dimensional input regime.
+#### 3.4. Comparison with Observational Studies
 
-### 4.2. Challenges in Emulating Oscillatory, Sign-Changing Spectra
+- The trends emerging from the CAMELS simulations are broadly consistent with observational findings from surveys such as SDSS and GAMA. The steep increase in quenching with stellar mass, the dominant role of AGN feedback in massive galaxies, and the more moderate governing influence of SN feedback at low mass all echo results reported in observational studies (e.g., Peng et al. 2010, 2012; Bluck et al. 2016). Moreover, the positive correlation between quenched fraction and cosmological parameters aligns with the environmental dependencies observed in galaxy surveys.
 
-The $C_\ell^{TE}$ spectrum is uniquely challenging for emulation due to:
-- **Oscillatory Structure:** The spectrum exhibits rapid oscillations with varying amplitude and phase, especially at high $\ell$.
-- **Zero-Crossings:** The spectrum crosses zero multiple times, making relative error metrics ill-defined and increasing the risk of sign errors in emulation.
-- **Dynamic Range:** The amplitude of $C_\ell^{TE}$ varies by several orders of magnitude across $\ell$.
+#### 3.5. Uncertainties and Future Investigations
 
-The best-performing architectures (`dense_relu` and `siren`) succeed by:
-- **Capacity:** Having sufficient width and depth to capture the mapping from parameters to spectra.
-- **Activation Function:** SIREN's sinusoidal activation is naturally suited to oscillatory targets, while ReLU networks can approximate such functions given enough capacity and data.
-- **Training Stability:** Both models converge rapidly and stably, as evidenced by low validation loss and fast inference.
+- **Residual Scatter and Model Limitations:**
+  - AUC values around 0.68 indicate that while the simulations capture the main quenching trends, there remains significant variability. This scatter likely arises from secondary processes (e.g., stochasticity in merger histories, variations in accretion, and local environmental effects) that are not fully encapsulated by the current models.
 
-### 4.3. Trade-offs: Accuracy vs. Computational Efficiency
+- **Role of Kinetic Feedback Parameters:**
+  - An unexpected finding is the relatively minor role played by SN wind speed (\(A_{SN2}\)) and AGN kinetic mode ejection speed (\(A_{AGN2}\)). This suggests that, at least within the CAMELS framework, the energetics of feedback (as represented by \(A_{SN1}\) and \(A_{AGN1}\)) are more critical than the velocities of the outflows. Future work might explore whether this result holds in simulations with alternative feedback prescriptions.
 
-- **Accuracy:** Both `dense_relu` and `siren` achieve sub-percent accuracy across all $\ell$, with errors at zero-crossings at the level of $10^{-17}$, effectively indistinguishable from the true spectra for all practical purposes.
-- **Speed:** All architectures are extremely fast at inference, with the SIREN model being marginally faster. For practical applications (e.g., MCMC sampling, parameter inference), the difference is negligible.
-- **Robustness:** The SIREN model may be more robust to extrapolation or to emulating spectra with more complex oscillatory features (e.g., in extended cosmologies), but for the flat $\Lambda$CDM case, both top models are sufficient.
+- **Path Forward:**
+  - Improvements can be made by incorporating more complex, non-linear models (such as deep learning architectures) to better capture the intricate dependencies observed. Additionally, extending the redshift range of the analysis could reveal how quenching mechanisms evolve over cosmic time.
 
-### 4.4. Recommendations for Cosmological Emulation
+### 4. Implications for Galaxy Evolution Models
 
-- **For highest accuracy and robustness:** Use either a SIREN-style network or a well-tuned dense ReLU network. Both are capable of emulating $C_\ell^{TE}$ to sub-percent accuracy across the full multipole range, including at zero-crossings.
-- **For simplicity and ease of deployment:** The dense ReLU network is easier to implement and does not require custom activations or serialization logic, making it preferable for most users.
-- **For more complex or oscillatory targets:** SIREN or other sinusoidal-activation networks may offer advantages, especially if the target function is more oscillatory or higher-dimensional than $C_\ell^{TE}$ in flat $\Lambda$CDM.
+- **Feedback Parameterization:**
+  - These findings reinforce the need for accurate representation of AGN feedback in models of massive galaxies. The strong association between \(A_{AGN1}\) and quenching efficiency underscores its central role, suggesting that feedback prescriptions must be tuned to reproduce the observed trends in quenched fractions.
 
-### 4.5. Implications and Future Work
+- **Environmental Context:**
+  - The significant impact of cosmological parameters, \(\Omega_m\) and \(\sigma_8\), calls for a more nuanced integration of large-scale structure into galaxy evolution models. This exercise emphasizes that internal feedback mechanisms cannot be fully understood without considering the external, cosmological environment in which galaxies reside.
 
-- **Generalization:** The success of simple dense networks suggests that the mapping from cosmological parameters to $C_\ell^{TE}$ is smooth and low-dimensional, at least within the flat $\Lambda$CDM parameter space. For extended models (e.g., with running, isocurvature, or non-flat geometries), more sophisticated architectures may be required.
-- **Zero-Crossing Handling:** Explicitly monitoring and minimizing errors at zero-crossings is crucial for oscillatory spectra. Future work could explore loss functions or architectures that directly penalize sign errors.
-- **Uncertainty Quantification:** While this study focused on point predictions, future emulators could incorporate Bayesian or ensemble methods to provide uncertainty estimates, especially near zero-crossings or in extrapolation regimes.
-- **Integration with Cosmological Pipelines:** The demonstrated speed and accuracy of these emulators make them ideal for integration into MCMC or likelihood pipelines, enabling orders-of-magnitude speedup over traditional Boltzmann codes.
+- **Nonlinear and Joint Effects:**
+  - The clear evidence of interactions between feedback and mass (and between feedback and cosmological parameters) suggests that future models need to adopt a joint, nonlinear approach. Simple additive models may miss critical synergistic effects that operate across different mass regimes.
 
----
+### 5. Future Directions
 
-## 5. Conclusion
+- **Advanced Modeling Techniques:**
+  - Implementing machine learning models, such as random forests or neural networks, might improve the predictive power and expose subtler dependencies, particularly those that arise from higher-order interactions.
 
-This study demonstrates that neural network emulators can achieve extremely high accuracy and speed in predicting the $C_\ell^{TE}$ spectrum for flat $\Lambda$CDM cosmologies, provided that the architecture is appropriately chosen. Both standard dense ReLU networks and SIREN-style networks are capable of sub-percent accuracy across all multipoles, including at the challenging zero-crossings. The results highlight the importance of matching network architecture to the target function's structure and provide clear guidance for future emulator development in cosmology.
+- **Incorporating Additional Physical Parameters:**
+  - Expanding the analysis to include environmental indicators (e.g., local galaxy density, halo mass) and structural properties (e.g., morphology, kinematics) could further elucidate the mechanisms behind quenching.
 
----
+- **Temporal Evolution:**
+  - Investigating the redshift evolution of quenching mechanisms could provide insights into how the interplay between AGN and SN feedback has shaped the star formation history of the universe.
 
-**Figure 1:** Multi-panel diagnostic plot (see `data/clte_emulator_diagnostics_1_20250423_000205.png`):
-- (a) True vs. emulated $C_\ell^{TE}$ for random test samples
-- (b) RMSE vs. $\ell$
-- (c) Median relative error vs. $\ell$
-- (d) Histogram of absolute errors at zero-crossings
+- **Comparative Studies:**
+  - A detailed comparison between CAMELS predictions and observational quenching trends would help validate the simulation models and refine the feedback prescriptions used in galaxy evolution simulations.
 
-**Table 1:** Quantitative performance summary for all architectures (see above).
+### 6. Conclusions
 
----
+In summary, our comprehensive analysis of the CAMELS simulations reveals that the efficiency of star formation quenching is governed by a delicate balance among AGN feedback, SN feedback, and cosmological parameters — with stellar mass acting as a pivotal modulator. AGN feedback, particularly as quantified by \(A_{AGN1}\), emerges as the dominant quenching mechanism in massive galaxies, while SN feedback plays a more regulatory role in lower-mass systems. Cosmological factors such as \(\Omega_m\) and \(\sigma_8\) further enhance quenching efficiency by shaping the overall dynamical environment. The quantification of these trends through regression models, permutation importance, and partial correlations, combined with robust cross-validation metrics, provides a solid framework for understanding quenching in a cosmological context.
 
-**References:**
-- Sitzmann, V., et al. (2020). "Implicit Neural Representations with Periodic Activation Functions." NeurIPS.
-- Planck Collaboration (2018). "Planck 2018 results. VI. Cosmological parameters." A&A.
-- Lesgourgues, J. (2011). "The Cosmic Linear Anisotropy Solving System (CLASS) I: Overview." A&A.
-
----
-
-**Data and code availability:** All data, trained models, and evaluation scripts are available in the `data/` and `codebase/` directories. The main diagnostic plot is saved as `data/clte_emulator_diagnostics_1_20250423_000205.png`.
+The results offer significant insights for both theoretical models and future observational surveys, guiding the development of more sophisticated tools that can simultaneously account for the multifaceted and interdependent impacts of feedback and cosmology on galaxy evolution.
