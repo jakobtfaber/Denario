@@ -1,9 +1,22 @@
 import subprocess
-import sys,os
+import sys,os,re
 from pathlib import Path
 
 from .parameters import GraphState
 
+
+# Characters that should be escaped in BibTeX (outside math mode)
+special_chars = {
+    "_": r"\_",
+    "&": r"\&",
+    "%": r"\%",
+    "#": r"\#",
+    "$": r"\$",
+    "{": r"\{",
+    "}": r"\}",
+    "~": r"\~{}",
+    "^": r"\^{}",
+}
 
 
 def compile_latex(state: GraphState, paper_name: str):
@@ -18,8 +31,11 @@ def compile_latex(state: GraphState, paper_name: str):
     original_dir = os.getcwd()
 
     # go to the folder containing the paper
-    os.chdir(state['files']['Paper_folder'])
+    os.chdir(state['files']['Folder'])
 
+    # get the stem of the paper paper name
+    paper_stem = Path(paper_name).stem
+    
     # try to compile twice for citations and links
     for i in range(3):  #compile three times to add citations
         try:
@@ -35,7 +51,7 @@ def compile_latex(state: GraphState, paper_name: str):
                 f.write(result.stdout)
 
             if i==0:
-                result = subprocess.run(["bibtex", Path(paper_name).stem],
+                result = subprocess.run(["bibtex", paper_stem],
                                         capture_output=True,
                                         text=True, check=True)
 
@@ -46,6 +62,12 @@ def compile_latex(state: GraphState, paper_name: str):
                 f.write(f"\n==== ERROR on Pass {i + 1} ====\n")
                 f.write(e.stdout or "")
                 f.write(e.stderr or "")
+
+    # remove auxiliary files
+    for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
+                f'{paper_stem}.bbl', f'{paper_stem}.blg', f'{paper_stem}.synctex.gz',
+                f'{paper_stem}.synctex(busy)']:
+        if os.path.exists(fin):  os.remove(fin)
                         
     os.chdir(original_dir)
 
@@ -66,6 +88,8 @@ def save_paper(state: GraphState, paper_name: str):
 \newcommand\aastex{{AAS\TeX}}
 \newcommand\latex{{La\TeX}}
 \usepackage{{amsmath}}
+\usepackage{{multirow}}
+
 
 \begin{{document}}
 
@@ -104,12 +128,55 @@ def save_paper(state: GraphState, paper_name: str):
 """
     
     # save paper to file
-    f_in = f"{state['files']['Paper_folder']}/{paper_name}"
+    f_in = f"{state['files']['Folder']}/{paper_name}"
     with open(f_in, 'w', encoding='utf-8') as f:
         f.write(paper)
 
 
 def save_bib(state: GraphState):
-    with open(f"{state['files']['Paper_folder']}/bibliography.bib", 'a', encoding='utf-8') as f:
+    with open(f"{state['files']['Folder']}/bibliography_temp.bib", 'a', encoding='utf-8') as f:
         f.write(state['paper']['References'].strip() + "\n")    
 
+
+
+def escape_special_chars(text):
+    # Split into math and non-math parts
+    parts = re.split(r'(\$.*?\$)', text)  # keep $...$ parts intact
+    sanitized = []
+
+    for part in parts:
+        if part.startswith('$') and part.endswith('$'):
+            # Don't touch math parts
+            sanitized.append(part)
+        else:
+            # Escape special characters
+            for char, escaped in special_chars.items():
+                part = part.replace(char, escaped)
+            sanitized.append(part)
+
+    return ''.join(sanitized)
+
+
+def process_bib_file(input_file, output_file):
+    with open(input_file, 'r') as fin:
+        lines = fin.readlines()
+
+    processed_lines = []
+    for line in lines:
+        if line.strip().startswith('title') or line.strip().startswith('journal'):
+            key, value = line.split('=', 1)
+            quote_char = '"' if '"' in value else '{'
+            content = re.search(r'[{\"](.+)[}\"]', value).group(1)
+            escaped_content = escape_special_chars(content)
+
+            # Optional: preserve acronyms (wrap them in braces)
+            escaped_content = re.sub(r'\b([A-Z]{2,})\b', r'{\1}', escaped_content)
+
+            processed_lines.append(f'  {key.strip()} = {{{escaped_content}}},\n')
+        else:
+            processed_lines.append(line)
+
+    with open(output_file, 'w') as fout:
+        fout.writelines(processed_lines)
+
+    print(f"Sanitized BibTeX saved to: {output_file}")

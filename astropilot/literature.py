@@ -22,37 +22,40 @@ def _execute_query(payload):
 
 def perplexity(para):
     perplexity_message = rf"""
-        You perform scientific literature search on the arXiv. The domain of interest is astrophyics.
+You perform scientific literature search on the arXiv. The domain of interest is astrophyics.
     
-        Your goal is to populate the following paragraph with references from the arXiv only:
+Your goal is to populate the following text with references from the arXiv only:
     
-        <PARAGRAPH>
-        {para}
-        </PARAGRAPH>
+<TEXT>
+{para}
+</TEXT>
     
-        You should return the paragraph unaltered, with references added in numerical format, e.g. "[1]", "[2]", "[3]", etc.
+You should return the text unaltered, with references added in numerical format, e.g. "[1]", "[2]", "[3]", etc.
     
     
-        For example, if the paragraph is:
+For example, if the text is:
     
-        "Lorem ipsum dolor sit amet, nam ei dictas consequuntur delicatissimi, usu te epicuri epicurei, id vide nusquam conclusionemque ius. Vis alii nibh ex, per ex melius euripidis democritum. Vel eu suscipit reprehendunt, laoreet interpretaris vel at, sea habeo scripta referrentur ex. Sint ocurreret vix ad."
+"Lorem ipsum dolor sit amet, nam ei dictas consequuntur delicatissimi, usu te epicuri epicurei, id vide nusquam conclusionemque ius. Vis alii nibh ex, per ex melius euripidis democritum. Vel eu suscipit reprehendunt, laoreet interpretaris vel at, sea habeo scripta referrentur ex. Sint ocurreret vix ad."
     
-        You should return the paragraph with references added as in the example below:
+You should return the text with references added as in the example below:
     
-        "Lorem ipsum dolor sit amet, nam ei dictas consequuntur delicatissimi, usu te epicuri epicurei, id vide nusquam conclusionemque ius. Vis alii nibh ex, per ex melius euripidis democritum [1]. Vel eu suscipit reprehendunt, laoreet interpretaris vel at, sea habeo scripta referrentur ex [2][3]. Sint ocurreret vix ad [4]."
+"Lorem ipsum dolor sit amet, nam ei dictas consequuntur delicatissimi, usu te epicuri epicurei, id vide nusquam conclusionemque ius. Vis alii nibh ex, per ex melius euripidis democritum [1]. Vel eu suscipit reprehendunt, laoreet interpretaris vel at, sea habeo scripta referrentur ex [2][3]. Sint ocurreret vix ad [4]."
         
-        Only add references where you are sure that the reference is relevant to the paragraph and that it is necessary. 
+Only add references where you are sure that the reference is relevant to the paragraph and that it is necessary.
     
-        If a paragraph is very short, or if it is not clear what the paragraph is about, do not add any references and just return the paragraph without any references.
-    
-        If you don't easily find any references, just return the paragraph without any references.
+If a paragraph is very short, or if it is not clear what the paragraph is about, do not add any references and just return the paragraph without any references. If you don't easily find any references, just return the paragraph without any references.
 
-        Your answer should be the input text populated with references. You should not alter it in any way and not add any other information or explanations.
+Your answer should be the input text populated with references. You should not alter it in any way and not add any other information or explanations. Please follow these rules:
 
-        Your answear should not have the formating marks <PARAGRAPH> and </PARAGRAPH>, just the text.
+- Ignore tables, figures
+- **Do not add citations inside tables or figures**
+- Separate the different paragraphs, figures, and tables. Do not create a single long paragraph with all the text.
+
+Your answear should not have the formating marks <TEXT> and </TEXT>, just the text.
     """
     payload = {
     "model": 'sonar-reasoning-pro',
+    "temperature": 0,
     "messages": [{"role": "system", "content": "Be precise and concise. Follow the instructions."}, {"role": "user", "content": perplexity_message}],
     "search_domain_filter": ["arxiv.org"],
     }
