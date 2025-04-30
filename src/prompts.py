@@ -596,6 +596,30 @@ In <{section_name}> put the extracted text. In the extracted text, do not includ
 
 """)]
 
+def fix_latex_bug_prompt(state, text, error):
+
+    return [HumanMessage(content=fr"""The text below has a problem and LaTeX cannot compile it. Fix it. Do not modify the content, just fix the error and return the corrected version. Follow these guidelines
+
+- The text you are given is just a small part of a LaTeX paper. Thus, you dont need to add things like \\begin{{document}}.
+- If you see a LaTeX error, e.g. a missing $, a \\_ instead of _ fix it
+- Just reply with the corrected text, nothing else
+- Look at the error to fix the LaTeX mistake and only fix that. Do not close brackets if asked in the prompt
+
+Text:
+{text}
+
+Error:
+{error}    
+    
+Respond in this format:
+
+\begin{{Text}}
+<TEXT>
+\end{{Text}}
+
+In <TEXT>, put the fixed version of the line in LaTeX.
+    """)]
+
 
 def keyword_prompt(state):
 

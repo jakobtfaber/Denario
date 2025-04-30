@@ -3,6 +3,8 @@ import sys,os,re
 from pathlib import Path
 
 from src.parameters import GraphState
+from src.prompts import *
+from src.tools import LLM_call, extract_latex_block
 
 
 # Characters that should be escaped in BibTeX (outside math mode)
@@ -60,8 +62,47 @@ def compile_latex(state: GraphState, paper_name: str):
             print(f"    LaTeX compilation failed: iteration {i+1}")
             with open(state['files']['LaTeX_log'], 'a') as f:
                 f.write(f"\n==== ERROR on Pass {i + 1} ====\n")
+                f.write("---- STDOUT ----\n")
                 f.write(e.stdout or "")
+                f.write("---- STDERR ----\n")
                 f.write(e.stderr or "")
+
+            # Filter actual errors from stdout/stderr
+            error_lines = []
+            lines = (e.stdout or "") .splitlines() + (e.stderr or "").splitlines()
+            show_context = 0
+            for line in lines:
+                if line.lstrip().startswith("!"):
+                    error_lines.append("\n" + line)
+                    show_context = 5  # show 3 lines after the error
+                elif show_context > 0:
+                    error_lines.append(line)
+                    show_context -= 1
+            error_msg = ' '.join(line.strip() for line in error_lines if line.strip())
+
+            print(error_lines)
+            latex_lines = []
+            for line in lines:
+                match = re.search(r'l\.(\d+)', line)
+                if match:
+                    latex_lines.append(match.group(1))
+                    print(f"Found line number: {match.group(1)}")
+            latex_lines = set(latex_lines)
+
+            # read the paper
+            with open(paper_name, 'r') as f:
+                lines = f.readlines()
+
+            for i in latex_lines:
+                print(lines[int(i)-2])
+                fixed_text = fix_latex_bug(state,lines[int(i)-2],error_msg)
+                #print(fixed_text)
+                lines[int(i)-2] = fixed_text
+
+            paper = ' '.join(line.strip() for line in lines if line.strip())
+            with open(paper_name, 'w') as f:
+                f.write(paper)
+                #sys.exit()
 
     # remove auxiliary files
     for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
@@ -180,3 +221,16 @@ def process_bib_file(input_file, output_file):
         fout.writelines(processed_lines)
 
     print(f"Sanitized BibTeX saved to: {output_file}")
+
+
+
+def fix_latex_bug(state, text, error):
+    """
+    This function tries to fix the error identified by LaTeX
+    """
+
+    PROMPT = fix_latex_bug_prompt(state, text, error)
+    state, result = LLM_call(PROMPT, state)
+    result = extract_latex_block(state, result, "Text")
+
+    return result
