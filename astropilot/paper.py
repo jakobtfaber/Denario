@@ -18,7 +18,7 @@ def write_paper(params, **kwargs):
     # run the graph
     result = asyncio.run(graph.ainvoke(
         {"files":{"Idea":       os.path.join(REPO_DIR,"input_files/idea.md"),
-                "Methods":      os.path.join(REPO_DIR,"input_files/method.md"),
+                "Methods":      os.path.join(REPO_DIR,"input_files/methods.md"),
                 "Results":      os.path.join(REPO_DIR,"input_files/results.md"),
                 "Plots":        os.path.join(REPO_DIR,"input_files/plots"),
                 "Paper_folder": os.path.join(REPO_DIR,"paper"),
