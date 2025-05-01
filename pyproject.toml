@@ -37,7 +37,11 @@ dependencies = [
   "filelock==3.17.0",
   "numpy==1.26.4",
   "jupyterlab",
-  "ipywidgets"
+  "ipywidgets",
+  "cmbagent @ git+https://github.com/CMBAgents/cmbagent.git@astrop",
+  "pdflatex",
+  "pymupdf",
+  "jsonschema"
 ]
 
 
