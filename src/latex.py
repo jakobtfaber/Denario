@@ -67,6 +67,7 @@ def compile_latex(state: GraphState, paper_name: str):
                 f.write("---- STDERR ----\n")
                 f.write(e.stderr or "")
 
+            """
             # Filter actual errors from stdout/stderr
             error_lines = []
             lines = (e.stdout or "") .splitlines() + (e.stderr or "").splitlines()
@@ -103,7 +104,8 @@ def compile_latex(state: GraphState, paper_name: str):
             paper = '\n'.join(line.rstrip('\n') for line in lines)
             with open("borrar.tex", 'w') as f:
                 f.write(paper)
-            sys.exit()
+            #sys.exit()
+            """
 
     # remove auxiliary files
     for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
