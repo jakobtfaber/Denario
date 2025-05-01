@@ -1,7 +1,8 @@
 
 Project Idea:
-	* Mapping the Diversity of the Black Hole–Stellar Mass Relation Across Cosmological and Feedback Parameter Space
-		- This project systematically quantifies how the slope, normalization, and scatter of the black hole–stellar mass relation in simulated galaxies depend on variations in cosmological and feedback parameters.
-		- Leverages the dataset’s unprecedented parameter coverage to reveal the physical drivers of scaling relation diversity and secondary dependencies in galaxy evolution.
+	* Benchmarking Tensor Network Simulations of Quantum Algorithms in Disordered and Long-Range Interacting 1D Quantum Ising Models
+		- This research systematically compares tensor network and classical simulation methods for quantum algorithms in 1D Ising models with disorder and long-range interactions.
+		- Establishes quantitative guidelines for when tensor networks provide a computational advantage.
+		- Reveals the practical limits of tensor networks in simulating complex quantum phases of matter.
 
         
