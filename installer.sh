@@ -65,16 +65,16 @@ pip install -e .
 cd ..
 
 ### Clone and install ag2 ###
+
 AG2_REPO="https://github.com/CMBAgents/ag2.git"
 AG2_DIR="ag2"
+AG2_BRANCH="ag2_v0.8.4_upgrade_astrop"
 
-clone_repo "$AG2_REPO" "$AG2_DIR"
+# clone just that branch (no others; only last 1 commit’s history)
+git clone --branch "$AG2_BRANCH" --single-branch --depth 1 "$AG2_REPO" "$AG2_DIR"
 
-echo "Switching to branch 'ag2_v0.8.4_upgrade_astrop' and installing ag2..."
-cd "$AG2_DIR"
-git switch ag2_v0.8.4_upgrade_astrop
-pip install -e .
-cd ..
+echo "Installing ag2 from branch '$AG2_BRANCH'..."
+pip install -e "$AG2_DIR"
 
 ### Clone and install cmbagent ###
 CMBAGENT_REPO="https://github.com/CMBAgents/cmbagent.git"
