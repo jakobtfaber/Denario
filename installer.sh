@@ -41,8 +41,7 @@ python -m pip install --upgrade pip
 
 ### Install AstroPilot ###
 
-echo "Switching to branch 'bbdev' and installing AstroPilot..."
-git switch bbdev
+echo "Installing AstroPilot..."
 
 # Create the .env file from environment variables
 echo "Creating .env file in AstroPilot with API keys..."
@@ -64,20 +63,9 @@ AG2_REPO="https://github.com/CMBAgents/ag2.git"
 AG2_DIR="ag2"
 AG2_BRANCH="ag2_v0.8.4_upgrade_astrop"
 
-# clone just that branch (no others; only last 1 commit’s history)
-GIT_LFS_SKIP_SMUDGE=1 git clone --branch "$AG2_BRANCH" --single-branch --depth 1 "$AG2_REPO" "$AG2_DIR"
+echo "Cloning and installing ag2 from branch '$AG2_BRANCH'..."
 
-echo "Installing ag2 from branch '$AG2_BRANCH'..."
-pip install -e "$AG2_DIR"
-
-### Clone and install cmbagent ###
-CMBAGENT_REPO="https://github.com/CMBAgents/cmbagent.git"
-
-pip install git+$CMBAGENT_REPO@astrop
-
-pip install pdflatex
-pip install pymupdf
-pip install jsonschema==4.23.0
+GIT_LFS_SKIP_SMUDGE=1 pip install git+$AG2_REPO@$AG2_BRANCH
 
 # Install an IPython kernel for the virtual environment
 echo "Installing IPython kernel for the virtual environment..."
