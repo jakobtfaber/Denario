@@ -72,15 +72,8 @@ pip install -e "$AG2_DIR"
 
 ### Clone and install cmbagent ###
 CMBAGENT_REPO="https://github.com/CMBAgents/cmbagent.git"
-CMBAGENT_DIR="cmbagent"
 
-clone_repo "$CMBAGENT_REPO" "$CMBAGENT_DIR"
-
-echo "Switching to branch 'astrop' and installing cmbagent..."
-cd "$CMBAGENT_DIR"
-git switch astrop
-pip install -e .
-cd ..
+pip install git+$CMBAGENT_REPO@astrop
 
 pip install pdflatex
 pip install pymupdf
