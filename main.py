@@ -18,7 +18,8 @@ result = asyncio.run(graph.ainvoke(
               "Methods":      "methods.md", #name of file with methods description
               "Results":      "results.md", #name of file with results description
               "Plots":        "plots"},     #name of folder containing plots
-     "llm": {"model": "gemini-2.0-flash"},  #name of the LLM model to use
+     #"llm": {"model": "gemini-2.0-flash"},  #name of the LLM model to use
+     "llm": {"model": "gemini-2.5-flash-preview-04-17"},  #name of the LLM model to use
      }, config))
 
 # End timer and report duration in minutes and seconds

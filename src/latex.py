@@ -74,7 +74,7 @@ def compile_latex(state: GraphState, paper_name: str):
             for line in lines:
                 if line.lstrip().startswith("!"):
                     error_lines.append("\n" + line)
-                    show_context = 5  # show 3 lines after the error
+                    show_context = 3  # show 3 lines after the error
                 elif show_context > 0:
                     error_lines.append(line)
                     show_context -= 1
@@ -94,15 +94,16 @@ def compile_latex(state: GraphState, paper_name: str):
                 lines = f.readlines()
 
             for i in latex_lines:
-                print(lines[int(i)-2])
-                fixed_text = fix_latex_bug(state,lines[int(i)-2],error_msg)
-                #print(fixed_text)
-                lines[int(i)-2] = fixed_text
+                print('Hello!',i)
+                print(lines[int(i)-1])
+                fixed_text = fix_latex_bug(state,lines[int(i)-1],error_msg)
+                print(fixed_text)
+                lines[int(i)-1] = fixed_text
 
-            paper = ' '.join(line.strip() for line in lines if line.strip())
-            with open(paper_name, 'w') as f:
+            paper = '\n'.join(line.rstrip('\n') for line in lines)
+            with open("borrar.tex", 'w') as f:
                 f.write(paper)
-                #sys.exit()
+            sys.exit()
 
     # remove auxiliary files
     for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
