@@ -15,9 +15,8 @@ from src.parameters import GraphState
 load_dotenv()
 GOOGLE_API_KEY     = os.getenv("GOOGLE_API_KEY")
 PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
-#OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY")
-#ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
-#GROQ_API_KEY      = os.getenv("GROQ_API_KEY")
+OPENAI_API_KEY     = os.getenv("OPENAI_API_KEY")
+ANTHROPIC_API_KEY  = os.getenv("ANTHROPIC_API_KEY")
 
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
@@ -28,11 +27,13 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # set the LLM
     if state['llm']['model']=='gemini-2.0-flash':
         state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7,
-                                                     max_output_tokens=8192)
+                                                     max_output_tokens=8192,
+                                                     google_api_key=GOOGLE_API_KEY)
         state['llm']['max_output_tokens'] = 8192
     elif state['llm']['model']=='gemini-2.5-flash-preview-04-17':
         state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17",
-                                                     temperature=0.7)
+                                                     temperature=0.7,
+                                                     google_api_key=GOOGLE_API_KEY)
         state['llm']['max_output_tokens'] = 65536
         
     
