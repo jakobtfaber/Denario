@@ -13,3 +13,8 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gemini.json ## is this needed? ma
 source astrop_env/bin/activate
 jupyter-lab
 ```
+To delete, do:
+
+```bash
+./installer.sh clean
+```
