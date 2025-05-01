@@ -7,7 +7,7 @@
 # If the first argument is "clean", remove everything and exit.
 if [ "$1" == "clean" ]; then
     echo "Cleaning up Python virtual environment and repositories..."
-    rm -rf astrop_env AstroPilot ag2 cmbagent
+    rm -rf astrop_env ag2 cmbagent
     echo "Clean operation completed."
     exit 0
 fi
@@ -27,9 +27,9 @@ clone_repo() {
   fi
 }
 
-# Create a Python 3.12 virtual environment named 'astrop_env'
+# Create a Python 3 virtual environment named 'astrop_env'
 echo "Creating Python virtual environment..."
-python3.12 -m venv astrop_env
+python3 -m venv astrop_env
 
 # Activate the virtual environment
 echo "Activating virtual environment..."
@@ -39,14 +39,9 @@ source astrop_env/bin/activate
 echo "Upgrading pip..."
 python -m pip install --upgrade pip
 
-### Clone and install AstroPilot ###
-ASTROPILOT_REPO="https://github.com/AstroPilot-AI/AstroPilot.git"
-ASTROPILOT_DIR="AstroPilot"
-
-clone_repo "$ASTROPILOT_REPO" "$ASTROPILOT_DIR"
+### Install AstroPilot ###
 
 echo "Switching to branch 'bbdev' and installing AstroPilot..."
-cd "$ASTROPILOT_DIR"
 git switch bbdev
 
 # Create the .env file from environment variables
@@ -62,7 +57,6 @@ EOF
 echo ".env file created."
 
 pip install -e .
-cd ..
 
 ### Clone and install ag2 ###
 
