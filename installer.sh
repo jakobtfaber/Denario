@@ -65,7 +65,7 @@ AG2_DIR="ag2"
 AG2_BRANCH="ag2_v0.8.4_upgrade_astrop"
 
 # clone just that branch (no others; only last 1 commit’s history)
-git clone --branch "$AG2_BRANCH" --single-branch --depth 1 "$AG2_REPO" "$AG2_DIR"
+GIT_LFS_SKIP_SMUDGE=1 git clone --branch "$AG2_BRANCH" --single-branch --depth 1 "$AG2_REPO" "$AG2_DIR"
 
 echo "Installing ag2 from branch '$AG2_BRANCH'..."
 pip install -e "$AG2_DIR"
