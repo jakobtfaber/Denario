@@ -96,6 +96,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     # Save paper and temporary file
     state['paper']['Abstract'] = abstract
     save_paper(state, state['files']['Paper_v1'])
+    compile_latex(state, state['files']['Paper_v1'])
     print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
     return {'paper':{**state['paper'],
@@ -157,6 +158,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     # --- Step 5: Save paper ---
     state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v1'])
+    compile_latex(state, state['files']['Paper_v1'])
     print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
     # --- Step 7: Update state ---
@@ -270,6 +272,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
         # save paper
         save_paper(state, state['files']['Paper_v1'])
+        compile_latex(state, state['files']['Paper_v1'])
 
     # compile paper
     compile_latex(state, state['files']['Paper_v1'])
