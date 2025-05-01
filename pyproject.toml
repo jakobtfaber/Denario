@@ -31,13 +31,17 @@ dependencies = [
   "langgraph-sdk==0.1.61",
   "langsmith==0.3.25",
   #"google-geneai",
-  "google-cloud-aiplatform==1.85.0",
+  "google-cloud-aiplatform",
   "google-ai-generativelanguage==0.6.17",
   "flatbuffers==24.12.23",
   "filelock==3.17.0",
   "numpy==1.26.4",
   "jupyterlab",
-  "ipywidgets"
+  "ipywidgets",
+  "cmbagent @ git+https://github.com/CMBAgents/cmbagent.git@astrop",
+  "pdflatex",
+  "pymupdf",
+  "jsonschema"
 ]
 
 
