@@ -1,6 +1,16 @@
 # AstroPilot
 
-AstroPilot is a multiagent system designed to automatize scientific research in astrophysics and cosmology
+AstroPilot is a multiagent system designed to automatize scientific research
+
+## Current installation
+
+```bash
+git clone https://github.com/AstroPilot-AI/AstroPilot
+cd AstroPilot
+source installer.sh
+```
+
+
 
 ## Installation
 
