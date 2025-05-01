@@ -206,3 +206,7 @@ project_data/
 notebooks/bblocal
 Project*
 input_files/*
+
+astrop_env/
+cmbagent/
+ag2/
