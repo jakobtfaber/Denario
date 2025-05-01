@@ -20,7 +20,6 @@ special_chars = {
     "^": r"\^{}",
 }
 
-
 def compile_latex(state: GraphState, paper_name: str):
     """
     Function used to compile the paper
@@ -39,7 +38,14 @@ def compile_latex(state: GraphState, paper_name: str):
     paper_stem = Path(paper_name).stem
     
     # try to compile twice for citations and links
-    for i in range(3):  #compile three times to add citations
+    for i in range(4):  #compile three times to add citations
+        if i==1:
+            if os.path.exists('bibliography.bib'):
+                result = subprocess.run(["bibtex", paper_stem],
+                                        capture_output=True,
+                                        text=True, check=True)
+            continue
+            
         try:
             result = subprocess.run(["xelatex", paper_name],
                                     input="\n",
@@ -51,12 +57,6 @@ def compile_latex(state: GraphState, paper_name: str):
             with open(state['files']['LaTeX_log'], 'a') as f:
                 f.write(f"\n==== LaTeX Compilation Pass {i + 1} ====\n")
                 f.write(result.stdout)
-
-            if i==0:
-                result = subprocess.run(["bibtex", paper_stem],
-                                        capture_output=True,
-                                        text=True, check=True)
-
             
         except subprocess.CalledProcessError as e:
             print(f"    LaTeX compilation failed: iteration {i+1}")
