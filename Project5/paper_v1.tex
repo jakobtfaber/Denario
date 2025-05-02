@@ -21,7 +21,7 @@ The relationship between a galaxy's central black hole mass and its stellar mass
 \end{abstract}
 
 \keywords{Black holes, Supermassive black holes, Galaxies, Galaxy evolution, Cosmology, Cosmological parameters, Galaxy clusters, Active galactic nuclei, Feedback, N-body simulations, Gravitational lensing, Galaxy mergers, Galaxy physics, High energy astrophysics, Intergalactic medium}
-
+% Note: Keywords often don't need escaping within \keywords{} depending on the class, but it's safer. Let's assume no change needed here for now based on common practice with aastex. If errors persist related to keywords, we can revisit. The main issue is likely the \ensuremath usage. Let's focus on that first.
 
 \section{Introduction}
 \label{sec:intro}
@@ -37,7 +37,7 @@ To map the dependence of the $M_{\rm BH}$--$M_{\star}$ relation's parameters (sl
 \label{sec:methods}
 \subsection{Simulated Galaxy Data}
 
-Our analysis relies on a suite of simulated galaxies generated from cosmological simulations. Each simulation within the suite is characterized by a unique combination of cosmological parameters and subgrid models for feedback processes. The simulations provide a controlled environment to investigate the impact of these parameters on the black hole-stellar mass relation. The dataset consists of galaxy-level data, including stellar mass ($M_{\star}$), black hole mass ($M_{\rm BH}$), and star formation rate (SFR), along with the corresponding cosmological and feedback parameters for each simulation. The cosmological parameters considered are the matter density ($\Omega_m$) and the amplitude of the matter power spectrum ($\sigma_8$). The feedback parameters control the efficiency of supernova feedback (A\ensuremath{\_}{SN1}, A\ensuremath{\_}{SN2}) and active galactic nuclei feedback (A\ensuremath{\_}{AGN1}, A\ensuremath{\_}{AGN2}). These parameters are systematically varied across the simulation suite, allowing us to explore a wide range of possible galaxy evolution scenarios.
+Our analysis relies on a suite of simulated galaxies generated from cosmological simulations. Each simulation within the suite is characterized by a unique combination of cosmological parameters and subgrid models for feedback processes. The simulations provide a controlled environment to investigate the impact of these parameters on the black hole-stellar mass relation. The dataset consists of galaxy-level data, including stellar mass ($M_{\star}$), black hole mass ($M_{\rm BH}$), and star formation rate (SFR), along with the corresponding cosmological and feedback parameters for each simulation. The cosmological parameters considered are the matter density ($\Omega_m$) and the amplitude of the matter power spectrum ($\sigma_8$). The feedback parameters control the efficiency of supernova feedback ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$) and active galactic nuclei feedback ($A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$). These parameters are systematically varied across the simulation suite, allowing us to explore a wide range of possible galaxy evolution scenarios.
 
 We load the galaxy-level data from a Parquet file (`galaxies_full_optimal.parquet`) and the catalog-level data (containing the cosmological and feedback parameters) from another Parquet file (`catalog_params_optimal.parquet`). We use efficient chunked reading to minimize memory usage, given the large size of the dataset. Each galaxy is associated with its parent catalog's parameters, which are then used as independent variables in our subsequent regression analyses. We only retain the columns that are strictly necessary for the analysis, namely $M_{\star}$, $M_{\rm BH}$, SFR, the catalog number, and the six cosmological/feedback parameters, to further reduce memory footprint and improve computational efficiency.
 
@@ -75,10 +75,10 @@ After performing the regression analysis for each catalog and mass bin, we compi
 
 \begin{itemize}
     \item Catalog number
-    \item Values of the feedback parameters (A\ensuremath{\_}{SN1}, A\ensuremath{\_}{SN2}, A\ensuremath{\_}{AGN1}, A\ensuremath{\_}{AGN2})
+    \item Values of the feedback parameters ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$, $A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$)
     \item Values of the cosmological parameters ($\Omega_m$, $\sigma_8$)
-    \item Slope ($\beta$) of the $M_{\rm BH}$--$M_{\star}$ relation in each mass bin
-    \item Normalization ($\alpha$) of the $M_{\rm BH}$--$M_{\star}$ relation in each mass bin
+    \item Slope ($\beta$) of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in each mass bin
+    \item Normalization ($\alpha$) of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in each mass bin
     \item Intrinsic scatter of the $M_{\rm BH}$--$M_{\star}$ relation in each mass bin
 \end{itemize}
 
@@ -100,7 +100,7 @@ We also use efficient data access methods to minimize memory usage. We load the 
 
 \section{Results}
 \label{sec:results}
-This section presents the results of our investigation into the diversity of the black hole-stellar mass ($M_{\rm BH}$--$M_{\star}$) relation across a broad range of cosmological and feedback parameter space. We leverage a suite of simulated galaxy catalogs, each characterized by a unique combination of cosmological parameters ($\Omega_m$, $\sigma_8$) and feedback parameters (A\ensuremath{\_}{SN1}, A\ensuremath{\_}{SN2}, A\ensuremath{\_}{AGN1}, A\ensuremath{\_}{AGN2}), enabling a systematic exploration of how the scaling relation's slope, normalization, and scatter respond to changes in the underlying physics. The methodology involves fitting the relation $\log_{10} M_{\rm BH} = \alpha + \beta \log_{10} M_{\star}$ within three stellar mass bins (low: $M_{\star} < 10^9 M_{\odot}$, intermediate: $10^9 M_{\odot} \leq M_{\star} < 10^{10} M_{\odot}$, high: $M_{\star} \geq 10^{10} M_{\odot}$) for each catalog, excluding galaxies with $M_{\rm BH} = 0$ to focus on the scaling among black hole hosts. The resulting best-fit parameters (slope $\beta$, normalization $\alpha$, and intrinsic scatter) are then mapped as functions of the six catalog parameters using multivariate regression and random forest analysis. Additionally, we quantify the black hole occupation fraction as a function of mass and feedback parameters, providing context for the main results and assessing potential selection effects.
+This section presents the results of our investigation into the diversity of the black hole-stellar mass ($M_\mathrm{BH}$--$M_\mathrm{star}$) relation across a broad range of cosmological and feedback parameter space. We leverage a suite of simulated galaxy catalogs, each characterized by a unique combination of cosmological parameters ($\Omega_m$, $\sigma_8$) and feedback parameters ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$, $A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$), enabling a systematic exploration of how the scaling relation's slope, normalization, and scatter respond to changes in the underlying physics. The methodology involves fitting the relation $\log_{10} M_\mathrm{BH} = \alpha + \beta \log_{10} M_\mathrm{star}$ within three stellar mass bins (low: $M_\mathrm{star} < 10^9 M_{\odot}$, intermediate: $10^9 M_{\odot} \leq M_\mathrm{star} < 10^{10} M_{\odot}$, high: $M_\mathrm{star} \geq 10^{10} M_{\odot}$) for each catalog, excluding galaxies with $M_\mathrm{BH} = 0$ to focus on the scaling among black hole hosts. The resulting best-fit parameters (slope $\beta$, normalization $\alpha$, and intrinsic scatter) are then mapped as functions of the six catalog parameters using multivariate regression and random forest analysis. Additionally, we quantify the black hole occupation fraction as a function of mass and feedback parameters, providing context for the main results and assessing potential selection effects.
 
 \subsection{Diversity of the $M_{\rm BH}$--$M_{\star}$ Relation}
 
@@ -298,19 +298,19 @@ To quantify the influence of feedback and cosmological parameters on the $M_{\rm
 
 \subsubsection{Low-mass galaxies}
 
-In the low-mass regime, the slope ($\beta$) is most influenced by the supernova feedback parameter A\ensuremath{\_}{SN1} and AGN feedback parameter A\ensuremath{\_}{AGN1}. The standardized coefficient for A\ensuremath{\_}{SN1} is +0.05, and its random forest feature importance is 0.41. For A\ensuremath{\_}{AGN1}, the standardized coefficient is +0.04, and its random forest feature importance is 0.29. Both parameters positively correlate with the slope, suggesting that stronger feedback steepens the relation in low-mass galaxies. The normalization ($\alpha$) is strongly negatively correlated with A\ensuremath{\_}{SN1} (coefficient -0.38) and A\ensuremath{\_}{AGN1} (coefficient -0.32), indicating that stronger feedback leads to lower black hole masses at a fixed stellar mass. The intrinsic scatter is primarily driven by A\ensuremath{\_}{SN1} (coefficient +0.04, random forest importance 0.73), consistent with the expectation that stochastic supernova feedback introduces diversity in black hole growth histories.
+In the low-mass regime, the slope ($\beta$) is most influenced by the supernova feedback parameter $A_\mathrm{SN1}$ and AGN feedback parameter $A_\mathrm{AGN1}$. The standardized coefficient for $A_\mathrm{SN1}$ is +0.05, and its random forest feature importance is 0.41. For $A_\mathrm{AGN1}$, the standardized coefficient is +0.04, and its random forest feature importance is 0.29. Both parameters positively correlate with the slope, suggesting that stronger feedback steepens the relation in low-mass galaxies. The normalization ($\alpha$) is strongly negatively correlated with $A_\mathrm{SN1}$ (coefficient -0.38) and $A_\mathrm{AGN1}$ (coefficient -0.32), indicating that stronger feedback leads to lower black hole masses at a fixed stellar mass. The intrinsic scatter is primarily driven by $A_\mathrm{SN1}$ (coefficient +0.04, random forest importance 0.73), consistent with the expectation that stochastic supernova feedback introduces diversity in black hole growth histories.
 
 \subsubsection{Intermediate-mass galaxies}
 
-In the intermediate-mass regime, the slope ($\beta$) is dominated by the AGN feedback parameter A\ensuremath{\_}{AGN1} (coefficient +0.37, random forest importance 0.88). This suggests that AGN feedback plays a significant role in regulating black hole growth in intermediate-mass galaxies. The normalization ($\alpha$) is also strongly influenced by A\ensuremath{\_}{AGN1} (coefficient -3.32). The intrinsic scatter is influenced by both A\ensuremath{\_}{AGN1} and A\ensuremath{\_}{SN1}.
+In the intermediate-mass regime, the slope ($\beta$) is dominated by the AGN feedback parameter $A_\mathrm{AGN1}$ (coefficient +0.37, random forest importance 0.88). This suggests that AGN feedback plays a significant role in regulating black hole growth in intermediate-mass galaxies. The normalization ($\alpha$) is also strongly influenced by $A_\mathrm{AGN1}$ (coefficient -3.32). The intrinsic scatter is influenced by both $A_\mathrm{AGN1}$ and $A_\mathrm{SN1}$.
 
 \subsubsection{High-mass galaxies}
 
-In high-mass galaxies, the slope ($\beta$) is dominated by the AGN feedback parameter A\ensuremath{\_}{AGN1} (coefficient -0.22, random forest importance 0.69), but the sign of the coefficient is reversed compared to the intermediate-mass bin, indicating a shift in the role of AGN feedback. The normalization ($\alpha$) is also strongly influenced by A\ensuremath{\_}{AGN1} (coefficient +2.52). The intrinsic scatter is influenced by both A\ensuremath{\_}{AGN1} and A\ensuremath{\_}{SN1}.
+In high-mass galaxies, the slope ($\beta$) is dominated by the AGN feedback parameter $A_\mathrm{AGN1}$ (coefficient -0.22, random forest importance 0.69), but the sign of the coefficient is reversed compared to the intermediate-mass bin, indicating a shift in the role of AGN feedback. The normalization ($\alpha$) is also strongly influenced by $A_\mathrm{AGN1}$ (coefficient +2.52). The intrinsic scatter is influenced by both $A_\mathrm{AGN1}$ and $A_\mathrm{SN1}$.
 
 \subsection{Black Hole Occupation Fraction}
 
-The black hole occupation fraction increases with stellar mass, rising from approximately 0.72 in low-mass galaxies to nearly 0.96 in high-mass galaxies. The occupation fraction also depends on feedback parameters, with stronger supernova feedback (A\ensuremath{\_}{SN1}) reducing the occupation fraction at low and intermediate masses, consistent with the suppression of black hole formation or growth in shallow potential wells.
+The black hole occupation fraction increases with stellar mass, rising from approximately 0.72 in low-mass galaxies to nearly 0.96 in high-mass galaxies. The occupation fraction also depends on feedback parameters, with stronger supernova feedback ($A_\mathrm{SN1}$) reducing the occupation fraction at low and intermediate masses, consistent with the suppression of black hole formation or growth in shallow potential wells.
 
 \subsection{Synthesis}
 
