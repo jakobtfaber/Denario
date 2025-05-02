@@ -54,6 +54,11 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "LaTeX_log": "LaTeX_compilation.log",
                       "Temp":      f"{state['files']['Folder']}/Temp",
                       "LLM_calls": f"{state['files']['Folder']}/LLM_calls.txt"}
+
+    # set the Latex class
+    state['latex'] = {}
+    state['latex']['section'] = ""
+    
     idea = {}
     
     # read input files
@@ -125,5 +130,5 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
 
     return {"idea": idea,  "files": state['files'],  "paper": {"summary": ""},
-            "tokens": state['tokens']}
+            "tokens": state['tokens'], "latex": state['latex']}
 

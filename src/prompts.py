@@ -206,6 +206,7 @@ In <INTRODUCTION>, place the introduction of the paper. Please, follow these gui
 - Describe how we verify that we have solved the problem
 - Do not create subsections
 - Do not add citations 
+- Do not create commands, e.g. \MBH
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTeX.
 """)]
@@ -246,6 +247,7 @@ In <INTRODUCTION>, place the new Introduction of the paper. Follow these guideli
 - Describe how we verify that we have solved the problem
 - Do not create subsections
 - Do not add citations 
+- Do not create commands, e.g. \MBH
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTex.
 """)]
@@ -280,6 +282,7 @@ Follow these guidelines:
 - Write in LaTex
 - Describe in detail the different methods used, the dataset, evaluation metrics, and any other element relevant
 - Do not write citations. References will be added later on
+- Do not create command, e.g. \MBH
 - Try to connect the text in this section with the one in the introduction
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
@@ -321,6 +324,7 @@ Follow these guidelines:
 - Do not add plots or placeholders for plots. Plots will be added later on
 - Describe what we have learned from the results
 - Do not write the bibliography
+- Do not create command, e.g. \MBH
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
 - You can create subsections and subsubsections, but **you cannot create sections**
@@ -386,6 +390,7 @@ Follow these guidelines:
 - Describe the results obtained
 - Describe what we have learned from the results and this paper
 - Do not add citations. Citations will be added later on
+- Do not create command, e.g. \MBH
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
 - Do not write words or sentences between *. 
@@ -609,6 +614,9 @@ def fix_latex_bug_prompt(state, text, error):
 
 Text:
 {text}
+
+Error:
+{error}
     
 Respond in this format:
 

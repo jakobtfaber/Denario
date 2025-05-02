@@ -20,100 +20,186 @@ special_chars = {
     "^": r"\^{}",
 }
 
-def compile_latex(state: GraphState, paper_name: str):
-    """
-    Function used to compile the paper
-    Args:
-       state: the state of the graph
-       paper: the name of file to compile
-    """
-    
+
+def compile_latex(state: GraphState, paper_name: str, verbose=True):
+
     # get the current directory
     original_dir = os.getcwd()
 
     # go to the folder containing the paper
     os.chdir(state['files']['Folder'])
 
-    # get the stem of the paper paper name
+    # get the paper stem
     paper_stem = Path(paper_name).stem
-    
-    # try to compile twice for citations and links
-    for i in range(4):  #compile three times to add citations
-        if i==1:
-            if os.path.exists('bibliography.bib'):
-                result = subprocess.run(["bibtex", paper_stem],
-                                        capture_output=True,
-                                        text=True, check=True)
-            continue
-            
+
+    def run_xelatex():
+        return subprocess.run(["xelatex", paper_name],
+                              input="\n", capture_output=True,
+                              text=True, check=True)
+
+    def run_bibtex():
+        subprocess.run(["bibtex", paper_stem],
+                       capture_output=True, text=True, check=True)
+
+    def log_output(i, result_or_error, is_error=False):
+        with open(state['files']['LaTeX_log'], 'a') as f:
+            f.write(f"\n==== {'ERROR' if is_error else 'PASS'} on iteration {i} ====\n")
+            f.write("---- STDOUT ----\n")
+            f.write(result_or_error.stdout or "")
+            f.write("---- STDERR ----\n")
+            f.write(result_or_error.stderr or "")
+
+    def fix_error(e):
+        lines = (e.stdout or "").splitlines() + (e.stderr or "").splitlines()
+        error_lines = []
+        show_context = 0
+        for line in lines:
+            if line.lstrip().startswith("!"):
+                error_lines.append("\n" + line)
+                show_context = 3
+            elif show_context > 0:
+                error_lines.append(line)
+                show_context -= 1
+        error_msg = ' '.join(line.strip() for line in error_lines if line.strip())
+        section = state['latex']['section']
+        fixed_text = fix_latex_bug(state, state['paper'][section], error_msg)
+        state['paper'][section] = fixed_text
+        os.chdir(original_dir)
+        save_paper(state, paper_name)
+        os.chdir(state['files']['Folder'])
+
+    def compile_successfully(label):
         try:
-            result = subprocess.run(["xelatex", paper_name],
-                                    input="\n",
-                                    capture_output=True,
-                                    text=True, check=True)
-            print(f"    LaTeX compiled successfully: iteration {i+1}")
-
-            # Write stdout to log
-            with open(state['files']['LaTeX_log'], 'a') as f:
-                f.write(f"\n==== LaTeX Compilation Pass {i + 1} ====\n")
-                f.write(result.stdout)
-            
+            result = run_xelatex()
+            log_output(label, result)
+            if verbose:
+                print(f"    LaTeX compiled successfully: {label}")
+            return True
         except subprocess.CalledProcessError as e:
-            print(f"    LaTeX compilation failed: iteration {i+1}")
-            with open(state['files']['LaTeX_log'], 'a') as f:
-                f.write(f"\n==== ERROR on Pass {i + 1} ====\n")
-                f.write("---- STDOUT ----\n")
-                f.write(e.stdout or "")
-                f.write("---- STDERR ----\n")
-                f.write(e.stderr or "")
+            log_output(label, e, is_error=True)
+            if verbose:
+                print(f"    LaTeX failed: {label}")
+            return e
 
-            """
-            # Filter actual errors from stdout/stderr
-            error_lines = []
-            lines = (e.stdout or "") .splitlines() + (e.stderr or "").splitlines()
-            show_context = 0
-            for line in lines:
-                if line.lstrip().startswith("!"):
-                    error_lines.append("\n" + line)
-                    show_context = 3  # show 3 lines after the error
-                elif show_context > 0:
-                    error_lines.append(line)
-                    show_context -= 1
-            error_msg = ' '.join(line.strip() for line in error_lines if line.strip())
+    # --- Retry loop ---
+    #for attempt in range(3):
+    #    try:
+    #        run_xelatex()
+    #        break  # success
+    #    except subprocess.CalledProcessError as e:
+    #        print('Fixing things...')
+    #        fix_error(e)
+    #else:
+    #    os.chdir(original_dir)
+    #    raise RuntimeError("LaTeX failed after 3 attempts")
 
-            print(error_lines)
-            latex_lines = []
-            for line in lines:
-                match = re.search(r'l\.(\d+)', line)
-                if match:
-                    latex_lines.append(match.group(1))
-                    print(f"Found line number: {match.group(1)}")
-            latex_lines = set(latex_lines)
 
-            # read the paper
-            with open(paper_name, 'r') as f:
-                lines = f.readlines()
+    for i in range(4):
 
-            for i in latex_lines:
-                print('Hello!',i)
-                print(lines[int(i)-1])
-                fixed_text = fix_latex_bug(state,lines[int(i)-1],error_msg)
-                print(fixed_text)
-                lines[int(i)-1] = fixed_text
+        if i==1:
+            if os.path.exists("bibliography.bib"):
+                run_bibtex()
+            continue
+        
+        try:
+            result = run_xelatex()
+            log_output(f"Final Pass {i+1}", result)
+            if verbose:
+                print(f"    LaTeX compiled successfully: Pass {i+1}")
+        except subprocess.CalledProcessError as e:
+            log_output(f"Final Pass {i+1}", e, is_error=True)
+            os.chdir(original_dir)
+            print(f"LaTeX failed on pass {i+1}")
 
-            paper = '\n'.join(line.rstrip('\n') for line in lines)
-            with open("borrar.tex", 'w') as f:
-                f.write(paper)
-            #sys.exit()
-            """
-
-    # remove auxiliary files
-    for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
-                f'{paper_stem}.bbl', f'{paper_stem}.blg', f'{paper_stem}.synctex.gz',
-                f'{paper_stem}.synctex(busy)']:
-        if os.path.exists(fin):  os.remove(fin)
-                        
     os.chdir(original_dir)
+
+
+
+
+#def compile_latex(state: GraphState, paper_name: str, verbose=True):
+#    """
+#    Function used to compile the paper
+#    Args:
+#       state: the state of the graph
+#       paper: the name of file to compile
+#    """
+    
+#    # get the current directory
+#    original_dir = os.getcwd()
+
+#    # go to the folder containing the paper
+#    os.chdir(state['files']['Folder'])
+
+#    # get the stem of the paper paper name
+#    paper_stem = Path(paper_name).stem
+    
+#    # try to compile twice for citations and links
+#    for i in range(4):  #compile three times to add citations
+#        if i==1:
+#            if os.path.exists('bibliography.bib'):
+#                result = subprocess.run(["bibtex", paper_stem],
+#                                        capture_output=True,
+#                                        text=True, check=True)
+#            continue
+            
+#        try:
+#            result = subprocess.run(["xelatex", paper_name],
+#                                    input="\n",
+#                                    capture_output=True,
+#                                    text=True, check=True)
+#            if verbose:
+#                print(f"    LaTeX compiled successfully: iteration {i+1}")
+
+#            # Write stdout to log
+#            with open(state['files']['LaTeX_log'], 'a') as f:
+#                f.write(f"\n==== LaTeX Compilation Pass {i + 1} ====\n")
+#                f.write(result.stdout)
+            
+#        except subprocess.CalledProcessError as e:
+#            print(f"    LaTeX compilation failed: iteration {i+1}")
+#            with open(state['files']['LaTeX_log'], 'a') as f:
+#                f.write(f"\n==== ERROR on Pass {i + 1} ====\n")
+#                f.write("---- STDOUT ----\n")
+#                f.write(e.stdout or "")
+#                f.write("---- STDERR ----\n")
+#                f.write(e.stderr or "")
+
+#            # section to fix
+#            section = state['latex']['section']
+
+#            # Filter actual errors from stdout/stderr
+#            error_lines = []
+#            lines = (e.stdout or "") .splitlines() + (e.stderr or "").splitlines()
+#            show_context = 0
+#            for line in lines:
+#                if line.lstrip().startswith("!"):
+#                    error_lines.append("\n" + line)
+#                    show_context = 3  # show 3 lines after the error
+#                elif show_context > 0:
+#                    error_lines.append(line)
+#                    show_context -= 1
+#            error_msg = ' '.join(line.strip() for line in error_lines if line.strip())
+
+#            print(error_lines)
+#            latex_lines = []
+#            for line in lines:
+#                match = re.search(r'l\.(\d+)', line)
+#                if match:
+#                    latex_lines.append(match.group(1))
+#                    print(f"Found line number: {match.group(1)}")
+#            latex_lines = set(latex_lines)
+
+#            fixed_text = fix_latex_bug(state, state['paper'][section], error_msg)
+#            state['paper'][section] = fixed_text
+#            sys.exit()
+
+#    # remove auxiliary files
+#    for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
+#                f'{paper_stem}.bbl', f'{paper_stem}.blg', f'{paper_stem}.synctex.gz',
+#                f'{paper_stem}.synctex(busy)']:
+#        if os.path.exists(fin):  os.remove(fin)
+                        
+#    os.chdir(original_dir)
 
 
 
