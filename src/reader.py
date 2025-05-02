@@ -25,17 +25,14 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     """
 
     # set the LLM
-    if state['llm']['model']=='gemini-2.0-flash':
-        state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7,
-                                                     max_output_tokens=8192,
-                                                     google_api_key=GOOGLE_API_KEY)
-        state['llm']['max_output_tokens'] = 8192
-    elif state['llm']['model']=='gemini-2.5-flash-preview-04-17':
-        state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-2.5-flash-preview-04-17",
+    if 'gemini' in state['llm']['model']:
+        state['llm']['llm'] = ChatGoogleGenerativeAI(model=state['llm']['model'],
                                                      temperature=0.7,
                                                      google_api_key=GOOGLE_API_KEY)
-        state['llm']['max_output_tokens'] = 65536
-        
+        if 'gemini-2.0' in state['llm']['model']:
+            state['llm']['max_output_tokens'] = 8192
+        if 'gemini-2.5' in state['llm']['model']:
+            state['llm']['max_output_tokens'] = 65536
     
     # set the tokens usage
     state['tokens'] = {}
@@ -51,7 +48,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "Paper_v3":  "paper_v3.tex",
                       "Paper_v4":  "paper_v4.tex",
                       "Error":     "Error.txt",
-                      "LaTeX_log": "LaTeX_compilation.log",
+                      "LaTeX_log": f"{state['files']['Folder']}/LaTeX_compilation.log",
                       "Temp":      f"{state['files']['Folder']}/Temp",
                       "LLM_calls": f"{state['files']['Folder']}/LLM_calls.txt"}
 
@@ -87,14 +84,9 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
     for f_in in [state['files']['Error'], state['files']['LLM_calls']]:
         if os.path.exists(f_in):  os.remove(f"{f_in}")
-
-    # create empty file
-    #open(state['files']['LLM_calls'], 'w').close()
         
-
     # remove LaTeX compilation log file
-    f_in = f"{state['files']['Folder']}/{state['files']['LaTeX_log']}"
-    if os.path.exists(f_in):  os.remove(f"{f_in}")
+    if os.path.exists(state['files']['LaTeX_log']):  os.remove(state['files']['LaTeX_log'])
 
     # copy LaTeX files to project folder
     for f in ['aasjournal.bst', 'aastex631.cls']:
