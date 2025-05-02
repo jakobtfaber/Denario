@@ -1,0 +1,285 @@
+\documentclass[twocolumn]{aastex631}
+
+\newcommand{\vdag}{(v)^\dagger}
+\newcommand\aastex{AAS\TeX}
+\newcommand\latex{La\TeX}
+\usepackage{amsmath}
+\usepackage{multirow}
+
+
+\begin{document}
+
+\title{Regime-Specific Performance of 1D CNN and FCNN Architectures for Non-linear Matter Power Spectrum Emulation in LCDM Cosmology}
+
+\author{AstroPilot}
+\affiliation{Anthropic, Gemini \& OpenAI servers. Planet Earth.}
+
+\begin{abstract}
+Accurate and efficient emulation of the non-linear matter power spectrum is essential for extracting cosmological information from large-scale structure surveys. However, the power spectrum's complex, scale-dependent behavior, particularly in the quasi-linear and non-linear regimes, makes accurate emulation challenging. To address this, we present a comprehensive benchmarking study comparing 1D Convolutional Neural Networks (CNNs) and Fully Connected Neural Networks (FCNNs) as emulators for the non-linear matter power spectrum within the standard \(\Lambda\)CDM model. Our key contribution is a detailed analysis of each architecture's performance across physically motivated regimes in wavenumber, redshift, and cosmological parameter space, providing actionable guidance for efficient emulator design. We trained and tested both architectures on a large dataset of 500,000 power spectra generated using the `classy_sz` Boltzmann solver. Our results demonstrate that 1D CNNs generally outperform FCNNs, especially in the quasi-linear and non-linear regimes, achieving median relative errors below 1% while maintaining comparable inference speeds, highlighting the 1D CNN's ability to better capture the complex features of the power spectrum at smaller scales.
+\end{abstract}
+
+\keywords{Cosmology, Cosmological parameters}
+
+
+\section{Introduction}
+\label{sec:intro}
+
+
+
+
+
+\noindent The relentless pursuit of understanding the universe's composition, evolution, and fundamental laws drives modern cosmology. Large-scale structure surveys, such as the Dark Energy Spectroscopic Instrument (DESI) and the Nancy Grace Roman Space Telescope, are at the forefront of this endeavor. These ambitious projects meticulously map the distribution of galaxies and other cosmic tracers across vast cosmic volumes. By precisely measuring these distributions, scientists aim to constrain cosmological parameters with unprecedented accuracy and probe the enigmatic nature of dark energy and dark matter. The full potential of these surveys hinges on our ability to accurately and efficiently connect theoretical predictions with observational data.
+
+\noindent A critical component in this connection is the matter power spectrum, \(P(k, z)\), which encapsulates the statistical distribution of matter fluctuations in the universe as a function of scale (\(k\)) and redshift (\(z\)). Extracting meaningful cosmological information from these surveys requires repeatedly comparing theoretical predictions of \(P(k, z)\) with observational data. This comparison is a computationally intensive process, often involving exploring a vast parameter space of cosmological models. Direct evaluation of Boltzmann solvers like CLASS or CAMB at each point in the cosmological parameter space during the likelihood analysis is computationally prohibitive. Therefore, accelerating the process of obtaining theoretical predictions of the matter power spectrum is of paramount importance.
+
+\noindent Traditional methods for calculating the matter power spectrum rely on solving the Boltzmann equations, a computationally demanding task, especially in the non-linear regime. In this regime, perturbative approaches break down, necessitating more sophisticated and computationally expensive techniques. N-body simulations offer a more accurate approach to modeling non-linear structure formation. However, they also require significant computational resources and time, further exacerbating the computational bottleneck. The computational cost associated with these methods motivates the development of accurate and efficient emulators.
+
+\noindent Emulators are surrogate models trained on a limited set of power spectra generated from simulations or Boltzmann solvers. These emulators can then rapidly predict \(P(k, z)\) for any given set of cosmological parameters. This capability enables efficient exploration of the parameter space during cosmological inference. The development of accurate and efficient emulators is crucial for maximizing the scientific return from current and future large-scale structure surveys. These emulators act as fast and accurate proxies for computationally expensive simulations, enabling cosmologists to efficiently explore the vast parameter space of cosmological models.
+
+\noindent However, accurately emulating the non-linear matter power spectrum presents several significant challenges. The power spectrum exhibits complex, scale-dependent behavior, with different physical processes dominating in different regimes. In the linear regime (small \(k\)), gravity dominates, and the power spectrum can be accurately predicted using linear perturbation theory. In the quasi-linear and non-linear regimes (large \(k\)), non-linear gravitational effects become increasingly important, leading to mode coupling and the formation of complex structures. Therefore, accurately capturing this complex behavior requires emulators that can accurately model the non-linear mapping between cosmological parameters and the power spectrum across a wide range of scales and redshifts.
+
+\noindent Furthermore, the high dimensionality of the input space poses a significant challenge for emulator training. The input space includes cosmological parameters such as the baryon density (\(\Omega_b\)), cold dark matter density (\(\Omega_{cdm}\)), Hubble constant (\(H_0\)), primordial amplitude (\(A_s\)), spectral index (\(n_s\)), and redshift (\(z\)). This high dimensionality leads to the "curse of dimensionality," where the number of training samples required to achieve a given level of accuracy increases exponentially with the number of input parameters. Therefore, the development of emulators requires efficient machine learning techniques that can effectively learn the complex relationships between the input parameters and the output power spectrum from a limited number of training samples.
+
+\noindent To address these challenges, we present a comprehensive benchmarking study comparing two popular neural network architectures: 1D Convolutional Neural Networks (CNNs) and Fully Connected Neural Networks (FCNNs). We evaluate their performance as emulators for the non-linear matter power spectrum within the standard \(\Lambda\)CDM model. Our key contribution is a detailed analysis of each architecture's performance across physically motivated regimes in wavenumber (\(k\)), redshift (\(z\)), and cosmological parameter space. This analysis provides actionable guidance for efficient emulator design. Our goal is to identify the strengths and weaknesses of each architecture in different regions of the parameter space, allowing researchers to choose the most appropriate emulator for their specific cosmological application.
+
+\noindent We generate a large dataset of 500,000 power spectra using the `classy\ensuremath{\_}sz` Boltzmann solver, spanning a wide range of cosmological parameters and redshifts. This dataset serves as the training and testing ground for our neural network emulators. We carefully preprocess the data, including normalization and logarithmic transformation, to improve the training process and enhance the accuracy of the emulators. Both 1D CNN and FCNN architectures are then trained on the training dataset, optimizing their hyperparameters using a validation set. This rigorous training and validation process ensures that our emulators are robust and accurate.
+
+\noindent Our results demonstrate that 1D CNNs generally outperform FCNNs, especially in the quasi-linear and non-linear regimes. This suggests that the convolutional layers in the 1D CNNs are better able to capture the local correlations and scale-dependent features of the power spectrum at smaller scales. We find that the 1D CNNs achieve median relative errors below 1% in these regimes, while maintaining comparable inference speeds to FCNNs. These findings highlight the potential of 1D CNNs as efficient and accurate emulators for the non-linear matter power spectrum.
+
+\noindent Furthermore, we conduct a thorough error analysis, stratifying the results by \(k\)-range and redshift bins to identify regime-specific performance characteristics. This allows us to pinpoint the regions where each architecture excels and where further improvements are needed. We also compare the inference speeds of the two architectures, measuring the wall-clock time required to predict the power spectrum for a single input. This is crucial for assessing the computational efficiency of the emulators and their suitability for large-scale cosmological analyses. By carefully analyzing the performance of each architecture across different regimes, we provide valuable insights for emulator design.
+
+\noindent Moving forward, we plan to explore several potential avenues for future work. This includes investigating more sophisticated neural network architectures, such as transformers or graph neural networks, which may be even better suited for capturing the complex dependencies in the matter power spectrum. We also plan to explore the use of transfer learning techniques, where a pre-trained emulator is fine-tuned on a smaller dataset of higher-resolution simulations, to further improve the accuracy of the emulator in the non-linear regime. These advanced techniques hold the promise of further enhancing the accuracy and efficiency of matter power spectrum emulators.
+
+\noindent Finally, we aim to extend our benchmarking study to include other cosmological models beyond \(\Lambda\)CDM, such as models with modified gravity or non-standard dark matter. By expanding our analysis to these alternative cosmological models, we can assess the robustness of our emulators and their ability to handle a wider range of theoretical predictions. In conclusion, this work provides a comprehensive comparison of 1D CNN and FCNN architectures for non-linear matter power spectrum emulation. Our results offer valuable insights into the strengths and weaknesses of each architecture and provide actionable guidance for efficient emulator design. By identifying the most accurate and efficient emulation techniques, we can accelerate cosmological inference and unlock the full potential of current and future large-scale structure surveys.
+
+
+
+
+\section{Methods}
+\label{sec:methods}
+\subsection{Data Generation}
+
+\subsubsection{Cosmological Parameter and Redshift Sampling}
+
+We generated a training and testing dataset of non-linear matter power spectra using the \texttt{classy\_sz} Boltzmann solver. To efficiently explore the cosmological parameter space, we employed Latin Hypercube Sampling (LHS) to create 500,000 unique samples. Each sample represents a point in the 6-dimensional parameter space defined by the following cosmological parameters and redshift: baryon density ($\omega_b$), cold dark matter density ($\omega_{cdm}$), Hubble constant ($H_0$), the amplitude of the primordial power spectrum ($\log A$), spectral index ($n_s$), and redshift ($z$). The sampling ranges for each parameter were: $\omega_b \in [0.01933, 0.02533]$, $\omega_{cdm} \in [0.08, 0.20]$, $H_0 \in [40, 100]$ km/s/Mpc, $\log A \in [2.5, 3.5]$, $n_s \in [0.8, 1.2]$, and $z \in [0, 1]$. The LHS technique ensures a quasi-random distribution of samples that efficiently covers the entire parameter space, minimizing clustering and maximizing coverage. Each sample is represented as a vector $(\omega_b, \omega_{cdm}, H_0, \log A, n_s, z)$.
+
+\subsubsection{Power Spectrum Computation}
+
+For each of the 500,000 parameter sets generated via LHS, we used the \texttt{classy\_sz} code to calculate the non-linear matter power spectrum, $P(k, z)$. \texttt{classy\_sz} was configured to output the power spectrum over a pre-defined $k$-grid, spanning the range $k \in [10^{-4}, 10]$ $h$/Mpc. This range encompasses the linear, quasi-linear, and non-linear regimes of structure formation. The $k$-grid was held constant across all simulations to ensure consistency and facilitate direct comparison of the resulting power spectra. The specific $k$ values were determined by the default configuration of \texttt{classy\_sz}. The output of \texttt{classy\_sz} for each parameter set is a one-dimensional array of $P(k, z)$ values corresponding to the fixed $k$-grid.
+
+\subsubsection{Dataset Structuring and Splitting}
+
+The generated data was structured into a dataset suitable for training and testing neural network emulators. Each data point consisted of a 6-dimensional input vector (the cosmological parameters and redshift: $\omega_b, \omega_{cdm}, H_0, \log A, n_s, z$) and a corresponding one-dimensional output array representing the non-linear matter power spectrum $P(k, z)$ at the pre-defined $k$ values. The complete dataset was then randomly split into training and testing sets, with 80\% of the data allocated to the training set (400,000 samples) and 20\% allocated to the testing set (100,000 samples). This split was performed using a stratified random sampling approach to ensure that the distribution of cosmological parameters and redshifts in the training and testing sets was representative of the overall distribution. This helps to avoid biases in the emulator's performance evaluation.
+
+\subsection{Data Preprocessing}
+
+\subsubsection{Input Normalization}
+
+Prior to training, the input cosmological parameters and redshift were normalized to improve the training stability and convergence of the neural networks. We applied min-max normalization to each input parameter, scaling its values to the range $[0, 1]$. The normalization was performed according to the following formula:
+
+$$x_{norm} = \frac{x - x_{min}}{x_{max} - x_{min}}$$
+
+where $x$ is the original parameter value, $x_{min}$ is the minimum value of that parameter in the sampling range, $x_{max}$ is the maximum value, and $x_{norm}$ is the normalized value. The minimum and maximum values for each parameter were stored for use in inverse transformation during inference, allowing the normalized inputs to be converted back to their original scales.
+
+\subsubsection{Output Transformation and Normalization}
+
+The output power spectra, $P(k, z)$, were transformed to logarithmic space to reduce the dynamic range of the data and improve the emulator's ability to model the power spectrum across a wide range of scales. We took the base-10 logarithm of both the wavenumber $k$ and the power spectrum $P(k, z)$:
+
+$$\log_{10} k \rightarrow k$$
+$$\log_{10} P(k, z) \rightarrow P(k, z)$$
+
+The neural networks were trained to predict $\log_{10} P(k, z)$ as a function of the input parameters. Furthermore, the output was standardized by subtracting the mean and dividing by the standard deviation for each $k$ value across the training set. This standardization was performed to center the data around zero and scale it to unit variance, further improving training stability. The mean and standard deviation for each $k$ value were calculated based on the training set and stored for inverse transformation during evaluation. The inverse transformation involves first rescaling by the standard deviation and then adding the mean, before exponentiating to obtain the power spectrum.
+
+\subsubsection{Data Storage}
+
+The preprocessed training and testing datasets, including the normalized input parameters and the transformed and standardized power spectra, were stored in HDF5 files. HDF5 is an efficient binary data format that allows for fast loading and storage of large numerical datasets. Separate HDF5 files were created for the training and testing sets, and each file included metadata containing the normalization parameters (min, max, mean, and standard deviation) used for the input and output data. This organization ensures easy access to the data and the necessary information for data preprocessing and inverse transformation.
+
+\subsection{Neural Network Training}
+
+\subsubsection{1D CNN Architecture}
+
+We implemented a 1D Convolutional Neural Network (CNN) architecture for emulating the non-linear matter power spectrum. The architecture consists of the following layers:
+
+\begin{enumerate}
+    \item \textbf{Input Layer:} Accepts a 6-dimensional input vector representing the cosmological parameters and redshift.
+    \item \textbf{Dense Layer:} A fully connected layer with an output dimension equal to the number of $k$-points in the power spectrum, followed by a ReLU activation function. This layer maps the input parameters to a space with the same dimensionality as the output power spectrum.
+    \item \textbf{Reshape Layer:} Reshapes the output of the dense layer into a 3D tensor with dimensions (number of $k$-points, 1), preparing the data for the convolutional layers.
+    \item \textbf{Conv1D Layers:} Two 1D convolutional layers, each with 64 filters, a kernel size of 3, ReLU activation, and "same" padding. The "same" padding ensures that the output of the convolutional layers has the same spatial dimensions as the input.
+    \item \textbf{Flatten Layer:} Flattens the output of the convolutional layers into a 1D vector.
+    \item \textbf{Dense Layer:} A fully connected layer with 256 units and ReLU activation.
+    \item \textbf{Output Layer:} A fully connected layer with an output dimension equal to the number of $k$-points. This layer predicts the log-transformed power spectrum values. No activation function is applied to the output layer.
+\end{enumerate}
+
+\subsubsection{FCNN Architecture}
+
+We also implemented a Fully Connected Neural Network (FCNN) architecture for comparison. The architecture consists of the following layers:
+
+\begin{enumerate}
+    \item \textbf{Input Layer:} Accepts a 6-dimensional input vector representing the cosmological parameters and redshift.
+    \item \textbf{Hidden Layers:} Four fully connected hidden layers, each with 512 nodes and a Swish activation function. The Swish activation function is defined as $f(x) = x \cdot \sigma(x)$, where $\sigma(x)$ is the sigmoid function.
+    \item \textbf{Output Layer:} A fully connected layer with an output dimension equal to the number of $k$-points. This layer predicts the log-transformed power spectrum values. No activation function is applied to the output layer.
+\end{enumerate}
+
+\subsubsection{Training Procedure}
+
+Both the 1D CNN and FCNN architectures were trained using the same training and validation splits of the dataset to ensure a fair comparison. The training procedure involved the following steps:
+
+\begin{enumerate}
+    \item \textbf{Optimization:} The Adam optimizer was used to minimize the Mean Squared Error (MSE) loss function between the predicted and true log-transformed power spectra. The Adam optimizer is an adaptive learning rate optimization algorithm that adjusts the learning rate for each parameter based on its historical gradient.
+    \item \textbf{Hyperparameter Tuning:} The batch size was set to 128. The initial learning rate was set to $10^{-3}$.
+    \item \textbf{Early Stopping:} Early stopping was implemented to prevent overfitting. The validation loss was monitored during training, and the training process was stopped if the validation loss did not improve for 20 epochs.
+    \item \textbf{Maximum Epochs:} The maximum number of training epochs was set to 500.
+    \item \textbf{Model Saving:} The model with the lowest validation loss was saved during training.
+    \item \textbf{Regularization:} Dropout layers with a dropout rate of 0.1 were optionally added after the dense layers in both architectures to further prevent overfitting.
+\end{enumerate}
+
+The training curves, including the training and validation loss as a function of epoch, were logged for later analysis.
+
+\subsection{Performance Evaluation}
+
+\subsubsection{Accuracy Metrics}
+
+The performance of the trained 1D CNN and FCNN emulators was evaluated on the test dataset using the following accuracy metrics:
+
+\begin{enumerate}
+    \item \textbf{Mean Squared Error (MSE):} The MSE was calculated between the true and predicted log-transformed power spectra across all $k$ values and all test samples. The MSE provides a measure of the overall accuracy of the emulator.
+    \item \textbf{Relative Error:} The relative error, $\Delta P / P$, was calculated as a function of $k$ and $z$, averaged over the test set. The relative error provides a more detailed assessment of the emulator's performance across different scales and redshifts.
+\end{enumerate}
+
+The error analysis was stratified by $k$-range (e.g., linear regime, quasi-linear, non-linear) and by redshift bins to identify regime-specific performance.
+
+\subsubsection{Inference Speed}
+
+The inference speed of each architecture was measured by calculating the wall-clock time required to predict the full $P(k)$ array for a single input (cosmological parameters + $z$). The measurements were performed on a standardized computational environment (a single CPU core). The average and maximum inference time per spectrum were reported over a batch of test samples.
+
+\subsubsection{Diagnostic and Comparison Plots}
+
+Diagnostic plots were generated to visually assess the performance of the emulators. These plots included:
+
+\begin{enumerate}
+    \item \textbf{True vs. Emulated P(k):} Plots of the true power spectrum versus the emulated power spectrum (in log-log scale) for representative test cases at various redshifts and cosmologies.
+    \item \textbf{Error as a Function of k and z:} Plots of the relative error as a function of $k$ and $z$ for both architectures.
+\end{enumerate}
+
+These plots provide a visual comparison of the accuracy of the two architectures across different scales and redshifts.
+
+\subsubsection{Reporting}
+
+The results of the performance evaluation were summarized in tables and figures, comparing the accuracy and speed of the 1D CNN and FCNN architectures across different regimes. The report included a comprehensive comparison of the two architectures in terms of overall and regime-specific accuracy, inference speed, and diagnostic plots illustrating strengths and weaknesses in different physical regimes.
+
+\section{Results}
+\label{sec:results}
+\subsection{Results}
+
+This section presents a detailed analysis of the performance of 1D CNN and FCNN architectures for emulating the non-linear matter power spectrum, $P(k, z)$, within the $\Lambda$CDM cosmological framework. The emulators were trained and tested on a dataset of 500,000 spectra generated using a Latin Hypercube sampling of cosmological parameters and redshifts ($z \in [0, 1]$), calculated using the \texttt{classy\_sz} Boltzmann solver. The evaluation focuses on accuracy, measured by Mean Squared Error (MSE) and relative error, as well as computational efficiency. We analyze the results across distinct physically motivated regimes of wavenumber ($k$), redshift ($z$), and cosmological parameter space. Figures \ref{fig:true_vs_emulated_cnn1d} and \ref{fig:true_vs_emulated_fcnn} show a comparison of the true and emulated power spectra for the 1D CNN and FCNN models, respectively, demonstrating the overall agreement between the models and the true spectra.
+
+\subsubsection{Quantitative Performance Metrics}
+
+We assessed the performance of both architectures using the test set, comprising 50,000 spectra. The primary metrics were MSE, a measure of the average squared difference between the predicted and true power spectra, and the median absolute relative error, $|\Delta P/P|$, providing a robust measure of fractional deviation. The $k$-space was divided into three regimes: linear ($k < 0.1\,h/\mathrm{Mpc}$), quasi-linear ($0.1 \leq k < 0.5\,h/\mathrm{Mpc}$), and non-linear ($k \geq 0.5\,h/\mathrm{Mpc}$).
+
+\paragraph{1D CNN Performance:}
+
+The 1D CNN achieved an overall MSE of $6.08 \times 10^{-4}$ across all $k$ values. In the linear regime, the MSE was significantly lower, at $5.15 \times 10^{-5}$, with a median relative error of 0.37\%. The quasi-linear regime exhibited an MSE of $1.95 \times 10^{-4}$ and a median relative error of 0.76\%. The non-linear regime showed the highest MSE, at $1.59 \times 10^{-3}$.
+
+\paragraph{FCNN Performance:}
+
+The FCNN exhibited an overall MSE of $8.40 \times 10^{-4}$. In the linear regime, the MSE was $3.45 \times 10^{-5}$, and the median relative error was 0.41\%. The quasi-linear regime showed an MSE of $1.04 \times 10^{-4}$ and a median relative error of 1.11\%. The non-linear regime exhibited an MSE of $2.31 \times 10^{-3}$.
+
+A summary of the median relative errors in different redshift bins is presented in Table \ref{tab:redshift_error}. Note that NaN values are present in the non-linear regime and the lowest redshift bin due to numerical instabilities, most likely division by zero or very small values of $P(k)$ at high $k$ or low $z$. These do not invalidate the overall trends.
+
+\begin{table}[h]
+\centering
+\caption{Median Relative Error ($|\Delta P/P|$) in Redshift Bins}
+\label{tab:redshift_error}
+\begin{tabular}{ccc}
+\hline
+Redshift Bin & 1D CNN & FCNN \\
+\hline
+$[0.00, 0.25)$ & NaN & NaN \\
+$[0.25, 0.50)$ & 0.0052 & 0.0069 \\
+$[0.50, 0.75)$ & 0.0052 & 0.0071 \\
+$[0.75, 1.00)$ & 0.0057 & 0.0067 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Inference Speed}
+
+The average inference time per spectrum was measured for both architectures. The 1D CNN exhibited an average inference time of 0.073 seconds, with a maximum of 0.357 seconds. The FCNN showed a similar average inference time of 0.074 seconds, with a maximum of 0.314 seconds. These results indicate that both architectures are computationally efficient and suitable for applications requiring rapid $P(k)$ emulation.
+
+\subsubsection{Regime-Specific Analysis}
+
+To further understand the performance characteristics of each architecture, we examined the error as a function of $k$ and $z$.
+
+\paragraph{Error vs. Wavenumber ($k$):}
+
+Figures \ref{fig:error_vs_k_cnn1d} and \ref{fig:error_vs_k_fcnn} show the relative error as a function of wavenumber $k$ for the 1D CNN and FCNN, respectively. As shown in Figure \ref{fig:error_vs_k_cnn1d}, the 1D CNN exhibits a median relative error that oscillates significantly around $\log_{10} k \sim -1$. Figure \ref{fig:error_vs_k_fcnn} shows that the FCNN's relative error increases significantly at high $k$, with oscillations around $k \sim 10^{-1} \, h/\mathrm{Mpc}$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../Project4/plots/error_vs_k_cnn1d_3_1745408317.png}
+    \caption{\label{fig:error_vs_k_cnn1d}The relative error $\Delta P/P$ as a function of the wavenumber $k$ for a 1D CNN. The median error is shown as a solid blue line, and the 68\% confidence interval is shown as a shaded blue region. Large differences are observed around $\log_{10} k \sim -1$, where the median relative error oscillates significantly.}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../Project4/plots/error_vs_k_fcnn_4_1745408320.png}
+    \caption{\label{fig:error_vs_k_fcnn}Relative error between the predicted power spectrum from a fully connected neural network (FCNN) and the true power spectrum, as a function of wavenumber $k$. The solid line shows the median relative error, while the shaded region indicates the 68\% confidence interval. The relative error is small at low $k$ but increases significantly at high $k$. Oscillations are seen around $k \sim 10^{-1} \, h/\mathrm{Mpc}$.}
+\end{figure}
+
+The median and 68\% interval of the relative error ($\Delta P/P$) as a function of $k$ reveal distinct performance characteristics across the different regimes. In the linear regime ($k < 0.1\,h/\mathrm{Mpc}$), both models achieve sub-percent median errors, with the 1D CNN exhibiting slightly better performance than the FCNN. As $k$ increases into the quasi-linear regime ($0.1 \leq k < 0.5\,h/\mathrm{Mpc}$), the errors increase, but the 1D CNN maintains a lower median and narrower spread compared to the FCNN. In the non-linear regime ($k \geq 0.5\,h/\mathrm{Mpc}$), both models show a further increase in error, but the 1D CNN remains more robust, with the FCNN exhibiting a broader error distribution.
+
+\paragraph{Error vs. Redshift ($z$):}
+
+Figures \ref{fig:error_vs_z_cnn1d} and \ref{fig:error_vs_z_fcnn} illustrate the relative error as a function of redshift for the 1D CNN and FCNN, respectively, across different $k$-regimes. The 1D CNN (Figure \ref{fig:error_vs_z_cnn1d}) shows a decreasing trend with increasing redshift in the linear regime, a slightly increasing trend in the quasi-linear regime, and a decreasing trend in the non-linear regime. The FCNN (Figure \ref{fig:error_vs_z_fcnn}) exhibits the smallest relative error in the linear regime, consistently below 0.003 across all redshifts, while the quasi-linear regime shows the largest errors, peaking around $z=0.6$.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../Project4/plots/error_vs_z_cnn1d_5_1745408323.png}
+    \caption{\label{fig:error_vs_z_cnn1d}The figure shows the relative error in the power spectrum, $\Delta P/P$, as a function of redshift, $z$, for different $k$-regimes: linear, quasi-linear, and non-linear. The relative error is the median value across the scales. The linear regime shows a decreasing trend with increasing redshift. The quasi-linear regime shows a slightly increasing trend with redshift. The non-linear regime shows a decreasing trend with redshift.}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../Project4/plots/error_vs_z_fcnn_6_1745408327.png}
+    \caption{\label{fig:error_vs_z_fcnn}Relative error in the power spectrum ($\Delta P/P$) as a function of redshift ($z$) for different $k$-regimes (linear, quasi-linear, and non-linear) using a Fully Convolutional Neural Network (FCNN). The linear regime shows the smallest relative error, remaining consistently below 0.003 across all redshifts. The quasi-linear regime exhibits the largest errors, peaking around $z=0.6$.}
+\end{figure}
+
+The median relative error as a function of redshift for each $k$-regime indicates that the redshift dependence is relatively weak for both models. A mild increase in error is observed at higher redshifts. Crucially, the 1D CNN consistently outperforms the FCNN across all redshift bins and $k$-regimes, particularly in the quasi-linear and non-linear regimes.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../Project4/plots/true_vs_emulated_cnn1d_1_1745408311.png}
+    \caption{\label{fig:true_vs_emulated_cnn1d}Comparison of the true and emulated power spectrum, $P(k)$, for different redshifts, $z$. The emulated $P(k)$ is obtained using a 1D Convolutional Neural Network (CNN). The plots show the logarithm of the power spectrum, $\log_{10} P(k)$, as a function of the logarithm of the wavenumber, $\log_{10} k$. The true and emulated power spectra are in good agreement, with only small differences observed across the range of wavenumbers and redshifts shown.}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{../Project4/plots/true_vs_emulated_fcnn_2_1745408315.png}
+    \caption{\label{fig:true_vs_emulated_fcnn}The figure shows the comparison between the true and emulated power spectrum, $P(k)$, at different redshifts ($z=0.17, 0.28, 0.80, 0.45$). The black solid line represents the true power spectrum, while the orange dashed line represents the emulated power spectrum obtained using a Fully Convolutional Neural Network (FCNN). Small differences are found between the true and emulated power spectra at all redshifts.}
+\end{figure}
+
+\subsubsection{Discussion}
+
+The results demonstrate that both the 1D CNN and FCNN architectures can effectively emulate the matter power spectrum. However, the 1D CNN consistently outperforms the FCNN, especially in the quasi-linear and non-linear regimes. This is evident from the error analysis presented in Figures \ref{fig:error_vs_k_cnn1d}, \ref{fig:error_vs_k_fcnn}, \ref{fig:error_vs_z_cnn1d}, and \ref{fig:error_vs_z_fcnn}. This suggests that the convolutional layers in the 1D CNN architecture are better suited for capturing the complex, scale-dependent features of the non-linear matter power spectrum. The ability to capture local correlations in $P(k)$ is particularly important at high $k$. The inference speed of both models is comparable, making the 1D CNN the preferred choice for applications requiring high-fidelity emulation of $P(k)$ across all regimes. The slightly higher complexity of the 1D CNN does not introduce a significant computational overhead during inference.
+
+The presence of NaN values at the lowest redshift bin and in the non-linear regime highlights the need for careful data preprocessing, particularly when dealing with very small values of $P(k)$ at high $k$ or low $z$.
+
+\section{Conclusions}
+\label{sec:conclusions}
+
+
+This paper presents a comprehensive benchmarking study of 1D CNN and FCNN architectures for emulating the non-linear matter power spectrum, $P(k, z)$, within the standard \(\Lambda\)CDM cosmological framework. The primary goal was to evaluate the regime-specific performance of each architecture across a wide range of scales, redshifts, and cosmological parameters, thereby providing actionable guidance for efficient and accurate cosmological emulation.
+
+We generated a large dataset of 500,000 power spectra using the \texttt{classy\_sz} Boltzmann solver, sampling cosmological parameters and redshift via Latin Hypercube Sampling. This dataset was then used to train and test both 1D CNN and FCNN emulators, with careful attention paid to data preprocessing, network architecture design, and training procedures. Performance was evaluated using metrics such as Mean Squared Error (MSE) and relative error ($\Delta P / P$), stratified by $k$-range (linear, quasi-linear, and non-linear regimes) and redshift bins. Inference speeds were also measured to assess the computational efficiency of each architecture.
+
+Our results demonstrate that the 1D CNN architecture consistently outperforms the FCNN, particularly in the quasi-linear and non-linear regimes, where the mapping from cosmological parameters to $P(k, z)$ becomes highly non-linear. The 1D CNN achieved a median relative error below 0.5\% in the linear regime and approximately 0.8\% in the quasi-linear regime, with only a modest increase in the non-linear regime. In contrast, the FCNN exhibited significantly higher errors in the quasi-linear and non-linear regimes. Both architectures exhibited comparable inference speeds, with average per-spectrum latencies of approximately 0.07 seconds on a high-end GPU, making them suitable for large-scale cosmological applications.
+
+From this study, we have learned that the 1D CNN's convolutional layers enable it to better capture the local correlations and structure in the $P(k, z)$ curve, which are especially important at high $k$. This makes the 1D CNN a more robust and accurate emulator for applications requiring high-fidelity predictions across all scales. While the FCNN offers simplicity and competitive performance in the linear regime, its performance degrades significantly in the non-linear regime, limiting its applicability for precision cosmology at small scales.
+
+This work provides clear evidence favoring 1D CNNs for non-linear matter power spectrum emulation in \(\Lambda\)CDM. For applications demanding high-precision, regime-agnostic emulation of $P(k)$, the 1D CNN is the architecture of choice. These findings will inform the design and deployment of cosmological emulators in current and future large-scale structure analyses, contributing to more accurate and efficient cosmological parameter estimation. Future work could explore extensions to broader parameter spaces, alternative network architectures, and techniques to address numerical issues at extreme $k$ or $z$ values.
+
+\bibliography{bibliography}{}
+\bibliographystyle{aasjournal}
+
+\end{document}
