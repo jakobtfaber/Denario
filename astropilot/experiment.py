@@ -5,9 +5,19 @@ import copy
 import os
 import re
 class Experiment:
+    """
+    This class is used to perform the experiment.
+    """
+
+    def __init__(self, research_idea: str, methodology: str, involved_agents: List[str] = ['engineer', 'researcher'], work_dir = None):
+        if work_dir is None:
+            raise ValueError("workdir must be provided")
+
+        self.experiment_dir = os.path.join(work_dir, "experiment_generation_output")
+        # Create directory if it doesn't exist
+        os.makedirs(self.experiment_dir, exist_ok=True)
 
 
-    def __init__(self, research_idea: str, methodology: str, involved_agents: List[str] = ['engineer', 'researcher']):
         involved_agents_str = ', '.join(involved_agents)
 
         self.planner_append_instructions = rf"""
@@ -131,7 +141,8 @@ class Experiment:
                             researcher_model = "gpt-4.1-2025-04-14",
                             plan_instructions=self.planner_append_instructions,
                             researcher_instructions=self.researcher_append_instructions,
-                            engineer_instructions=self.engineer_append_instructions
+                            engineer_instructions=self.engineer_append_instructions,
+                            work_dir = self.experiment_dir
                             )
         chat_history = results['chat_history']
         final_context = results['final_context']

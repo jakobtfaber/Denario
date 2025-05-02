@@ -2,14 +2,21 @@
 import cmbagent
 import copy
 import re
+import os
 
 
 class Idea:
     """
     This class is used to develop a research project idea based on the data of interest.
     """
+    def __init__(self, work_dir = None):
+        if work_dir is None:
+            raise ValueError("workdir must be provided")
+        
+        self.idea_dir = os.path.join(work_dir, "idea_generation_output")
+        # Create directory if it doesn't exist
+        os.makedirs(self.idea_dir, exist_ok=True)
 
-    def __init__(self):
         self.planner_append_instructions = r"""
 Given these datasets, and information, make a plan according to the following instructions: 
 
@@ -59,7 +66,8 @@ Don't suggest to perform any calculations or analyses here. The only goal of thi
                               max_n_attempts = 4,
                               max_plan_steps = 6,
                               engineer_model = "gpt-4.1-2025-04-14",
-                              plan_instructions=self.planner_append_instructions
+                              plan_instructions=self.planner_append_instructions,
+                              work_dir = self.idea_dir
                              )
 
         chat_history = results['chat_history']

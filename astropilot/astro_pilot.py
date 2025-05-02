@@ -20,12 +20,38 @@ import shutil
 class AstroPilot:
 
 
-    def __init__(self, input_data: 'AstroPilot.Research' = None, params={}, repo_dir: str = repo_dir_default):
+    def __init__(self, input_data: 'AstroPilot.Research' = None, params={}, project_dir: str = repo_dir_default, clear_project_dir: bool = True):
         if input_data is None:
             input_data = AstroPilot.Research()  # Initialize with default values
+        self.clear_project_dir = clear_project_dir
         self.research = input_data
         self.params = params
-        self.repo_dir = repo_dir    
+        if project_dir != repo_dir_default:
+            # Create directory if it doesn't exist, or clear it if it does
+            new_dir = os.path.join(repo_dir_default, os.path.basename(project_dir))
+            if os.path.exists(new_dir):
+                if clear_project_dir:
+                    shutil.rmtree(new_dir)
+                else:
+                    pass
+            os.makedirs(new_dir, exist_ok=True)
+            self.project_dir = new_dir 
+        else:
+            self.project_dir = project_dir
+
+        self._setup_input_files()
+
+    def _setup_input_files(self):
+        input_files_dir = os.path.join(self.project_dir, 'input_files')
+        
+        # If directory exists, remove it and all its contents
+        if os.path.exists(input_files_dir) and self.clear_project_dir:
+            shutil.rmtree(input_files_dir)
+            
+        # Create fresh input_files directory
+        os.makedirs(input_files_dir, exist_ok=True)
+
+
 
     class Research(BaseModel):
         data_description: str = Field(default="", description="The data description of the project")
@@ -38,9 +64,9 @@ class AstroPilot:
 
     def set_data_description(self, data_description: str = None, **kwargs):
         if data_description is None:
-            with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
                 data_description = f.read()
-            data_description = data_description.replace("{path_to_project_data}", str(self.repo_dir)+ "/project_data/")
+            data_description = data_description.replace("{path_to_project_data}", str(self.project_dir)+ "/project_data/")
 
         elif data_description.endswith(".md"):
             with open(data_description, 'r') as f:
@@ -55,7 +81,7 @@ class AstroPilot:
 
         self.research.data_description = data_description
         # overwrite the data_description.md file
-        with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'w') as f:
+        with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'w') as f:
             f.write(data_description)
         return None
 
@@ -66,18 +92,22 @@ class AstroPilot:
 
     def get_idea(self, **kwargs):
         
-        idea = Idea()
+        if self.research.data_description == "":
+            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
+                self.research.data_description = f.read()
+
+        idea = Idea(work_dir = self.project_dir)
         idea = idea.develop_idea(self.research.data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
-        idea_path = os.path.join(self.repo_dir, 'input_files', 'idea.md')
+        idea_path = os.path.join(self.project_dir, 'input_files', 'idea.md')
         with open(idea_path, 'w') as f:
             f.write(idea)
         return None
     
     def set_idea(self, idea: str = None):
         if idea is None:
-            with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'r') as f:
                 idea = f.read()
         elif idea.endswith(".md"):
             with open(idea, 'r') as f:
@@ -89,7 +119,7 @@ class AstroPilot:
         
         self.research.idea = idea
         # write idea to idea.md file
-        with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'w') as f:
+        with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'w') as f:
             f.write(idea)
         return None
     
@@ -101,26 +131,26 @@ class AstroPilot:
     def get_method(self, **kwargs):
 
         if self.research.data_description == "":
-            with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
                 self.research.data_description = f.read()        
 
         if self.research.idea == "":
-            with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'r') as f:
                 self.research.idea = f.read()
 
-        method = Method(self.research.idea)
+        method = Method(self.research.idea, work_dir = self.project_dir)
         methododology = method.develop_method(self.research.data_description, **kwargs)
         self.research.methodology = methododology
 
         # Write idea to file
-        method_path = os.path.join(self.repo_dir, 'input_files', 'methods.md')
+        method_path = os.path.join(self.project_dir, 'input_files', 'methods.md')
         with open(method_path, 'w') as f:
             f.write(methododology)
         return None
     
     def set_method(self, method: str = None):
         # write method to method.md file
-        with open(os.path.join(self.repo_dir, 'input_files', 'methods.md'), 'w') as f:
+        with open(os.path.join(self.project_dir, 'input_files', 'methods.md'), 'w') as f:
             f.write(method)
         return None
     
@@ -131,25 +161,25 @@ class AstroPilot:
     def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], **kwargs):
 
         if self.research.data_description == "":
-            with open(os.path.join(self.repo_dir, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
                 self.research.data_description = f.read()
 
         if self.research.idea == "":
-            with open(os.path.join(self.repo_dir, 'input_files', 'idea.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'r') as f:
                 self.research.idea = f.read()
 
         if self.research.methodology == "":
-            with open(os.path.join(self.repo_dir, 'input_files', 'methods.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, 'input_files', 'methods.md'), 'r') as f:
                 self.research.methodology = f.read()
 
 
-        experiment = Experiment(self.research.idea, self.research.methodology, involved_agents=involved_agents)
+        experiment = Experiment(self.research.idea, self.research.methodology, involved_agents=involved_agents, work_dir = self.project_dir)
         run = experiment.run_experiment(self.research.data_description, **kwargs)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
 
         # move plots to the plots folder in input_files/plots 
-        plots_folder = os.path.join(self.repo_dir, 'input_files', 'plots')
+        plots_folder = os.path.join(self.project_dir, 'input_files', 'plots')
         # Ensure the folder exists
         os.makedirs(plots_folder, exist_ok=True)
         ## Clearing the folder
@@ -164,7 +194,7 @@ class AstroPilot:
             shutil.move(plot_path, plots_folder)
 
         # Write results to file
-        results_path = os.path.join(self.repo_dir, 'input_files', 'results.md')
+        results_path = os.path.join(self.project_dir, 'input_files', 'results.md')
         with open(results_path, 'w') as f:
             f.write(self.research.results)
         return None
@@ -206,7 +236,7 @@ class AstroPilot:
 
         # build graph
         graph = build_graph(mermaid_diagram=False)
-        path_to_input_files = os.path.join(self.repo_dir, "input_files")
+        path_to_input_files = os.path.join(self.project_dir, "input_files")
         
         # run the graph
         result = asyncio.run(graph.ainvoke(
