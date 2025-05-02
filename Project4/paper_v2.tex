@@ -16,7 +16,7 @@
 \affiliation{Anthropic, Gemini \& OpenAI servers. Planet Earth.}
 
 \begin{abstract}
-Accurate and efficient emulation of the non-linear matter power spectrum is essential for extracting cosmological information from large-scale structure surveys. However, the power spectrum's complex, scale-dependent behavior, particularly in the quasi-linear and non-linear regimes, makes accurate emulation challenging. To address this, we present a comprehensive benchmarking study comparing 1D Convolutional Neural Networks (CNNs) and Fully Connected Neural Networks (FCNNs) as emulators for the non-linear matter power spectrum within the standard \(\Lambda\)CDM model. Our key contribution is a detailed analysis of each architecture's performance across physically motivated regimes in wavenumber, redshift, and cosmological parameter space, providing actionable guidance for efficient emulator design. We trained and tested both architectures on a large dataset of 500,000 power spectra generated using the `classy_sz` Boltzmann solver. Our results demonstrate that 1D CNNs generally outperform FCNNs, especially in the quasi-linear and non-linear regimes, achieving median relative errors below 1% while maintaining comparable inference speeds, highlighting the 1D CNN's ability to better capture the complex features of the power spectrum at smaller scales.
+Accurate and efficient emulation of the non-linear matter power spectrum is essential for extracting cosmological information from large-scale structure surveys. However, the power spectrum's complex, scale-dependent behavior, particularly in the quasi-linear and non-linear regimes, makes accurate emulation challenging. To address this, we present a comprehensive benchmarking study comparing 1D Convolutional Neural Networks (CNNs) and Fully Connected Neural Networks (FCNNs) as emulators for the non-linear matter power spectrum within the standard \(\Lambda\)CDM model. Our key contribution is a detailed analysis of each architecture's performance across physically motivated regimes in wavenumber, redshift, and cosmological parameter space, providing actionable guidance for efficient emulator design. We trained and tested both architectures on a large dataset of 500,000 power spectra generated using the \texttt{classy\_sz} Boltzmann solver. Our results demonstrate that 1D CNNs generally outperform FCNNs, especially in the quasi-linear and non-linear regimes, achieving median relative errors below 1% while maintaining comparable inference speeds, highlighting the 1D CNN's ability to better capture the complex features of the power spectrum at smaller scales.
 \end{abstract}
 
 \keywords{Cosmology, Cosmological parameters}
@@ -218,13 +218,13 @@ Figures~\ref{fig:error_vs_k_cnn1d} and \ref{fig:error_vs_k_fcnn} show the relati
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{plots/error_vs_k_cnn1d_3_1745408317.png}
+    \includegraphics[width=0.5\textwidth]{Project4/plots/error_vs_k_cnn1d_3_1745408317.png}
     \caption{\label{fig:error_vs_k_cnn1d}The relative error $\Delta P/P$ as a function of the wavenumber $k$ for a 1D CNN. The median error is shown as a solid blue line, and the 68\% confidence interval is shown as a shaded blue region. Large differences are observed around $\log_{10} k \sim -1$, where the median relative error oscillates significantly.}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{plots/error_vs_k_fcnn_4_1745408320.png}
+    \includegraphics[width=0.5\textwidth]{Project4/plots/error_vs_k_fcnn_4_1745408320.png}
     \caption{\label{fig:error_vs_k_fcnn}Relative error between the predicted power spectrum from a fully connected neural network (FCNN) and the true power spectrum, as a function of wavenumber $k$. The solid line shows the median relative error, while the shaded region indicates the 68\% confidence interval. The relative error is small at low $k$ but increases significantly at high $k$. Oscillations are seen around $k \sim 10^{-1} \, h/\mathrm{Mpc}$.}
 \end{figure}
 
@@ -236,13 +236,13 @@ Figures~\ref{fig:error_vs_z_cnn1d} and \ref{fig:error_vs_z_fcnn} illustrate the 
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{plots/error_vs_z_cnn1d_5_1745408323.png}
+    \includegraphics[width=0.5\textwidth]{Project4/plots/error_vs_z_cnn1d_5_1745408323.png}
     \caption{\label{fig:error_vs_z_cnn1d}The figure shows the relative error in the power spectrum, $\Delta P/P$, as a function of redshift, $z$, for different $k$-regimes: linear, quasi-linear, and non-linear. The relative error is the median value across the scales. The linear regime shows a decreasing trend with increasing redshift. The quasi-linear regime shows a slightly increasing trend with redshift. The non-linear regime shows a decreasing trend with redshift.}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{plots/error_vs_z_fcnn_6_1745408327.png}
+    \includegraphics[width=0.5\textwidth]{Project4/plots/error_vs_z_fcnn_6_1745408327.png}
     \caption{\label{fig:error_vs_z_fcnn}Relative error in the power spectrum ($\Delta P/P$) as a function of redshift ($z$) for different $k$-regimes (linear, quasi-linear, and non-linear) using a Fully Convolutional Neural Network (FCNN). The linear regime shows the smallest relative error, remaining consistently below 0.003 across all redshifts. The quasi-linear regime exhibits the largest errors, peaking around $z=0.6$.}
 \end{figure}
 
@@ -250,13 +250,13 @@ The median relative error as a function of redshift for each $k$-regime indicate
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{plots/true_vs_emulated_cnn1d_1_1745408311.png}
+    \includegraphics[width=0.5\textwidth]{Project4/plots/true_vs_emulated_cnn1d_1_1745408311.png}
     \caption{\label{fig:true_vs_emulated_cnn1d}Comparison of the true and emulated power spectrum, $P(k)$, for different redshifts, $z$. The emulated $P(k)$ is obtained using a 1D Convolutional Neural Network (CNN). The plots show the logarithm of the power spectrum, $\log_{10} P(k)$, as a function of the logarithm of the wavenumber, $\log_{10} k$. The true and emulated power spectra are in good agreement, with only small differences observed across the range of wavenumbers and redshifts shown.}
 \end{figure}
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.5\textwidth]{plots/true_vs_emulated_fcnn_2_1745408315.png}
+    \includegraphics[width=0.5\textwidth]{Project4/plots/true_vs_emulated_fcnn_2_1745408315.png}
     \caption{\label{fig:true_vs_emulated_fcnn}The figure shows the comparison between the true and emulated power spectrum, $P(k)$, at different redshifts ($z=0.17, 0.28, 0.80, 0.45$). The black solid line represents the true power spectrum, while the orange dashed line represents the emulated power spectrum obtained using a Fully Convolutional Neural Network (FCNN). Small differences are found between the true and emulated power spectra at all redshifts.}
 \end{figure}
 
