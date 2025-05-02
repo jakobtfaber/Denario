@@ -44,6 +44,10 @@ class TOKENS(TypedDict):
     i:  int #input tokens (just for individual calls or functions)
     o:  int #output tokens (just for individual calls or functions)
 
+# LaTeX class
+class LATEX(TypedDict):
+    section: str
+    
 # LLM class
 class LLM(TypedDict):
     model: str
@@ -58,3 +62,4 @@ class GraphState(TypedDict):
     paper: PAPER
     tokens: TOKENS
     llm: LLM
+    latex: LATEX
