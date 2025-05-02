@@ -60,13 +60,13 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         state['paper']['Title'] = temp_file(f_temp2, 'read')
 
     else:
-        for i in range(3):
+        for i in range(3): #sometimes it fails. Allow it to try up to 3 times
             PROMPT = abstract_prompt(state)
             state, result = LLM_call(PROMPT, state)
 
             try:
                 parsed_json = json_parser(result)
-                state['paper']['Title'] = parsed_json["Title"]
+                state['paper']['Title']    = parsed_json["Title"]
                 state['paper']['Abstract'] = parsed_json["Abstract"]
                 break  # success
             except Exception as e:
@@ -74,9 +74,8 @@ def abstract_node(state: GraphState, config: RunnableConfig):
                 time.sleep(2)
         else:
             raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
-
     
-        # several self-reflection rounds
+        # perform several self-reflection rounds
         for i in range(1):
 
             # improve abstract

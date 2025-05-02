@@ -23,22 +23,18 @@ special_chars = {
 
 def compile_latex(state: GraphState, paper_name: str, verbose=True):
 
-    # get the current directory
-    original_dir = os.getcwd()
-
-    # go to the folder containing the paper
-    os.chdir(state['files']['Folder'])
-
     # get the paper stem
     paper_stem = Path(paper_name).stem
 
     def run_xelatex():
         return subprocess.run(["xelatex", paper_name],
+                              cwd=state['files']['Folder'],
                               input="\n", capture_output=True,
                               text=True, check=True)
 
     def run_bibtex():
         subprocess.run(["bibtex", paper_stem],
+                       cwd=state['files']['Folder'],
                        capture_output=True, text=True, check=True)
 
     def log_output(i, result_or_error, is_error=False):
@@ -64,22 +60,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
         section = state['latex']['section']
         fixed_text = fix_latex_bug(state, state['paper'][section], error_msg)
         state['paper'][section] = fixed_text
-        os.chdir(original_dir)
         save_paper(state, paper_name)
-        os.chdir(state['files']['Folder'])
-
-    def compile_successfully(label):
-        try:
-            result = run_xelatex()
-            log_output(label, result)
-            if verbose:
-                print(f"    LaTeX compiled successfully: {label}")
-            return True
-        except subprocess.CalledProcessError as e:
-            log_output(label, e, is_error=True)
-            if verbose:
-                print(f"    LaTeX failed: {label}")
-            return e
 
     # --- Retry loop ---
     #for attempt in range(3):
@@ -93,25 +74,28 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
     #    os.chdir(original_dir)
     #    raise RuntimeError("LaTeX failed after 3 attempts")
 
+    # Try to compile it the first time
+    try:
+        result = run_xelatex()
+        if verbose:
+            print(f"    LaTeX compiled successfully: Pass 1")
+    except subprocess.CalledProcessError as e:
+        log_output("Pass 1", e, is_error=True)
+        print(f"LaTeX failed on pass 1")
 
-    for i in range(4):
+    # if there is bibliography, compile it
+    if os.path.exists("bibliography.bib"):
+        run_bibtex()
 
-        if i==1:
-            if os.path.exists("bibliography.bib"):
-                run_bibtex()
-            continue
-        
+    # Compile it two more times to put references and citations
+    for i in range(2):        
         try:
             result = run_xelatex()
-            log_output(f"Final Pass {i+1}", result)
             if verbose:
-                print(f"    LaTeX compiled successfully: Pass {i+1}")
+                print(f"    LaTeX compiled successfully: Pass {i+2}")
         except subprocess.CalledProcessError as e:
             log_output(f"Final Pass {i+1}", e, is_error=True)
-            os.chdir(original_dir)
-            print(f"LaTeX failed on pass {i+1}")
-
-    os.chdir(original_dir)
+            print(f"LaTeX failed on pass {i+2}")
 
 
 
