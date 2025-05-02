@@ -4,6 +4,7 @@
 \newcommand\aastex{AAS\TeX}
 \newcommand\latex{La\TeX}
 \usepackage{amsmath}
+\usepackage{graphicx}
 \usepackage{multirow}
 
 
@@ -113,80 +114,80 @@ The shallow slope suggests that black hole growth is relatively inefficient or s
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/dist_alpha_low_1_20250423_182517.png}
-    \caption{Distribution of the normalization parameter $\alpha$ of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation in the low stellar mass bin ($M_\mathrm{star}<10^9\,M_\odot$) across 1,000 simulated galaxy catalogs, showing the diversity in the relation.
+    \includegraphics[width=0.5\textwidth]{plots/dist_alpha_low_1_20250423_182517.png}
+    \caption{Distribution of the normalization parameter $\alpha$ of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the low stellar mass bin ($M_\mathrm{star}<10^9\,M_\odot$) across 1,000 simulated galaxy catalogs, showing the diversity in the relation.
 }
     \label{fig:dist_alpha_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/dist_scatter_low_2_20250423_182518.png}
-    \caption{Histogram of the intrinsic scatter in the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation for the low stellar mass bin ($M_\mathrm{star}<10^9\,M_\odot$) across 1,000 simulated galaxy catalogs. The distribution reveals a range of scatter values, reflecting the diversity driven by varying feedback and cosmological parameters.
+    \includegraphics[width=0.5\textwidth]{plots/dist_scatter_low_2_20250423_182518.png}
+    \caption{Histogram of the intrinsic scatter in the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation for the low stellar mass bin ($M_\mathrm{star}<10^9\,M_\odot$) across 1,000 simulated galaxy catalogs. The distribution reveals a range of scatter values, reflecting the diversity driven by varying feedback and cosmological parameters.
 }
     \label{fig:dist_scatter_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/pdp_Slope_beta_low_29_20250423_182536.png}
-    \caption{Partial dependence plots showing the effect of varying cosmological ($\Omega_m$, $\sigma_8$) and feedback ($A_{\rm SN1}$, $A_{\rm SN2}$, $A_{\rm AGN1}$, $A_{\rm AGN2}$) parameters on the slope of the $M_{\rm BH}$–$M_{\star}$ relation in the low stellar mass bin. The slope is most sensitive to $A_{\rm SN1}$ and $A_{\rm AGN1}$, indicating the importance of feedback in this regime.
+    \includegraphics[width=0.5\textwidth]{plots/pdp_Slope_beta_low_29_20250423_182536.png}
+    \caption{Partial dependence plots showing the effect of varying cosmological ($\Omega_m$, $\sigma_8$) and feedback ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$, $A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$) parameters on the slope of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the low stellar mass bin. The slope is most sensitive to $A_\mathrm{SN1}$ and $A_\mathrm{AGN1}$, indicating the importance of feedback in this regime.
 }
     \label{fig:pdp_slope_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_RandomForest_Slope_beta_low_27_20250423_182532.png}
-    \caption{Random forest feature importance for the slope of the black hole stellar mass relation in the low mass bin. The most influential parameters are $A_\mathrm{SN1}$ and $A_\mathrm{AGN1}$, indicating that stronger feedback steepens the relation at low mass.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_RandomForest_Slope_beta_low_27_20250423_182532.png}
+    \caption{Random forest feature importance for the slope of the black hole--stellar mass relation in the low mass bin. The most influential parameters are $A_\mathrm{SN1}$ and $A_\mathrm{AGN1}$, indicating that stronger feedback steepens the relation at low mass.
 }
     \label{fig:featimp_slope_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_RandomForest_Scatter_low_33_20250423_182540.png}
-    \caption{Random forest feature importance for the scatter in the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation in the low mass bin. Supernova feedback ($A_\mathrm{SN1}$) is the primary driver of increased scatter.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_RandomForest_Scatter_low_33_20250423_182540.png}
+    \caption{Random forest feature importance for the scatter in the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the low mass bin. Supernova feedback ($A_\mathrm{SN1}$) is the primary driver of increased scatter.
 }
     \label{fig:featimp_scatter_random_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_RandomForest_Normalization_alpha_low_30_20250423_182538.png}
-    \caption{Random forest feature importance for the normalization of the $M_{\rm BH}$–$M_{\star}$ relation ($\alpha$) in the low mass bin ($M_{\star}<10^9\,M_\odot$). The bar plot indicates that $A_{\rm SN1}$ and $A_{\rm AGN1}$ are the most important parameters in determining the normalization.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_RandomForest_Normalization_alpha_low_30_20250423_182538.png}
+    \caption{Random forest feature importance for the normalization of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation ($\alpha$) in the low mass bin ($M_\mathrm{star}<10^9\,M_\odot$). The bar plot indicates that $A_\mathrm{SN1}$ and $A_\mathrm{AGN1}$ are the most important parameters in determining the normalization.
 }
     \label{fig:featimp_norm_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_StandardizedLinear_Normalization_alpha_low_31_20250423_182539.png}
-    \caption{Standardized linear regression feature importance for the normalization of the black hole - stellar mass relation in the low stellar mass bin. Supernova feedback ($A_\mathrm{SN1}$) and AGN feedback ($A_\mathrm{AGN1}$) are the most important parameters.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_StandardizedLinear_Normalization_alpha_low_31_20250423_182539.png}
+    \caption{Standardized linear regression feature importance for the normalization of the black hole--stellar mass relation in the low stellar mass bin. Supernova feedback ($A_\mathrm{SN1}$) and AGN feedback ($A_\mathrm{AGN1}$) are the most important parameters.
 }
     \label{fig:featimp_norm_linear_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/pdp_Scatter_low_35_20250423_182541.png}
-    \caption{Partial dependence plot for the scatter in the $M_{\rm BH}$–$M_{\star}$ relation at low stellar mass ($M_{\star}<10^9\,M_\odot$). The scatter is most sensitive to $A_{\rm SN1}$, indicating that stronger SN feedback increases the scatter in black hole masses at a given stellar mass.
+    \includegraphics[width=0.5\textwidth]{plots/pdp_Scatter_low_35_20250423_182541.png}
+    \caption{Partial dependence plot for the scatter in the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation at low stellar mass ($M_\mathrm{star}<10^9\,M_\odot$). The scatter is most sensitive to $A_\mathrm{SN1}$, indicating that stronger SN feedback increases the scatter in black hole masses at a given stellar mass.
 }
     \label{fig:pdp_scatter_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_StandardizedLinear_Scatter_low_34_20250423_182540.png}
-    \caption{Standardized linear regression feature importance for the scatter in the $M_{\rm BH}$–$M_{\star}$ relation in the low stellar mass bin. The plot shows that $A_{\rm SN1}$ is the primary driver of increased scatter at low mass, which is consistent with the expectation that stochastic SN feedback introduces diversity in black hole growth histories.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_StandardizedLinear_Scatter_low_34_20250423_182540.png}
+    \caption{Standardized linear regression feature importance for the scatter in the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the low stellar mass bin. The plot shows that $A_\mathrm{SN1}$ is the primary driver of increased scatter at low mass, which is consistent with the expectation that stochastic SN feedback introduces diversity in black hole growth histories.
 }
     \label{fig:featimp_scatter_low}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/pdp_Normalization_alpha_low_32_20250423_182539.png}
-    \caption{Partial dependence plots showing the variation of the black hole-stellar mass relation normalization with cosmological ($\Omega_m$, $\sigma_8$) and feedback ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$, $A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$) parameters in the low stellar mass bin. The normalization is most sensitive to $A_\mathrm{SN1}$ and $A_\mathrm{AGN1}$, indicating that supernova and AGN feedback are the primary drivers of diversity in the black hole-stellar mass relation at low mass.
+    \includegraphics[width=0.5\textwidth]{plots/pdp_Normalization_alpha_low_32_20250423_182539.png}
+    \caption{Partial dependence plots showing the variation of the black hole--stellar mass relation normalization with cosmological ($\Omega_m$, $\sigma_8$) and feedback ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$, $A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$) parameters in the low stellar mass bin. The normalization is most sensitive to $A_\mathrm{SN1}$ and $A_\mathrm{AGN1}$, indicating that supernova and AGN feedback are the primary drivers of diversity in the black hole--stellar mass relation at low mass.
 }
     \label{fig:pdp_norm_low}
 \end{figure}
@@ -199,48 +200,48 @@ The slope is closer to unity, indicating a stronger correlation between black ho
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/dist_beta_intermediate_42_20250423_182544.png}
-    \caption{Histogram of the distribution of slopes ($\beta$) of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation for the intermediate mass bin ($10^9$–$10^{10}\,M_\odot$) across the 1,000 simulated galaxy catalogs. The diversity in slope highlights the sensitivity of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation to variations in feedback and cosmological parameters.
+    \includegraphics[width=0.5\textwidth]{plots/dist_beta_intermediate_42_20250423_182544.png}
+    \caption{Histogram of the distribution of slopes ($\beta$) of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation for the intermediate mass bin ($10^9$--$10^{10}\,M_\odot$) across the 1,000 simulated galaxy catalogs. The diversity in slope highlights the sensitivity of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation to variations in feedback and cosmological parameters.
 }
     \label{fig:dist_beta_intermediate}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/dist_alpha_intermediate_43_20250423_182545.png}
-    \caption{Histogram of the normalization ($\alpha$) parameter of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation for the intermediate mass bin ($10^9$–$10^{10}\,M_\odot$) across the 1,000 simulated galaxy catalogs. The distribution reveals significant diversity in the normalization, indicating a strong sensitivity to feedback and cosmological parameters.
+    \includegraphics[width=0.5\textwidth]{plots/dist_alpha_intermediate_43_20250423_182545.png}
+    \caption{Histogram of the normalization ($\alpha$) parameter of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation for the intermediate mass bin ($10^9$--$10^{10}\,M_\odot$) across the 1,000 simulated galaxy catalogs. The distribution reveals significant diversity in the normalization, indicating a strong sensitivity to feedback and cosmological parameters.
 }
     \label{fig:dist_alpha_intermediate}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/dist_scatter_intermediate_44_20250423_182545.png}
-    \caption{Histogram of the intrinsic scatter in the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation for the intermediate mass bin ($10^9-10^{10} M_\odot$) across the 1,000 simulated galaxy catalogs. The scatter varies significantly between simulations, reflecting the diverse effects of feedback and cosmological parameters on black hole and galaxy coevolution.
+    \includegraphics[width=0.5\textwidth]{plots/dist_scatter_intermediate_44_20250423_182545.png}
+    \caption{Histogram of the intrinsic scatter in the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation for the intermediate mass bin ($10^9$--$10^{10} M_\odot$) across the 1,000 simulated galaxy catalogs. The scatter varies significantly between simulations, reflecting the diverse effects of feedback and cosmological parameters on black hole and galaxy coevolution.
 }
     \label{fig:dist_scatter_intermediate}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/pdp_Normalization_alpha_intermediate_74_20250423_182559.png}
-    \caption{Partial dependence plot showing the influence of cosmological and feedback parameters on the normalization of the $M_{\rm BH}$–$M_{\star}$ relation in the intermediate mass bin. Strong AGN feedback (A\ensuremath{\_}AGN1) significantly decreases the normalization, while other parameters have weaker effects.
+    \includegraphics[width=0.5\textwidth]{plots/pdp_Normalization_alpha_intermediate_74_20250423_182559.png}
+    \caption{Partial dependence plot showing the influence of cosmological and feedback parameters on the normalization of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the intermediate mass bin. Strong AGN feedback ($A_\mathrm{AGN1}$) significantly decreases the normalization, while other parameters have weaker effects.
 }
     \label{fig:pdp_norm_intermediate}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_StandardizedLinear_Slope_beta_intermediate_70_20250423_182558.png}
-    \caption{Standardized linear regression feature importance for the slope of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation in the intermediate mass bin. The AGN feedback parameter ($A_\mathrm{AGN1}$) is the dominant factor influencing the slope.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_StandardizedLinear_Slope_beta_intermediate_70_20250423_182558.png}
+    \caption{Standardized linear regression feature importance for the slope of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the intermediate mass bin. The AGN feedback parameter ($A_\mathrm{AGN1}$) is the dominant factor influencing the slope.
 }
     \label{fig:featimp_slope_linear_intermediate}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_RandomForest_Normalization_alpha_intermediate_72_20250423_182559.png}
-    \caption{Random forest feature importance for the normalization of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation in the intermediate mass bin. The $A_\mathrm{AGN1}$ parameter dominates the normalization, indicating that AGN feedback is the primary driver in this mass range.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_RandomForest_Normalization_alpha_intermediate_72_20250423_182559.png}
+    \caption{Random forest feature importance for the normalization of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the intermediate mass bin. The $A_\mathrm{AGN1}$ parameter dominates the normalization, indicating that AGN feedback is the primary driver in this mass range.
 }
     \label{fig:featimp_norm_random_intermediate}
 \end{figure}
@@ -253,40 +254,40 @@ The slope is close to unity, consistent with the canonical $M_{\rm BH}$--$M_{\st
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/pdp_Normalization_alpha_high_116_20250423_182620.png}
-    \caption{Partial dependence plots showing the influence of cosmological and feedback parameters on the normalization of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation for galaxies in the high mass bin ($M_\mathrm{star} > 10^{10} M_\odot$). The normalization exhibits a strong dependence on $A_\mathrm{AGN1}$, and weaker dependencies on other parameters, indicating that AGN feedback is a key driver of the relation's normalization at high mass.
+    \includegraphics[width=0.5\textwidth]{plots/pdp_Normalization_alpha_high_116_20250423_182620.png}
+    \caption{Partial dependence plots showing the influence of cosmological and feedback parameters on the normalization of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation for galaxies in the high mass bin ($M_\mathrm{star} > 10^{10} M_\odot$). The normalization exhibits a strong dependence on $A_\mathrm{AGN1}$, and weaker dependencies on other parameters, indicating that AGN feedback is a key driver of the relation's normalization at high mass.
 }
     \label{fig:pdp_norm_high}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/pdp_Slope_beta_high_113_20250423_182618.png}
-    \caption{Partial dependence plots showing the variation of the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation slope ($\beta$) in the high mass bin as a function of cosmological ($\Omega_m$) and feedback ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$, $A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$) parameters. The slope exhibits a strong dependence on $A_\mathrm{AGN1}$, suggesting a key role for AGN feedback in regulating the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation at high stellar masses.
+    \includegraphics[width=0.5\textwidth]{plots/pdp_Slope_beta_high_113_20250423_182618.png}
+    \caption{Partial dependence plots showing the variation of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation slope ($\beta$) in the high mass bin as a function of cosmological ($\Omega_m$) and feedback ($A_\mathrm{SN1}$, $A_\mathrm{SN2}$, $A_\mathrm{AGN1}$, $A_\mathrm{AGN2}$) parameters. The slope exhibits a strong dependence on $A_\mathrm{AGN1}$, suggesting a key role for AGN feedback in regulating the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation at high stellar masses.
 }
     \label{fig:pdp_slope_high}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_RandomForest_Normalization_alpha_high_114_20250423_182619.png}
-    \caption{Random forest feature importance for the normalization of the $M_{\rm BH}$–$M_{\star}$ relation in the high mass bin ($M_{\star} > 10^{10} M_\odot$). The AGN feedback energy per accretion ($A_{\rm AGN1}$) is the dominant parameter.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_RandomForest_Normalization_alpha_high_114_20250423_182619.png}
+    \caption{Random forest feature importance for the normalization of the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in the high mass bin ($M_\mathrm{star} > 10^{10} M_\odot$). The AGN feedback energy per accretion ($A_\mathrm{AGN1}$) is the dominant parameter.
 }
     \label{fig:featimp_norm_high}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_RandomForest_Slope_beta_high_111_20250423_182617.png}
-    \caption{Random forest feature importance for the slope of the black hole - stellar mass relation in the high mass bin ($M_\mathrm{star}>10^{10}\,M_\odot$). The AGN feedback parameter $A_\mathrm{AGN1}$ is the dominant factor, indicating that AGN feedback plays a crucial role in shaping the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation in massive galaxies.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_RandomForest_Slope_beta_high_111_20250423_182617.png}
+    \caption{Random forest feature importance for the slope of the black hole--stellar mass relation in the high mass bin ($M_\mathrm{star}>10^{10}\,M_\odot$). The AGN feedback parameter $A_\mathrm{AGN1}$ is the dominant factor, indicating that AGN feedback plays a crucial role in shaping the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation in massive galaxies.
 }
     \label{fig:featimp_slope_random_high}
 \end{figure}
 
 \begin{figure}[ht!]
     \centering
-    \includegraphics[width=0.5\textwidth]{../Project5/plots/featimp_StandardizedLinear_Scatter_high_118_20250423_182621.png}
-    \caption{Standardized linear regression feature importance for the scatter in the $M_\mathrm{BH}$–$M_\mathrm{star}$ relation at high stellar mass ($>10^{10}\,M_\odot$). The scatter is most sensitive to $A_\mathrm{AGN1}$ and $A_\mathrm{SN1}$, suggesting that both AGN and supernova feedback introduce diversity in black hole growth histories.
+    \includegraphics[width=0.5\textwidth]{plots/featimp_StandardizedLinear_Scatter_high_118_20250423_182621.png}
+    \caption{Standardized linear regression feature importance for the scatter in the $M_\mathrm{BH}$--$M_\mathrm{star}$ relation at high stellar mass ($>10^{10}\,M_\odot$). The scatter is most sensitive to $A_\mathrm{AGN1}$ and $A_\mathrm{SN1}$, suggesting that both AGN and supernova feedback introduce diversity in black hole growth histories.
 }
     \label{fig:featimp_scatter_linear_high}
 \end{figure}
