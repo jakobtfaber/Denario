@@ -38,8 +38,14 @@ clone_repo() {
 }
 
 # Create a Python 3 virtual environment named 'astrop_env'
+if ! command -v python3 &> /dev/null; then
+    echo "Error: python3 not found. Please install Python 3" >&2
+    exit 1
+fi
+
 echo "Creating Python virtual environment..."
-python3.12 -m venv astrop_env
+python3 -m venv astrop_env
+
 
 # Activate the virtual environment
 echo "Activating virtual environment..."
