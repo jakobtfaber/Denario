@@ -90,13 +90,13 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         state['paper']['Title'] = temp_file(f_temp2, 'read')
 
     else:
-        for i in range(3):
+        for i in range(3): #sometimes it fails. Allow it to try up to 3 times
             PROMPT = abstract_prompt(state)
             state, result = LLM_call(PROMPT, state)
 
             try:
                 parsed_json = json_parser(result)
-                state['paper']['Title'] = parsed_json["Title"]
+                state['paper']['Title']    = parsed_json["Title"]
                 state['paper']['Abstract'] = parsed_json["Abstract"]
                 break  # success
             except Exception as e:
@@ -104,9 +104,8 @@ def abstract_node(state: GraphState, config: RunnableConfig):
                 time.sleep(2)
         else:
             raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
-
     
-        # several self-reflection rounds
+        # perform several self-reflection rounds
         for i in range(1):
 
             # improve abstract
@@ -125,7 +124,9 @@ def abstract_node(state: GraphState, config: RunnableConfig):
 
     # Save paper and temporary file
     state['paper']['Abstract'] = abstract
+    state['latex']['section'] = 'Abstract'
     save_paper(state, state['files']['Paper_v1'])
+    #compile_latex(state, state['files']['Paper_v1'], verbose=False)
     print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
     return {'paper':{**state['paper'],
@@ -187,6 +188,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     # --- Step 5: Save paper ---
     state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v1'])
+    #compile_latex(state, state['files']['Paper_v1'], verbose=False)
     print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
     # --- Step 7: Update state ---
@@ -300,6 +302,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
         # save paper
         save_paper(state, state['files']['Paper_v1'])
+        #compile_latex(state, state['files']['Paper_v1'], verbose=False)
 
     # compile paper
     compile_latex(state, state['files']['Paper_v1'])
