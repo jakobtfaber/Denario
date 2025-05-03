@@ -9,6 +9,7 @@ We assume you have Python3.12 installed. This runs with Python3.12.
 ```bash
 git clone https://github.com/AstroPilot-AI/AstroPilot
 cd AstroPilot
+chmode +x installer.sh
 source installer.sh
 ```
 
