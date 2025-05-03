@@ -13,12 +13,14 @@ graph = build_graph(mermaid_diagram=True)
 
 # run the graph
 result = asyncio.run(graph.ainvoke(
-    {"files":{"Folder":       "Project5",   #name of folder containing input files
+    {"files":{"Folder":       "Project7",   #name of folder containing input files
               "Idea":         "idea.md",    #name of file containing idea description
               "Methods":      "methods.md", #name of file with methods description
               "Results":      "results.md", #name of file with results description
               "Plots":        "plots"},     #name of folder containing plots
      "llm": {"model": "gemini-2.0-flash"},  #name of the LLM model to use
+     #"llm": {"model": "gemini-2.5-flash-preview-04-17"},  #name of the LLM model to use
+     #"llm": {"model": "gemini-2.5-pro-preview-03-25"},  #name of the LLM model to use
      }, config))
 
 # End timer and report duration in minutes and seconds

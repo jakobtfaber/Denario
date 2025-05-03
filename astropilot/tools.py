@@ -23,8 +23,8 @@ def LLM_call(prompt, state):
     state['tokens']['to'] += output_tokens
     state['tokens']['i'] = input_tokens
     state['tokens']['o'] = output_tokens
-    with open(state['files']['LLM_calls'], 'a') as f:
-        f.write(f"{state['tokens']['i']} {state['tokens']['o']} {state['tokens']['ti']} {state['tokens']['to']}\n")
+    #with open(state['files']['LLM_calls'], 'a') as f:
+    #    f.write(f"{state['tokens']['i']} {state['tokens']['o']} {state['tokens']['ti']} {state['tokens']['to']}\n")
     
     return state, message.content
 
@@ -43,13 +43,34 @@ def temp_file(fin, action, text=None, json_file=False):
             if json_file:
                 return json.load(f)
             else:
-                return f.read()
+                latex_text = f.read()
+                
+                # Extract content between \begin{document} and \end{document}
+                match = re.search(r'\\begin{document}(.*?)\\end{document}',
+                                  latex_text, re.DOTALL)
+
+                if match:
+                    extracted_text = match.group(1).strip()
+                    return extracted_text
+                else:
+                    raise Exception("Text not found on file!")
+
     elif action=='write':
         with open(fin, 'w', encoding='utf-8') as f:
             if json_file:
                 json.dump(text, f, indent=2)
             else:
-                f.write(text)
+                latex_text = rf"""\documentclass[twocolumn]{{aastex631}}
+
+\usepackage{{amsmath}}
+\usepackage{{multirow}}
+\begin{{document}}
+
+{text}
+
+\end{{document}}
+                """
+                f.write(latex_text)
     else:
         raise Exception("wrong action chosen!")
 

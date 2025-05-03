@@ -1,18 +1,20 @@
 # AstroPilot
 
-AstroPilot is a multi-agent system designed to automatize scientific research in astrophysics and cosmology
+AstroPilot is a multiagent system designed to automatize scientific research
 
-## Installation
+## Current installation
 
-Download [installer.sh](https://github.com/AstroPilot-AI/AstroPilot/blob/bbdev/installer.sh) file
+We assume you have Python3.12 installed. This runs with Python3.12.
 
 ```bash
-chmod +x installer.sh, then:
-./installer.sh
-export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gemini.json ## is this needed? maybe not...
-source astrop_env/bin/activate
-jupyter-lab
+git clone https://github.com/AstroPilot-AI/AstroPilot
+cd AstroPilot
+chmod +x installer.sh
+source installer.sh
 ```
+
+
+
 To delete, do:
 
 ```bash

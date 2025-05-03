@@ -15,6 +15,16 @@ fi
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
+TARGET_BRANCH="bbdev"
+
+# Switch this repo to the desired branch if needed
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+if [ "$current_branch" != "$TARGET_BRANCH" ]; then
+    echo "Checking out $TARGET_BRANCH branch ..."
+    git fetch origin "$TARGET_BRANCH"
+    git checkout "$TARGET_BRANCH"
+fi
+
 # Function to clone a repo if it doesn't exist
 clone_repo() {
   local repo_url=$1
@@ -28,8 +38,14 @@ clone_repo() {
 }
 
 # Create a Python 3 virtual environment named 'astrop_env'
+if ! command -v python3 &> /dev/null; then
+    echo "Error: python3 not found. Please install Python 3" >&2
+    exit 1
+fi
+
 echo "Creating Python virtual environment..."
 python3 -m venv astrop_env
+
 
 # Activate the virtual environment
 echo "Activating virtual environment..."

@@ -206,6 +206,7 @@ In <INTRODUCTION>, place the introduction of the paper. Please, follow these gui
 - Describe how we verify that we have solved the problem
 - Do not create subsections
 - Do not add citations 
+- Do not create commands, e.g. \MBH
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTeX.
 """)]
@@ -246,6 +247,7 @@ In <INTRODUCTION>, place the new Introduction of the paper. Follow these guideli
 - Describe how we verify that we have solved the problem
 - Do not create subsections
 - Do not add citations 
+- Do not create commands, e.g. \MBH
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTex.
 """)]
@@ -280,6 +282,7 @@ Follow these guidelines:
 - Write in LaTex
 - Describe in detail the different methods used, the dataset, evaluation metrics, and any other element relevant
 - Do not write citations. References will be added later on
+- Do not create command, e.g. \MBH
 - Try to connect the text in this section with the one in the introduction
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
@@ -321,6 +324,7 @@ Follow these guidelines:
 - Do not add plots or placeholders for plots. Plots will be added later on
 - Describe what we have learned from the results
 - Do not write the bibliography
+- Do not create command, e.g. \MBH
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
 - You can create subsections and subsubsections, but **you cannot create sections**
@@ -386,6 +390,7 @@ Follow these guidelines:
 - Describe the results obtained
 - Describe what we have learned from the results and this paper
 - Do not add citations. Citations will be added later on
+- Do not create command, e.g. \MBH
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
 - Do not write words or sentences between *. 
@@ -595,6 +600,32 @@ In <{section_name}> put the extracted text. In the extracted text, do not includ
 ```
 
 """)]
+
+def fix_latex_bug_prompt(state, text, error):
+
+    return [HumanMessage(content=fr"""The text below has a problem and LaTeX cannot compile it. Your task is to fix it following these instructions:
+
+- The text you are given is just a small part of a LaTeX paper. Thus, you dont need to add things like \\begin{{document}}.
+- If you see a LaTeX error, e.g. a missing $, a _ instead of \\_ fix it
+- Pay special attention to underscores. It is likely that an underscores _ may need to be \\_ to compile properly
+- Reply with the corrected text, nothing else
+- Look at the error to fix the LaTeX mistake and only fix that. Do not close brackets if asked in the prompt
+- Keep the text intact. Only fix the error without changing anything else
+
+Text:
+{text}
+
+Error:
+{error}
+    
+Respond in this format:
+
+\begin{{Text}}
+<TEXT>
+\end{{Text}}
+
+In <TEXT>, put the fixed version of the line in LaTeX.
+    """)]
 
 
 def keyword_prompt(state):
