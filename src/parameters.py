@@ -53,6 +53,7 @@ class LLM(TypedDict):
     model: str
     max_output_tokens: int
     llm: Any
+    temperature: float
     
 # Graph state class
 class GraphState(TypedDict):
