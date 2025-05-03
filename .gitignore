@@ -10,6 +10,8 @@ graph_diagram.png
 */aasjournal.bst
 */aastex631.cls
 Error.txt
+*/LLM_calls.txt
+*/Temp
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
