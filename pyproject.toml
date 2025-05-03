@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "AstroPilot"
+version = "0.1.0"
+description = "A set of AI agents to automatize scientific research in Astrophysics and Cosmology"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }  # Change this to your actual license if different
+authors = [
+  { name = "Boris Bolliet", email = "boris.bolliet@gmail.com" },
+  { name = "Francisco Villaescusa-Navarro", email = "villaescusa.francisco@gmail.com" },
+  { name = "Adrian Bayer", email = "abayer@flatironinstitute.org" },
+]
+
+dependencies = [
+  "langchain",
+  "langchain-chroma",
+  "langchain-community",
+  "langchain-google-vertexai",
+  "langchain-groq",
+  "langchain-google-genai",
+  "langchain-openai",
+  "langchain-anthropic",
+  "langgraph",
+  "langgraph-checkpoint-sqlite",
+  "pydantic",
+  "dotenv",
+  "requests",
+  "typing-extensions",
+  "tqdm",
+  "pillow",
+  "pymupdf"
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
