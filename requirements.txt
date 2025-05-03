@@ -12,7 +12,6 @@ pydantic
 dotenv
 requests
 typing-extensions
-pdflatex
 tqdm
 pillow
 pymupdf

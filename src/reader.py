@@ -27,12 +27,18 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # set the LLM
     if 'gemini' in state['llm']['model']:
         state['llm']['llm'] = ChatGoogleGenerativeAI(model=state['llm']['model'],
-                                                     temperature=0.7,
-                                                     google_api_key=GOOGLE_API_KEY)
-        if 'gemini-2.0' in state['llm']['model']:
-            state['llm']['max_output_tokens'] = 8192
-        if 'gemini-2.5' in state['llm']['model']:
-            state['llm']['max_output_tokens'] = 65536
+                                                temperature=state['llm']['temperature'],
+                                                google_api_key=GOOGLE_API_KEY)
+
+    elif any(key in state['llm']['model'] for key in ['gpt', 'o3']):
+        state['llm']['llm'] = ChatOpenAI(model=state['llm']['model'],
+                                         temperature=state['llm']['temperature'],
+                                         openai_api_key=OPENAI_API_KEY)
+                    
+    elif 'claude' in model or 'anthropic' in model:
+        state['llm']['llm'] = ChatAnthropic(model=state['llm']['model'],
+                                            temperature=state['llm']['temperature'],
+                                            anthropic_api_key=ANTHROPIC_API_KEY)
     
     # set the tokens usage
     state['tokens'] = {}
@@ -122,5 +128,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
 
     return {"idea": idea,  "files": state['files'],  "paper": {"summary": ""},
-            "tokens": state['tokens'], "latex": state['latex']}
+            "tokens": state['tokens'], "latex": state['latex'],
+            "llm": state['llm']}
 
