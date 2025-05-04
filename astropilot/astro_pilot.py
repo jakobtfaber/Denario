@@ -15,14 +15,27 @@ from .config import REPO_DIR as repo_dir_default
 import cmbagent
 import shutil
 
-
+class Research(BaseModel):
+    data_description: str = Field(default="", description="The data description of the project")
+    idea: str = Field(default="", description="The idea of the project")
+    methodology: str = Field(default="", description="The methodology of the project")
+    results: str = Field(default="", description="The results of the project")
+    plot_paths: List[str] = Field(default_factory=list, description="The plot paths of the project")
+    keywords: Dict[str, str] = Field(default_factory=dict, description="The AAS keywords describing the project")
 
 class AstroPilot:
+    """
+    AstroPilot main class.
 
+    Args:
+        input_data: Input data to be used. Employ default data if `None`.
+        project_dir: Directory project. If `None`, use the current directory.
+        clear_project_dir: Clear directory if `True`.
+    """
 
-    def __init__(self, input_data: 'AstroPilot.Research' = None, params={}, project_dir: str = repo_dir_default, clear_project_dir: bool = True):
+    def __init__(self, input_data: Research | None = None, params={}, project_dir: str = repo_dir_default, clear_project_dir: bool = True):
         if input_data is None:
-            input_data = AstroPilot.Research()  # Initialize with default values
+            input_data = Research()  # Initialize with default values
         self.clear_project_dir = clear_project_dir
         self.research = input_data
         self.params = params
@@ -51,17 +64,6 @@ class AstroPilot:
         # Create fresh input_files directory
         os.makedirs(input_files_dir, exist_ok=True)
 
-
-
-    class Research(BaseModel):
-        data_description: str = Field(default="", description="The data description of the project")
-        idea: str = Field(default="", description="The idea of the project")
-        methodology: str = Field(default="", description="The methodology of the project")
-        results: str = Field(default="", description="The results of the project")
-        plot_paths: List[str] = Field(default_factory=list, description="The plot paths of the project")
-        keywords: Dict[str, str] = Field(default_factory=dict, description="The AAS keywords describing the project")
-
-
     def set_data_description(self, data_description: str | None = None, **kwargs) -> None:
         """
         Set the description of the data and tools to be used by the agents.
@@ -87,20 +89,21 @@ class AstroPilot:
 
         else:
             raise ValueError("Data description must be a string, a path to a markdown file or None if you want to load data description from input_files/data_description.md")
-        
 
         self.research.data_description = data_description
+
         # overwrite the data_description.md file
         with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'w') as f:
             f.write(data_description)
-        return None
 
-    def show_data_description(self):
+    def show_data_description(self) -> None:
+        """Show the data description set by the `set_data_description` method."""
+        
         # display(Markdown(self.research.data_description))
         print(self.research.data_description)
-        return None
 
-    def get_idea(self, **kwargs):
+    def get_idea(self, **kwargs) -> None:
+        """Generate an idea making use of the data and tools described by the `set_data_description` method."""
         
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
@@ -113,7 +116,6 @@ class AstroPilot:
         idea_path = os.path.join(self.project_dir, 'input_files', 'idea.md')
         with open(idea_path, 'w') as f:
             f.write(idea)
-        return None
     
     def set_idea(self, idea: str = None):
         if idea is None:
