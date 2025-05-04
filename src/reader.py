@@ -53,7 +53,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "Paper_v2":  "paper_v2.tex",
                       "Paper_v3":  "paper_v3.tex",
                       "Paper_v4":  "paper_v4.tex",
-                      "Error":     "Error.txt",
+                      "Error":     f"{state['files']['Folder']}/Error.txt",
                       "LaTeX_log": f"{state['files']['Folder']}/LaTeX_compilation.log",
                       "Temp":      f"{state['files']['Folder']}/Temp",
                       "LLM_calls": f"{state['files']['Folder']}/LLM_calls.txt"}
@@ -88,11 +88,10 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             fin = f"{state['files']['Folder']}/{f_in}"
             if os.path.exists(fin): os.remove(f"{fin}")
 
-    for f_in in [state['files']['Error'], state['files']['LLM_calls']]:
+    # remove these files if they already exist
+    for f_in in [state['files']['Error'], state['files']['LLM_calls'],
+                 state['files']['LaTeX_log']]:
         if os.path.exists(f_in):  os.remove(f"{f_in}")
-        
-    # remove LaTeX compilation log file
-    if os.path.exists(state['files']['LaTeX_log']):  os.remove(state['files']['LaTeX_log'])
 
     # copy LaTeX files to project folder
     for f in ['aasjournal.bst', 'aastex631.cls']:
@@ -107,10 +106,8 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     plots_dir    = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
     repeated_dir = Path(f"{plots_dir}_repeated")
 
-    # Hash dictionary
-    hash_dict = {}
-
-    # Walk through all PNG files
+    # Walk through all plot files
+    hash_dict = {}  # create hash dictionary
     for file in plots_dir.iterdir():
         if file.is_file():
 
@@ -127,7 +124,12 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                 hash_dict[file_hash] = file
 
 
-    return {"idea": idea,  "files": state['files'],  "paper": {"summary": ""},
-            "tokens": state['tokens'], "latex": state['latex'],
-            "llm": state['llm']}
+    return {
+        "llm": state['llm'],
+        "tokens": state['tokens'],
+        "files": state['files'],
+        "latex": state['latex'],
+        "idea": idea,
+        "paper": {"summary": ""},
+    }
 
