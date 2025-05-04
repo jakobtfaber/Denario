@@ -62,11 +62,21 @@ class AstroPilot:
         keywords: Dict[str, str] = Field(default_factory=dict, description="The AAS keywords describing the project")
 
 
-    def set_data_description(self, data_description: str = None, **kwargs):
+    def set_data_description(self, data_description: str | None = None, **kwargs) -> None:
+        """
+        Set the description of the data and tools to be used by the agents.
+
+        Args:
+            data_description: string or path to markdown file including the description of the tools and data. If None, assume that a `data_description.md` is present in `project_dir/input_files`.
+        """
+
         if data_description is None:
-            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
-                data_description = f.read()
-            data_description = data_description.replace("{path_to_project_data}", str(self.project_dir)+ "/project_data/")
+            try:
+                with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
+                    data_description = f.read()
+                data_description = data_description.replace("{path_to_project_data}", str(self.project_dir)+ "/project_data/")
+            except FileNotFoundError:
+                raise FileNotFoundError("Please provide an input string or markdown file with the data description.")
 
         elif data_description.endswith(".md"):
             with open(data_description, 'r') as f:
