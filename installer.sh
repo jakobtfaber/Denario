@@ -7,7 +7,7 @@
 # If the first argument is "clean", remove everything and exit.
 if [ "$1" == "clean" ]; then
     echo "Cleaning up Python virtual environment and repositories..."
-    rm -rf astrop_env ag2 cmbagent
+    rm -rf astrop_env
     echo "Clean operation completed."
     exit 0
 fi
@@ -24,18 +24,6 @@ if [ "$current_branch" != "$TARGET_BRANCH" ]; then
     git fetch origin "$TARGET_BRANCH"
     git checkout "$TARGET_BRANCH"
 fi
-
-# Function to clone a repo if it doesn't exist
-clone_repo() {
-  local repo_url=$1
-  local repo_dir=$2
-  if [ ! -d "$repo_dir" ]; then
-    echo "Cloning $repo_url into $repo_dir ..."
-    git clone "$repo_url"
-  else
-    echo "Directory $repo_dir already exists. Skipping clone."
-  fi
-}
 
 # Create a Python 3 virtual environment named 'astrop_env'
 if ! command -v python3 &> /dev/null; then
