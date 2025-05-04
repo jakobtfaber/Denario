@@ -44,6 +44,11 @@ dependencies = [
   "jsonschema"
 ]
 
+[dependency-groups]
+dev = [
+  "mkdocs",
+  "mkdocstrings[python]"
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
