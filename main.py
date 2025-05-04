@@ -18,10 +18,10 @@ result = asyncio.run(graph.ainvoke(
               "Methods":      "methods.md", #name of file with methods description
               "Results":      "results.md", #name of file with results description
               "Plots":        "plots"},     #name of folder containing plots
-     #"llm": {"model": "gemini-2.0-flash",   #llm model, temperature, and max out tokens
-     #        "temperature": 0.7, "max_output_tokens": 8192},  
-     "llm": {"model": "gemini-2.5-flash-preview-04-17",
-             "temperature": 0.7, "max_output_tokens": 65536},  
+     "llm": {"model": "gemini-2.0-flash",   #llm model, temperature, and max out tokens
+             "temperature": 0.7, "max_output_tokens": 8192},  
+     #"llm": {"model": "gemini-2.5-flash-preview-04-17",
+     #        "temperature": 0.7, "max_output_tokens": 65536},  
      #"llm": {"model": "gemini-2.5-pro-preview-03-25",
      #        "temperature": 0.7, "max_output_tokens": 65536},  
      #"llm": {"model": 'o3-mini-2025-01-31', "temperature": 0.5,
