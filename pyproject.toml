@@ -47,7 +47,8 @@ dependencies = [
 dev = [
   "mkdocs",
   "mkdocstrings[python]",
-  "streamlit"
+  "streamlit",
+  "streamlit-markdown @ git+https://github.com/LinXueyuanStdio/streamlit-markdown.git"
 ]
 
 [tool.setuptools.packages.find]

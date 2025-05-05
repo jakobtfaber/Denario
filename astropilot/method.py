@@ -7,6 +7,9 @@ import re
 class Method:
     """
     This class is used to develop a research project methodology based on the data of interest and the project idea.
+
+    Args:
+        work_dir: working directory.
     """
 
     def __init__(self, research_idea: str, work_dir = None):
@@ -95,6 +98,12 @@ The methodology should focus on describing the research and analysis that will b
         """
 
     def develop_method(self, data_description: str, **kwargs):
+        """
+        Develops the methods based on the data description.
+
+        Args:
+            data_description: description of the data and tools to be used.
+        """
 
         # ## planning
         # cmbagent = CMBAgent()

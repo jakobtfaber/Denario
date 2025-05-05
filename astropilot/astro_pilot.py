@@ -98,13 +98,11 @@ class AstroPilot:
         with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'w') as f:
             f.write(data_description)
 
-    def show_data_description(self) -> str:
+    def show_data_description(self) -> None:
         """Show the data description set by the `set_data_description` method."""
 
         # display(Markdown(self.research.data_description))
         print(self.research.data_description)
-
-        return self.research.data_description
 
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
     def get_idea(self, **kwargs) -> None:
