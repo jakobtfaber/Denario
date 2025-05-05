@@ -35,7 +35,6 @@ dependencies = [
   "google-ai-generativelanguage==0.6.17",
   "flatbuffers==24.12.23",
   "filelock==3.17.0",
-  "numpy==1.26.4",
   "jupyterlab",
   "ipywidgets",
   "cmbagent @ git+https://github.com/CMBAgents/cmbagent.git@astrop",
@@ -44,6 +43,12 @@ dependencies = [
   "jsonschema"
 ]
 
+[dependency-groups]
+dev = [
+  "mkdocs",
+  "mkdocstrings[python]",
+  "streamlit"
+]
 
 [tool.setuptools.packages.find]
 where = ["."]
