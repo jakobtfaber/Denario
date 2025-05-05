@@ -204,12 +204,7 @@ AP_env/*
 paper/
 project_data/
 notebooks/bblocal
-Project*
-input_files/*
 
 astrop_env/
-cmbagent/
-ag2/
-input_files_paper1
-input_files/plots/*
-input_files/*
+
+AstroPilotApp/
