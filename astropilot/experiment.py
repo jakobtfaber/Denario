@@ -4,9 +4,11 @@ from typing import List
 import copy
 import os
 import re
+
 class Experiment:
     """
     This class is used to perform the experiment.
+    TODO: improve docstring
     """
 
     def __init__(self, research_idea: str, methodology: str, involved_agents: List[str] = ['engineer', 'researcher'], work_dir = None):
@@ -91,6 +93,10 @@ class Experiment:
         """
 
     def run_experiment(self, data_description: str, **kwargs):
+        """
+        Run the experiment.
+        TODO: improve docstring
+        """
 
         # ## planning
         # cmbagent = CMBAgent()

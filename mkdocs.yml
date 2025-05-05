@@ -3,8 +3,9 @@ site_name: AstroPilot
 nav:
   - Home: index.md
   - Installation: install.md
+  - Prompts: prompts.md
   - API Reference:
-      - Astropilot: api_astropilot.md
+    - Astropilot: api_astropilot.md
       
 
 theme: readthedocs
