@@ -97,12 +97,11 @@ def abstract_node(state: GraphState, config: RunnableConfig):
                 state['paper']['Abstract'] = parsed_json["Abstract"]
                 break  # success
             except Exception as e:
-                print(f"[Attempt {i+1}] Failed to parse JSON: {e}")
                 time.sleep(2)
         else:
             raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
     
-        # perform several self-reflection rounds
+        # perform self-reflections
         for i in range(1):
 
             # improve abstract

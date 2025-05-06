@@ -20,8 +20,8 @@ def LLM_call(prompt, state):
     state['tokens']['to'] += output_tokens
     state['tokens']['i'] = input_tokens
     state['tokens']['o'] = output_tokens
-    #with open(state['files']['LLM_calls'], 'a') as f:
-    #    f.write(f"{state['tokens']['i']} {state['tokens']['o']} {state['tokens']['ti']} {state['tokens']['to']}\n")
+    with open(state['files']['LLM_calls'], 'a') as f:
+        f.write(f"{state['tokens']['i']} {state['tokens']['o']} {state['tokens']['ti']} {state['tokens']['to']}\n")
     
     return state, message.content
 

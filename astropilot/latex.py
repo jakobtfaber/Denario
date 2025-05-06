@@ -36,7 +36,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
     def run_bibtex():
         subprocess.run(["bibtex", paper_stem],
                        cwd=state['files']['Folder'],
-                       capture_output=True, text=True, check=True)
+                       capture_output=True, text=True)
 
     def log_output(i, result_or_error, is_error=False):
         with open(state['files']['LaTeX_log'], 'a') as f:
@@ -85,11 +85,13 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
         print("LaTeX failed on pass 1")
 
     # if there is bibliography, compile it
-    if os.path.exists("bibliography.bib"):
+    further_iterations = 1
+    if os.path.exists(f"{state['files']['Folder']}/bibliography.bib"):
         run_bibtex()
+        further_iterations =2
 
     # Compile it two more times to put references and citations
-    for i in range(2):        
+    for i in range(further_iterations):        
         try:
             run_xelatex()
             if verbose:
@@ -97,6 +99,13 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
         except subprocess.CalledProcessError as e:
             log_output(f"Final Pass {i+1}", e, is_error=True)
             print(f"LaTeX failed on pass {i+2}")
+
+    # remove auxiliary files
+    for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
+                f'{paper_stem}.bbl', f'{paper_stem}.blg', f'{paper_stem}.synctex.gz',
+                f'{paper_stem}.synctex(busy)']:
+        if os.path.exists(f"{state['files']['Folder']}/{fin}"):
+            os.remove(f"{state['files']['Folder']}/{fin}")
 
 
 

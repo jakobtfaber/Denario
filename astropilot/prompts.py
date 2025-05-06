@@ -495,13 +495,19 @@ def clean_section_prompt(state,text):
 You may:
 - Split long paragraphs for better readability
 - Adjust wide tables to occupy the full page width
-- Remove individual citations **only if they appear inside figures or tables**
+- Take into account that citations inside figures or tables will raise LaTeX errors
+- If citations are inside tables or figures, move them outside them. 
+- For instance for this piece,
+\[A = Bx^2 + C \citep{{gallo2019}}\]
+LaTeX will raise an error because the citation is inside the equation. To deal with this, you need to move the citation outside the equation like this:
+\[A = Bx^2 + C\] \citep{{gallo2019}}
+
 
 Do **not**:
 - Change the order of paragraphs or figures
 - Create new sections or restructure the content
 - Remove or rewrite content outside the above allowances
-- Remove all the citations in the text, only those inside figures or tables
+- Remove any citation in the text, only relocate them if they are inside tables or plots
 
 Ensure the modified output can still be compiled in LaTeX without error.
 
