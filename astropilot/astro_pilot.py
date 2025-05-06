@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, Field
 from typing import List, Dict
 from IPython.display import display, Markdown
@@ -16,8 +15,8 @@ from .config import REPO_DIR as repo_dir_default
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
-from .graph import build_graph
-from .tools import input_check
+from .paper_agents.agents_graph import build_graph
+from .paper_agents.tools import input_check
 
 
 class Research(BaseModel):
@@ -280,7 +279,7 @@ class AstroPilot:
                         "Methods":      "methods.md", #name of file with methods description
                         "Results":      "results.md", #name of file with results description
                         "Plots":        "plots"},     #name of folder containing plots
-            "llm": {"model": "gemini-2.0-flash",  #name of the LLM model to use
+            "llm": {"model": "gemini-2.0-flash",      #name of the LLM model to use
                     "temperature": 0.7, "max_output_tokens": 8192},  
             }, config))
 
