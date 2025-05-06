@@ -210,3 +210,5 @@ astrop_env/
 AstroPilotApp/
 
 Project*
+
+uv.lock
