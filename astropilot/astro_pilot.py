@@ -32,10 +32,10 @@ class AstroPilot:
     Args:
         input_data: Input data to be used. Employ default data if `None`.
         project_dir: Directory project. If `None`, use the current directory.
-        clear_project_dir: Clear directory if `True`.
+        clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
-    def __init__(self, input_data: Research | None = None, params={}, project_dir: str = repo_dir_default, clear_project_dir: bool = True):
+    def __init__(self, input_data: Research | None = None, params={}, project_dir: str = repo_dir_default, clear_project_dir: bool = False):
         if input_data is None:
             input_data = Research()  # Initialize with default values
         self.clear_project_dir = clear_project_dir
