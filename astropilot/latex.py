@@ -197,12 +197,30 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
 
 
 journal_dict = {
-    Journal.NONE: {"article": "article", "bibliographystyle": "numeric"},
-    Journal.AAS: {"article": "aastex631", "bibliographystyle":"aasjournal"},
-    Journal.JHEP: {"article": "article", "bibliographystyle":"JHEP"},
-    Journal.PASJ: {"article": "pasj01", "bibliographystyle":"aasjournal"},
+    Journal.NONE: {"article": "article",
+                   "bibliographystyle": "abbrv",
+                   "sty": rf"",
+                   "affiliation":rf"\date{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
+                   "maketitle":rf"\maketitle",
+                },
+    Journal.AAS: {"article": "aastex631",
+                  "bibliographystyle":"aasjournal",
+                  "sty": rf"\usepackage{{aas_macros}}",
+                  "affiliation":rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
+                  "maketitle":rf"",
+                },
+    Journal.JHEP: {"article": "article",
+                   "bibliographystyle":"JHEP",
+                   "sty": rf"\usepackage{{jcappub}}",
+                   "affiliation": rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
+                   "maketitle":rf"\maketitle",
+                },
+    Journal.PASJ: {"article": "pasj01",
+                   "bibliographystyle":"aasjournal",
+                   "sty": rf"\usepackage{{aas_macros}}",
+                   "affiliation":rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}"
+                },
 }
-
 
 
 def save_paper(state: GraphState, paper_name: str):
@@ -214,23 +232,27 @@ def save_paper(state: GraphState, paper_name: str):
        name: name of the file to save the paper
     """
 
-    journal = state['journal']
+    journaldict = journal_dict[state['journal']]
 
-    paper = rf"""\documentclass[twocolumn]{{{journal_dict[journal]["article"]}}}
+    paper = rf"""\documentclass[twocolumn]{{{journaldict["article"]}}}
 
 \newcommand{{\vdag}}{{(v)^\dagger}}
 \newcommand\aastex{{AAS\TeX}}
 \newcommand\latex{{La\TeX}}
 \usepackage{{amsmath}}
 \usepackage{{multirow}}
-
+\usepackage{{natbib}}
+\usepackage{{graphicx}} 
+{journaldict["sty"]}
 
 \begin{{document}}
 
 \title{{{state['paper'].get('Title','')}}}
 
 \author{{AstroPilot}}
-\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}
+{journaldict["affiliation"]}
+
+{journaldict["maketitle"]}
 
 \begin{{abstract}}
 {state['paper'].get('Abstract','')}
