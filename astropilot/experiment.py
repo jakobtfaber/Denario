@@ -1,9 +1,7 @@
-# from cmbagent import CMBAgent
-import cmbagent
 from typing import List
-import copy
 import os
 import re
+import cmbagent
 
 class Experiment:
     """

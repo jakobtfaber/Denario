@@ -1,9 +1,6 @@
-# from cmbagent import CMBAgent
-import cmbagent
-import copy
 import re
 import os
-
+import cmbagent
 
 class Idea:
     """
@@ -93,7 +90,7 @@ Don't suggest to perform any calculations or analyses here. The only goal of thi
                              )
 
         chat_history = results['chat_history']
-        final_context = results['final_context']
+        # final_context = results['final_context']
         
         try:
             for obj in chat_history[::-1]:

@@ -1,6 +1,7 @@
-import re,os
+import re
+import os
 import requests
-from typing import List, Dict, Tuple
+from typing import List, Tuple
 
 
 def _execute_query(payload):
@@ -73,7 +74,7 @@ Your answear should not have the formating marks <TEXT> and </TEXT>, just the te
         # If the citation number is out of bounds, return it unchanged.
         return match.group(0)
     # Replace all instances of citations in the form [x] using the helper function.
-    markdown_response = re.sub(r'\[(\d+)\]', citation_repl, cleaned_response)
+    # markdown_response = re.sub(r'\[(\d+)\]', citation_repl, cleaned_response)
     #display(Markdown(markdown_response))
     return (cleaned_response, citations)
 

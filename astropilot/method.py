@@ -1,8 +1,6 @@
-# from cmbagent import CMBAgent
-import cmbagent
-import copy
 import os
 import re
+import cmbagent
 
 class Method:
     """
@@ -155,7 +153,7 @@ The methodology should focus on describing the research and analysis that will b
                              )
         
         chat_history = results['chat_history']
-        final_context = results['final_context']
+        # final_context = results['final_context']
         
         try:
             for obj in chat_history[::-1]:
