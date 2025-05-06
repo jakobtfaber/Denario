@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 # Using pathlib (modern approach) to define the base directory as the directory that contains this file.

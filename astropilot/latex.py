@@ -1,9 +1,10 @@
 import subprocess
-import sys,os,re
+import os
+import re
 from pathlib import Path
 
 from .parameters import GraphState
-from .prompts import *
+from .prompts import fix_latex_bug_prompt
 from .tools import LLM_call, extract_latex_block
 
 
@@ -76,12 +77,12 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
 
     # Try to compile it the first time
     try:
-        result = run_xelatex()
+        run_xelatex()
         if verbose:
-            print(f"    LaTeX compiled successfully: Pass 1")
+            print("    LaTeX compiled successfully: Pass 1")
     except subprocess.CalledProcessError as e:
         log_output("Pass 1", e, is_error=True)
-        print(f"LaTeX failed on pass 1")
+        print("LaTeX failed on pass 1")
 
     # if there is bibliography, compile it
     if os.path.exists("bibliography.bib"):
@@ -90,7 +91,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
     # Compile it two more times to put references and citations
     for i in range(2):        
         try:
-            result = run_xelatex()
+            run_xelatex()
             if verbose:
                 print(f"    LaTeX compiled successfully: Pass {i+2}")
         except subprocess.CalledProcessError as e:
@@ -279,7 +280,7 @@ def process_bib_file(input_file, output_file):
     for line in lines:
         if line.strip().startswith('title') or line.strip().startswith('journal'):
             key, value = line.split('=', 1)
-            quote_char = '"' if '"' in value else '{'
+            # quote_char = '"' if '"' in value else '{'
             content = re.search(r'[{\"](.+)[}\"]', value).group(1)
             escaped_content = escape_special_chars(content)
 

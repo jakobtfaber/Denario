@@ -1,12 +1,9 @@
-import requests
-import sys,os,re,json
-from langchain_core.messages import HumanMessage
-from dotenv import load_dotenv
+import re
+import json
+from pathlib import Path
+
 from .prompts import fixer_prompt, LaTeX_prompt
 from .parameters import GraphState
-from .llm import llm
-from pathlib import Path
-#from dotenv import load_dotenv
 
 
 def LLM_call(prompt, state):
@@ -140,7 +137,7 @@ def fixer(state: GraphState, section_name):
     else:
         with open(state['files']['Error'], 'w', encoding='utf-8') as f:
             f.write(result)
-        raise ValueError(f"Fixer failed as well")
+        raise ValueError("Fixer failed as well")
 
 
 
@@ -165,11 +162,11 @@ def clean_section(text, section):
     text = text.replace(fr"\section*{{{section}}}", "")
     text = text.replace(fr"\begin{{{section}}}", "")
     text = text.replace(fr"\end{{{section}}}", "")
-    text = text.replace(fr"\maketitle", "")
-    text = text.replace(fr"<PARAGRAPH>", "")
-    text = text.replace(fr"</PARAGRAPH>", "")
-    text = text.replace(fr"```latex", "")
-    text = text.replace(fr"```", "")
+    text = text.replace(r"\maketitle", "")
+    text = text.replace(r"<PARAGRAPH>", "")
+    text = text.replace(r"</PARAGRAPH>", "")
+    text = text.replace(r"```latex", "")
+    text = text.replace(r"```", "")
     text = text.replace(r"\usepackage{amsmath}", "")
 
     return text

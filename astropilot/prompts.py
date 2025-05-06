@@ -1,5 +1,4 @@
-from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, AIMessage
-import re
+from langchain_core.messages import HumanMessage, SystemMessage
 
 
 def idea_prompt(topic):
