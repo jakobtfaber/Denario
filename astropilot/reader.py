@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from .config import LaTeX_DIR
 from .parameters import GraphState
-
+from .dataclasses import Journal
 
 load_dotenv()
 GOOGLE_API_KEY     = os.getenv("GOOGLE_API_KEY")
@@ -93,8 +93,17 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                  state['files']['LaTeX_log']]:
         if os.path.exists(f_in):  os.remove(f"{f_in}")
 
-    # copy LaTeX files to project folder
-    for f in ['aasjournal.bst', 'aastex631.cls']:
+    if state["journal"]==Journal.NONE:
+        journal_files = []
+    elif state["journal"]==Journal.AAS:
+        journal_files = ['aasjournal.bst', 'aastex631.cls']
+    elif state["journal"]==Journal.JHEP:
+        journal_files = ['JHEP.bst']
+    elif state["journal"]==Journal.PASJ:
+        journal_files = ['aasjournal.bst', 'pasj01.cls']
+
+    # copy LaTeX journal files to project folder
+    for f in journal_files:
         f_in = f"{state['files']['Folder']}/{f}"
         if not(os.path.exists(f_in)):
             os.system(f"cp {LaTeX_DIR}/{f} {state['files']['Folder']}")

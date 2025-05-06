@@ -1,6 +1,5 @@
 
-from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List
 from IPython.display import display, Markdown
 import asyncio
 import time
@@ -13,20 +12,13 @@ import cmbagent
 import shutil
 
 from .config import REPO_DIR as repo_dir_default
+from .dataclasses import Research, Journal
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
 from .graph import build_graph
 from .tools import input_check
 
-
-class Research(BaseModel):
-    data_description: str = Field(default="", description="The data description of the project")
-    idea: str = Field(default="", description="The idea of the project")
-    methodology: str = Field(default="", description="The methodology of the project")
-    results: str = Field(default="", description="The results of the project")
-    plot_paths: List[str] = Field(default_factory=list, description="The plot paths of the project")
-    keywords: Dict[str, str] = Field(default_factory=dict, description="The AAS keywords describing the project")
 
 # TODO: clean params and kwargs if not used
 # TODO: unify display and print by new method
@@ -40,7 +32,8 @@ class AstroPilot:
         clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
-    def __init__(self, input_data: Research | None = None, params={}, 
+    def __init__(self, input_data: Research | None = None,
+                 params={},
                  project_dir: str = repo_dir_default, 
                  clear_project_dir: bool = False):
         if input_data is None:
@@ -262,27 +255,30 @@ class AstroPilot:
                         )
         display(Markdown(AAS_keyword_list))
 
-    def get_paper(self) -> None:
+    def get_paper(self, journal: Journal = Journal.NONE) -> None:
         """Generate a full paper based on the methods and results."""
         
         # Start timer
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
-        # build graph
+        # Build graph
         graph = build_graph(mermaid_diagram=False)
         path_to_input_files = os.path.join(self.project_dir, "input_files")
+
+        # Initialize the state
+        input_state = { "files":{   "Folder":       path_to_input_files,    #name of folder containing input files
+                                    "Idea":         "idea.md",              #name of file containing idea description
+                                    "Methods":      "methods.md",           #name of file with methods description
+                                    "Results":      "results.md",           #name of file with results description
+                                    "Plots":        "plots"},               #name of folder containing plots
+                        "llm": {"model": "gemini-2.0-flash",                #name of the LLM model to use
+                                "temperature": 0.7, "max_output_tokens": 8192},  
+                        "journal": journal
+        }
         
-        # run the graph
-        asyncio.run(graph.ainvoke(
-            {"files":{  "Folder":      path_to_input_files,   #name of folder containing input files
-                        "Idea":         "idea.md",    #name of file containing idea description
-                        "Methods":      "methods.md", #name of file with methods description
-                        "Results":      "results.md", #name of file with results description
-                        "Plots":        "plots"},     #name of folder containing plots
-            "llm": {"model": "gemini-2.0-flash",  #name of the LLM model to use
-                    "temperature": 0.7, "max_output_tokens": 8192},  
-            }, config))
+        # Run the graph
+        asyncio.run(graph.ainvoke(input_state, config))
 
         # End timer and report duration in minutes and seconds
         end_time = time.time()
