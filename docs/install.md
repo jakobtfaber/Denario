@@ -1,10 +1,6 @@
-# AstroPilot
+# Installation
 
-AstroPilot is a multiagent system designed to automatize scientific research
-
-## Installation
-
-### Install from PyPI
+## Install from PyPI
 
 NOT AVAILABLE YET
 
@@ -14,9 +10,9 @@ To install Astropilot, just run
 pip install astropilot
 ```
 
-### Install from source
+## Install from source
 
-#### Pip
+### Pip
 
 You will need python 3.12 installed.
 
@@ -50,7 +46,7 @@ To delete the virtual environment, do:
 ./installer.sh clean
 ```
 
-#### uv
+### uv
 
 You can also install the project using [uv](https://docs.astral.sh/uv/), just running:
 
