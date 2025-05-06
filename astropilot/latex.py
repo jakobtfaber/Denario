@@ -6,7 +6,7 @@ from pathlib import Path
 from .parameters import GraphState
 from .prompts import fix_latex_bug_prompt
 from .tools import LLM_call, extract_latex_block
-
+from .dataclasses import Journal
 
 # Characters that should be escaped in BibTeX (outside math mode)
 special_chars = {
@@ -196,6 +196,14 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
 #    os.chdir(original_dir)
 
 
+journal_dict = {
+    Journal.NONE: {"article": "article", "bibliographystyle": "numeric"},
+    Journal.AAS: {"article": "aastex631", "bibliographystyle":"aasjournal"},
+    Journal.JHEP: {"article": "article", "bibliographystyle":"JHEP"},
+    Journal.PASJ: {"article": "pasj01", "bibliographystyle":"aasjournal"},
+}
+
+
 
 def save_paper(state: GraphState, paper_name: str):
     """
@@ -206,7 +214,9 @@ def save_paper(state: GraphState, paper_name: str):
        name: name of the file to save the paper
     """
 
-    paper = rf"""\documentclass[twocolumn]{{aastex631}}
+    journal = state['journal']
+
+    paper = rf"""\documentclass[twocolumn]{{{journal_dict[journal]["article"]}}}
 
 \newcommand{{\vdag}}{{(v)^\dagger}}
 \newcommand\aastex{{AAS\TeX}}
@@ -246,7 +256,7 @@ def save_paper(state: GraphState, paper_name: str):
 {state['paper'].get('Conclusions','')}
 
 \bibliography{{bibliography}}{{}}
-\bibliographystyle{{aasjournal}}
+\bibliographystyle{{{journal_dict[journal]["bibliographystyle"]}}}
 
 \end{{document}}
 """

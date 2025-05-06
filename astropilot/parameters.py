@@ -3,6 +3,8 @@ from typing import Annotated
 from langchain_core.messages import AnyMessage
 from langgraph.graph.message import add_messages
 
+from .dataclasses import Journal
+
 # Paper class
 class PAPER(TypedDict):
     Title: str
@@ -64,3 +66,4 @@ class GraphState(TypedDict):
     tokens: TOKENS
     llm: LLM
     latex: LATEX
+    journal: Journal
