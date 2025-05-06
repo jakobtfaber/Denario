@@ -6,7 +6,6 @@ nav:
   - Prompts: prompts.md
   - API Reference:
     - Astropilot: api_astropilot.md
-      
 
 theme: readthedocs
 
@@ -25,6 +24,7 @@ plugins:
             show_root_toc_entry: false
             show_root_members_full_path: true
             merge_init_into_class: true
+            show_signature_annotations: true
             filters:
               - "!^_"
 
