@@ -170,3 +170,15 @@ def clean_section(text, section):
     text = text.replace(r"\usepackage{amsmath}", "")
 
     return text
+
+def input_check(str_input: str) -> str:
+    """Check if the input is a string with the desired content or the path markdown file, in which case reads it to get the content."""
+
+    if str_input.endswith(".md"):
+        with open(str_input, 'r') as f:
+            content = f.read()
+    elif isinstance(str_input, str):
+        content = str_input
+    else:
+        raise ValueError("Input must be a string or a path to a markdown file.")
+    return content

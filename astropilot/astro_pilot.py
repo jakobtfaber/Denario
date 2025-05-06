@@ -1,19 +1,24 @@
-from .idea import Idea
-from .method import Method
-from .experiment import Experiment
+
 from pydantic import BaseModel, Field
 from typing import List, Dict
 from IPython.display import display, Markdown
-from .graph import build_graph
 import asyncio
 import time
 import os
+
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 
-from .config import REPO_DIR as repo_dir_default
 import cmbagent
 import shutil
+
+from .config import REPO_DIR as repo_dir_default
+from .idea import Idea
+from .method import Method
+from .experiment import Experiment
+from .graph import build_graph
+from .tools import input_check
+
 
 class Research(BaseModel):
     data_description: str = Field(default="", description="The data description of the project")
@@ -123,21 +128,12 @@ class AstroPilot:
             f.write(idea)
     
     def set_idea(self, idea: str = None) -> None:
-        """Manually set an idea."""
+        """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
 
-        if idea is None:
-            with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'r') as f:
-                idea = f.read()
-        elif idea.endswith(".md"):
-            with open(idea, 'r') as f:
-                idea = f.read()
-        elif isinstance(idea, str):
-            pass
-        else:
-            raise ValueError("Idea must be a string, a path to a markdown file or None if you want to load idea from input_files/idea.md")
+        idea = input_check(idea)
         
         self.research.idea = idea
-        # write idea to idea.md file
+        
         with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'w') as f:
             f.write(idea)
     
@@ -168,10 +164,13 @@ class AstroPilot:
             f.write(methododology)
     
     def set_method(self, method: str = None) -> None:
-        """Manually set methods."""
+        """Manually set methods, either directly from a string or providing the path of a markdown file with the methods."""
 
-        # write method to method.md file
-        with open(os.path.join(self.project_dir, 'input_files', 'methods.md'), 'w') as f:
+        method = input_check(method)
+        
+        self.research.methodology = method
+        
+        with open(os.path.join(self.project_dir, 'input_files', 'method.md'), 'w') as f:
             f.write(method)
     
     def show_method(self) -> None:
@@ -223,6 +222,16 @@ class AstroPilot:
         results_path = os.path.join(self.project_dir, 'input_files', 'results.md')
         with open(results_path, 'w') as f:
             f.write(self.research.results)
+
+    def set_results(self, results: str = None) -> None:
+        """Manually set the results, either directly from a string or providing the path of a markdown file with the results."""
+
+        results = input_check(results)
+        
+        self.research.results = results
+        
+        with open(os.path.join(self.project_dir, 'input_files', 'results.md'), 'w') as f:
+            f.write(results)
     
     def show_results(self) -> None:
         """Show the obtained results."""
