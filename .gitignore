@@ -188,25 +188,15 @@ cython_debug/
 # PyPI configuration file
 .pypirc
 
-.DS_Store
-
-paper/paper.*
-paper/LaTeX_*
-paper/bibliography.bib
-paper/paper_*
+**/.DS_Store
 
 project_data/*
 bblocal
 
-
 input_files/plots/*
-input_files_paper1
-AP_env/*
-.DS_Store
 paper/
 project_data/
 notebooks/bblocal
-input_files_paper1
 input_files/plots/*
 input_files/*
 Project*
@@ -215,6 +205,4 @@ astrop_env/
 
 AstroPilotApp/
 
-
 uv.lock
-papers/.DS_Store
