@@ -61,16 +61,6 @@ echo ".env file created."
 
 pip install -e .
 
-### Clone and install ag2 ###
-
-AG2_REPO="https://github.com/CMBAgents/ag2.git"
-AG2_DIR="ag2"
-AG2_BRANCH="ag2_v0.8.4_upgrade_astrop"
-
-echo "Cloning and installing ag2 from branch '$AG2_BRANCH'..."
-
-GIT_LFS_SKIP_SMUDGE=1 pip install git+$AG2_REPO@$AG2_BRANCH
-
 # Install an IPython kernel for the virtual environment
 echo "Installing IPython kernel for the virtual environment..."
 python -m ipykernel install --user --name astrop_env --display-name "Python (astrop_env)"
