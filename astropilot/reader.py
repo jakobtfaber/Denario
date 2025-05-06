@@ -4,6 +4,8 @@ import hashlib
 import shutil
 from langchain_core.runnables import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
+from langchain_anthropic import ChatAnthropic
 from dotenv import load_dotenv
 
 from .config import LaTeX_DIR
@@ -33,7 +35,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                                          temperature=state['llm']['temperature'],
                                          openai_api_key=OPENAI_API_KEY)
                     
-    elif 'claude' in model or 'anthropic' in model:
+    elif 'claude' in state['llm']['model']  or 'anthropic' in state['llm']['model'] :
         state['llm']['llm'] = ChatAnthropic(model=state['llm']['model'],
                                             temperature=state['llm']['temperature'],
                                             anthropic_api_key=ANTHROPIC_API_KEY)
