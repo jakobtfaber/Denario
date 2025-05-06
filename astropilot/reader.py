@@ -96,11 +96,11 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     if state["journal"]==Journal.NONE:
         journal_files = []
     elif state["journal"]==Journal.AAS:
-        journal_files = ['aasjournal.bst', 'aastex631.cls']
+        journal_files = ['aasjournal.bst', 'aastex631.cls', 'aas_macros.sty']
     elif state["journal"]==Journal.JHEP:
-        journal_files = ['JHEP.bst']
+        journal_files = ['JHEP.bst', 'jcappub.sty']
     elif state["journal"]==Journal.PASJ:
-        journal_files = ['aasjournal.bst', 'pasj01.cls']
+        journal_files = ['aasjournal.bst', 'pasj01.cls', 'aas_macros.sty']
 
     # copy LaTeX journal files to project folder
     for f in journal_files:
