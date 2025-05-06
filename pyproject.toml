@@ -32,7 +32,8 @@ dependencies = [
   "cmbagent",
   "pdflatex",
   "pymupdf",
-  "jsonschema"
+  "jsonschema",
+  "streamlit_pdf_viewer" # for the app
 ]
 
 [dependency-groups]
