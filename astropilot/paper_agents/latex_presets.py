@@ -22,7 +22,7 @@ latex_aas = LatexPresets(article="aastex631",
                          macros=rf"\usepackage{{aas_macros}}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: x,
-                         abstract=lambda x: rf"\begin{{abstract}}{x}\end{{abstract}}",
+                         abstract=lambda x: f"\\begin{{abstract}}\n {x} \n\\end{{abstract}}\n",
                          )
 """AAS Latex preset"""
 
@@ -32,7 +32,7 @@ latex_aps = LatexPresets(article="revtex4",
                          macros=rf"\usepackage{{aas_macros}}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: "",
-                         abstract=lambda x: rf"\begin{{abstract}}{x}\end{{abstract}} \maketitle",
+                         abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n \\maketitle",
                          )
 """APS Latex preset"""
 
@@ -42,7 +42,7 @@ latex_jhep = LatexPresets(article="article",
                          macros=rf"\usepackage{{jcappub}}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: "",
-                         abstract=lambda x: rf"\abstract{{{x}}} \maketitle",
+                         abstract=lambda x: f"\\abstract{{{x}}} \\maketitle",
                          )
 """JHEP Latex preset"""
 
@@ -52,7 +52,7 @@ latex_pasj = LatexPresets(article="pasj01",
                          macros=rf"\usepackage{{aas_macros}}",
                          affiliation=rf"\altaffiltext{{1}}{{{affiliation}}}",
                          keywords=lambda x: "",
-                         abstract=lambda x: rf"\maketitle \begin{{abstract}}{x}\end{{abstract}}",
+                         abstract=lambda x: f"\\maketitle \n \\begin{{abstract}} \n {x} \n \\end{{abstract}}",
                          )
 """PASJ Latex preset"""
 
