@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from ..config import LaTeX_DIR
 from .parameters import GraphState
+from .dataclasses import Journal
 
 
 load_dotenv()
@@ -46,9 +47,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     state['tokens']['to']  = 0
     state['tokens']['i']   = 0
     state['tokens']['o']   = 0
-
-    # create a folder that will contain all paper files
-    
     
     # set the names of standard files
     state['files'] = {**state['files'],
@@ -101,7 +99,17 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         if os.path.exists(f_in):  os.remove(f"{f_in}")
 
     # copy LaTeX files to project folder
-    for f in ['aasjournal.bst', 'aastex631.cls']:
+    if state["journal"]==Journal.NONE:
+        journal_files = []
+    elif state["journal"]==Journal.AAS:
+        journal_files = ['aasjournal.bst', 'aastex631.cls', 'aas_macros.sty']
+    elif state["journal"]==Journal.JHEP:
+        journal_files = ['JHEP.bst', 'jcappub.sty']
+    elif state["journal"]==Journal.PASJ:
+        journal_files = ['aasjournal.bst', 'pasj01.cls', 'aas_macros.sty']
+
+    # copy LaTeX journal files to project folder
+    for f in journal_files:
         f_in = f"{state['files']['Paper_folder']}/{f}"
         if not(os.path.exists(f_in)):
             os.system(f"cp {LaTeX_DIR}/{f} {state['files']['Paper_folder']}")
