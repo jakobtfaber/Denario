@@ -270,11 +270,12 @@ class AstroPilot:
 
         # build graph
         graph = build_graph(mermaid_diagram=False)
-        path_to_input_files = os.path.join(self.project_dir, "input_files")
+        #path_to_input_files = os.path.join(self.project_dir, "input_files")
         
         # run the graph
         asyncio.run(graph.ainvoke(
-            {"files":{  "Folder":      path_to_input_files,   #name of folder containing input files
+            {"files":{  "Folder":   self.project_dir, #name of project folder
+                        #"Folder":      path_to_input_files,   
                         "Idea":         "idea.md",    #name of file containing idea description
                         "Methods":      "methods.md", #name of file with methods description
                         "Results":      "results.md", #name of file with results description
