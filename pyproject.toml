@@ -42,8 +42,6 @@ dependencies = [
 dev = [
   "mkdocs",
   "mkdocstrings[python]",
-  "streamlit",
-  "streamlit-pdf-viewer>=0.0.23",
 ]
 
 [build-system]
@@ -52,3 +50,8 @@ build-backend = "hatchling.build"
 
 [tool.setuptools.packages.find]
 where = ["."]
+
+[tool.uv.workspace]
+members = [
+    "AstroPilotApp",
+]

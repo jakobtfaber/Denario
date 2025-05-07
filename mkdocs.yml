@@ -3,6 +3,7 @@ site_name: AstroPilot
 nav:
   - Home: index.md
   - Installation: install.md
+  - Get started: get_started.md
   - Prompts: prompts.md
   - API Reference:
     - Astropilot: api_astropilot.md
