@@ -5,13 +5,15 @@ from enum import Enum
 class Journal(str, Enum):
     """Enum which includes the different journals considered."""
     NONE = None
-    """No journal, use standard latex presets with abbrv for bibliography style"""
+    """No journal, use standard latex presets with abbrv for bibliography style."""
     AAS  = "AAS"
-    """American Astronomical Society journals, including ApJ"""
+    """American Astronomical Society journals, including the Astrophysical Journal."""
+    APS = "APS"
+    """Physical Review Journals from the American Physical Society, including Physical Review Letters, PRA, etc."""
     JHEP = "JHEP"
-    """Journal of High Energy Physics, including JCAP"""
+    """Journal of High Energy Physics, including JHEP, JCAP, etc."""
     PASJ = "PASJ"
-    """Publications of the Astronomical Society of Japan"""
+    """Publications of the Astronomical Society of Japan."""
 
 class LatexPresets(BaseModel):
     """Latex presets to be set depending on the journal"""
