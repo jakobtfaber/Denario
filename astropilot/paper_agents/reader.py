@@ -53,6 +53,10 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.makedirs(state['files']['Paper_folder'], exist_ok=True)
     
     state['files'] = {**state['files'],
+                      "Idea":      "idea.md",     #name of file containing idea description
+                      "Methods":   "methods.md",  #name of file with methods description
+                      "Results":   "results.md",  #name of file with results description
+                      "Plots":     "plots",       #name of folder containing plots
                       "Paper_v1":  "paper_v1.tex",
                       "Paper_v2":  "paper_v2.tex",
                       "Paper_v3":  "paper_v3.tex",
