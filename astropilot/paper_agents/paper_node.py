@@ -1,7 +1,7 @@
 from langchain_core.runnables import RunnableConfig
 import random
 import base64
-import time
+import time,sys
 from pathlib import Path
 from tqdm import tqdm
 import asyncio
@@ -10,7 +10,7 @@ import fitz  # PyMuPDF
 import cmbagent
 
 from .parameters import GraphState
-from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt
+from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
 from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file
@@ -21,54 +21,45 @@ def keywords_node(state: GraphState, config: RunnableConfig):
     This agent is in charge of getting the keywords for the paper
     """
 
-    # Extract keywords
-    PROMPT = keyword_prompt(state)
+    # temporary file with the selected keywords
+    f_temp = Path(f"{state['files']['Temp']}/Keywords.tex")
 
-    ### CMBAGENT template for keywords
-    PROMPT = f"""
-Idea:
-{state['idea']['Idea']}
+    if f_temp.exists():
+        keywords = temp_file(f_temp, 'read')
 
-Methods:
-{state['idea']['Methods']}
-    """
+    else:
 
-    aas_keywords = cmbagent.get_keywords(PROMPT, n_keywords = 8)
-    # Extract keys and join them with a comma.
-    aas_keywords_str = ", ".join(aas_keywords.keys())
-    cmbagent_keywords_dict  = {'paper': {**state['paper'], 'Keywords': aas_keywords_str, 'tokens': {'i': 0, 'o': 0, 'ti': 0, 'to': 0}}}
-    # return 
-    ### END CMBAGENT template for keywords
-
-    # # temporary file with the selected keywords
-    # f_temp = Path(f"{state['files']['Temp']}/Keywords.tex")
-
-    # if f_temp.exists():
-    #     keywords = temp_file(f_temp, 'read')
-
-    # else:
-
-    #     # Extract keywords
-    #     PROMPT = keyword_prompt(state)
-    #     state, result = LLM_call(PROMPT, state)
-    #     keywords = extract_latex_block(state, result, "Keywords")
-    
-    #     # Avoid adding \ to the end
-    #     keywords = keywords.replace("\\", "")
-
-    #     # write results to temporary file
-    #     temp_file(f_temp, 'write', keywords)
+        ################ CMB Agent keywords ###############
+        # Extract keywords
+        #PROMPT = cmbagent_keywords_prompt(state)
+        #keywords = cmbagent.get_keywords(PROMPT, n_keywords = 8)
         
-    # print(f"Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
+        # Extract keys and join them with a comma.
+        #keywords = ", ".join(keywords.keys())
+        ###################################################
 
-    # keywords_dict = {'paper': {**state['paper'], 'Keywords': keywords},
-    #         'tokens': state['tokens']}
-    
-    # import pprint
-    # pprint.pprint(keywords_dict)
-    # pprint.pprint(cmbagent_keywords_dict)
-    
-    return cmbagent_keywords_dict
+        ################ Langgraph keywords ###############
+        # Extract keywords
+        PROMPT, keywords_list = keyword_prompt(state)
+        state, result = LLM_call(PROMPT, state)
+        keywords = extract_latex_block(state, result, "Keywords")
+
+        # get the keywords and make a list with them
+        input_keywords = [kw.strip() for kw in keywords.split(',') if kw.strip()]
+        
+        # Check which choosen keywords are actually AAS keywords
+        matched_keywords = [kw for kw in input_keywords if kw in keywords_list]
+        matched_keywords = ', '.join(matched_keywords)
+        keywords = matched_keywords
+        ###################################################
+
+        # write results to temporary file
+        temp_file(f_temp, 'write', keywords)
+
+    print(f"Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
+
+    return {'paper': {**state['paper'], 'Keywords': keywords},
+            'tokens': state['tokens']}
 
 
 def abstract_node(state: GraphState, config: RunnableConfig):
