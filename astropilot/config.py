@@ -11,3 +11,13 @@ LaTeX_DIR = BASE_DIR / ".." / "LaTeX"
 
 DEFAUL_PROJECT_NAME = "project"
 """Default name of the project"""
+
+# Constants for defining .md files and folder names
+INPUT_FILES = "input_files"
+PLOTS_FOLDER = "plots"
+
+DESCRIPTION_FILE = "data_description.md"
+IDEA_FILE = "idea.md"
+METHOD_FILE = "method.md"
+RESULTS_FILE = "results.md"
+
