@@ -18,6 +18,6 @@ PLOTS_FOLDER = "plots"
 
 DESCRIPTION_FILE = "data_description.md"
 IDEA_FILE = "idea.md"
-METHOD_FILE = "method.md"
+METHOD_FILE = "methods.md"
 RESULTS_FILE = "results.md"
 
