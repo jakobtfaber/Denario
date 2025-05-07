@@ -46,17 +46,24 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     state['tokens']['to']  = 0
     state['tokens']['i']   = 0
     state['tokens']['o']   = 0
+
+    # create a folder that will contain all paper files
+    
     
     # set the names of standard files
+    state['files'] = {**state['files'],
+                      "Paper_folder": f"{state['files']['Folder']}/Paper"}
+    os.makedirs(state['files']['Paper_folder'], exist_ok=True)
+    
     state['files'] = {**state['files'],
                       "Paper_v1":  "paper_v1.tex",
                       "Paper_v2":  "paper_v2.tex",
                       "Paper_v3":  "paper_v3.tex",
                       "Paper_v4":  "paper_v4.tex",
-                      "Error":     f"{state['files']['Folder']}/Error.txt",
-                      "LaTeX_log": f"{state['files']['Folder']}/LaTeX_compilation.log",
-                      "Temp":      f"{state['files']['Folder']}/Temp",
-                      "LLM_calls": f"{state['files']['Folder']}/LLM_calls.txt"}
+                      "Error":     f"{state['files']['Paper_folder']}/Error.txt",
+                      "LaTeX_log": f"{state['files']['Paper_folder']}/LaTeX_compilation.log",
+                      "Temp":      f"{state['files']['Paper_folder']}/Temp",
+                      "LLM_calls": f"{state['files']['Paper_folder']}/LLM_calls.txt"}
 
     # set the Latex class
     state['latex'] = {}
@@ -67,7 +74,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # read input files
     for key in ["Idea", "Methods", "Results"]:
         try:
-            path = Path(f"{state['files']['Folder']}/{state['files'][key]}")
+            path = Path(f"{state['files']['Folder']}/input_files/{state['files'][key]}")
             with path.open("r", encoding="utf-8") as f:
                 idea[key] = f.read()
         except Exception as e:
@@ -75,7 +82,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
     # remove these files if they already exist
     for f in ['Paper_v1', 'Paper_v2', 'Paper_v3', 'Paper_v4']:
-        f_in = f"{state['files']['Folder']}/{state['files'][f]}"
+        f_in = f"{state['files']['Paper_folder']}/{state['files'][f]}"
         if os.path.exists(f_in): os.remove(f"{f_in}")
 
         # get the root of the paper file (if paper.tex, root=paper)
@@ -85,7 +92,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                      f'{root}.bbl', f'{root}.blg', f'{root}.synctex.gz',
                      f'{root}.synctex(busy)', 'bibliography.bib',
                      'bibliography_temp.bib',]:
-            fin = f"{state['files']['Folder']}/{f_in}"
+            fin = f"{state['files']['Paper_folder']}/{f_in}"
             if os.path.exists(fin): os.remove(f"{fin}")
 
     # remove these files if they already exist
@@ -95,15 +102,15 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
     # copy LaTeX files to project folder
     for f in ['aasjournal.bst', 'aastex631.cls']:
-        f_in = f"{state['files']['Folder']}/{f}"
+        f_in = f"{state['files']['Paper_folder']}/{f}"
         if not(os.path.exists(f_in)):
-            os.system(f"cp {LaTeX_DIR}/{f} {state['files']['Folder']}")
+            os.system(f"cp {LaTeX_DIR}/{f} {state['files']['Paper_folder']}")
 
     # create a folder to save LaTeX progress
     os.makedirs(state['files']['Temp'], exist_ok=True)
 
     # deal with repeated plots
-    plots_dir    = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
+    plots_dir    = Path(f"{state['files']['Folder']}/input_files/{state['files']['Plots']}")
     repeated_dir = Path(f"{plots_dir}_repeated")
 
     # Walk through all plot files
