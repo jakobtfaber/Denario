@@ -1,10 +1,12 @@
 from .journal import Journal, LatexPresets
 
+affiliation = rf"Anthropic, Gemini \& OpenAI servers. Planet Earth."
+
 latex_none = LatexPresets(article="article",
                          layout="",
                          bibliographystyle="abbrv",
                          macros=rf"",
-                         affiliation=rf"\date{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
+                         affiliation=rf"\date{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: rf"\maketitle \begin{{abstract}}{x}\end{{abstract}}",
                          )
@@ -14,7 +16,7 @@ latex_aas = LatexPresets(article="aastex631",
                          layout="twocolumn",
                          bibliographystyle="aasjournal",
                          macros=rf"\usepackage{{aas_macros}}",
-                         affiliation=rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
+                         affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: x,
                          abstract=lambda x: rf"\begin{{abstract}}{x}\end{{abstract}}",
                          )
@@ -24,7 +26,7 @@ latex_jhep = LatexPresets(article="article",
                          layout="",
                          bibliographystyle="JHEP",
                          macros=rf"\usepackage{{jcappub}}",
-                         affiliation=rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
+                         affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: rf"\abstract{{{x}}} \maketitle",
                          )
@@ -34,9 +36,9 @@ latex_pasj = LatexPresets(article="pasj01",
                          layout="twocolumn",
                          bibliographystyle="aasjournal",
                          macros=rf"\usepackage{{aas_macros}}",
-                         affiliation=rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
-                         keywords=lambda x: x,
-                         abstract=lambda x: rf"\begin{{abstract}}{x}\end{{abstract}}",
+                         affiliation=rf"\altaffiltext{{1}}{{{affiliation}}}",
+                         keywords=lambda x: "",
+                         abstract=lambda x: rf"\maketitle \begin{{abstract}}{x}\end{{abstract}}",
                          )
 """PASJ Latex preset"""
 
