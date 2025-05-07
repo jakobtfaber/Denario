@@ -10,7 +10,7 @@ os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 import cmbagent
 import shutil
 
-from .config import REPO_DIR as repo_dir_default
+from .config import DEFAUL_PROJECT_NAME
 from .research import Research
 from .paper_agents.journal import Journal
 from .idea import Idea
@@ -28,31 +28,30 @@ class AstroPilot:
 
     Args:
         input_data: Input data to be used. Employ default data if `None`.
-        project_dir: Directory project. If `None`, use the current directory.
+        project_dir: Directory project. If `None`, create a `project` folder in the current directory.
         clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
     def __init__(self, input_data: Research | None = None,
                  params={}, 
-                 project_dir: str = repo_dir_default, 
+                 project_dir: str | None = None, 
                  clear_project_dir: bool = False):
+        
+        if project_dir is None:
+            project_dir = os.path.join( os.getcwd(), DEFAUL_PROJECT_NAME )
+        if not os.path.exists(project_dir):
+            os.mkdir(project_dir)
+
         if input_data is None:
             input_data = Research()  # Initialize with default values
         self.clear_project_dir = clear_project_dir
         self.research = input_data
         self.params = params
-        if project_dir != repo_dir_default:
-            # Create directory if it doesn't exist, or clear it if it does
-            new_dir = os.path.join(repo_dir_default, os.path.basename(project_dir))
-            if os.path.exists(new_dir):
-                if clear_project_dir:
-                    shutil.rmtree(new_dir)
-                else:
-                    pass
-            os.makedirs(new_dir, exist_ok=True)
-            self.project_dir = new_dir 
-        else:
-            self.project_dir = project_dir
+
+        if os.path.exists(project_dir) and clear_project_dir:
+            shutil.rmtree(project_dir)
+            os.makedirs(project_dir, exist_ok=True)
+        self.project_dir = project_dir
 
         self._setup_input_files()
 
