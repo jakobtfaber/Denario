@@ -19,7 +19,7 @@ class PAPER(TypedDict):
 
 # Class for Input/Output files
 class FILES(TypedDict):
-    Folder: str       #name of the file containing input and output files
+    Folder: str       #name of the project file
     Idea: str         #name of the file containing the project idea
     Methods: str      #name of the file containing the methods 
     Results: str      #name of the file containing the results
@@ -32,6 +32,7 @@ class FILES(TypedDict):
     LaTeX_log: str    #name of the file with the LaTeX log (when compiling it)
     Temp: str         #name of the folder with the temporary LaTeX files
     LLM_calls: str    #name of the file with the calls to the LLM
+    Paper_folder: str #name of the folder containing all paper files
 
 # Idea class
 class IDEA(TypedDict):

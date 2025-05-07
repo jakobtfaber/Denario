@@ -9,6 +9,7 @@ from .tools import LLM_call, extract_latex_block
 from .dataclasses import LatexPresets
 from .latex_presets import journal_dict
 
+
 # Characters that should be escaped in BibTeX (outside math mode)
 special_chars = {
     "_": r"\_",
@@ -30,13 +31,13 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
 
     def run_xelatex():
         return subprocess.run(["xelatex", paper_name],
-                              cwd=state['files']['Folder'],
+                              cwd=state['files']['Paper_folder'],
                               input="\n", capture_output=True,
                               text=True, check=True)
 
     def run_bibtex():
         subprocess.run(["bibtex", paper_stem],
-                       cwd=state['files']['Folder'],
+                       cwd=state['files']['Paper_folder'],
                        capture_output=True, text=True)
 
     def log_output(i, result_or_error, is_error=False):
@@ -87,7 +88,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
 
     # if there is bibliography, compile it
     further_iterations = 1
-    if os.path.exists(f"{state['files']['Folder']}/bibliography.bib"):
+    if os.path.exists(f"{state['files']['Paper_folder']}/bibliography.bib"):
         run_bibtex()
         further_iterations =2
 
@@ -105,8 +106,8 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
     for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
                 f'{paper_stem}.bbl', f'{paper_stem}.blg', f'{paper_stem}.synctex.gz',
                 f'{paper_stem}.synctex(busy)']:
-        if os.path.exists(f"{state['files']['Folder']}/{fin}"):
-            os.remove(f"{state['files']['Folder']}/{fin}")
+        if os.path.exists(f"{state['files']['Paper_folder']}/{fin}"):
+            os.remove(f"{state['files']['Paper_folder']}/{fin}")
 
 
 
@@ -197,6 +198,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
 #    os.chdir(original_dir)
 
 
+
 def save_paper(state: GraphState, paper_name: str):
     """
     This function just saves the current state of the paper
@@ -219,6 +221,7 @@ def save_paper(state: GraphState, paper_name: str):
 \usepackage{{graphicx}} 
 {journaldict.macros}
 
+
 \begin{{document}}
 
 \title{{{state['paper'].get('Title','')}}}
@@ -227,8 +230,8 @@ def save_paper(state: GraphState, paper_name: str):
 {journaldict.affiliation}
 
 {journaldict.abstract(state['paper'].get('Abstract',''))}
-
 {journaldict.keywords(rf"\keywords{{{state['paper']['Keywords']}}}")}
+
 
 \section{{Introduction}}
 \label{{sec:intro}}
@@ -253,13 +256,13 @@ def save_paper(state: GraphState, paper_name: str):
 """
     
     # save paper to file
-    f_in = f"{state['files']['Folder']}/{paper_name}"
+    f_in = f"{state['files']['Paper_folder']}/{paper_name}"
     with open(f_in, 'w', encoding='utf-8') as f:
         f.write(paper)
 
 
 def save_bib(state: GraphState):
-    with open(f"{state['files']['Folder']}/bibliography_temp.bib", 'a', encoding='utf-8') as f:
+    with open(f"{state['files']['Paper_folder']}/bibliography_temp.bib", 'a', encoding='utf-8') as f:
         f.write(state['paper']['References'].strip() + "\n")    
 
 
