@@ -3,7 +3,7 @@ from typing import Annotated
 from langchain_core.messages import AnyMessage
 from langgraph.graph.message import add_messages
 
-from .dataclasses import Journal
+from .journal import Journal
 
 # Paper class
 class PAPER(TypedDict):

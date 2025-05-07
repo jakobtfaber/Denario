@@ -6,6 +6,7 @@ nav:
   - Prompts: prompts.md
   - API Reference:
     - Astropilot: api_astropilot.md
+    - Paper: api_paper.md
 
 theme: readthedocs
 
