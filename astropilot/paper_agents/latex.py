@@ -250,7 +250,7 @@ def save_paper(state: GraphState, paper_name: str):
 {state['paper'].get('Conclusions','')}
 
 \bibliography{{bibliography}}{{}}
-\bibliographystyle{{{journaldict.bibliographystyle}}}
+{journaldict.bibliographystyle}
 
 \end{{document}}
 """
