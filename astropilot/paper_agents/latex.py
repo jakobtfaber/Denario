@@ -208,7 +208,7 @@ def save_paper(state: GraphState, paper_name: str):
        name: name of the file to save the paper
     """
 
-    journaldict: LatexPresets = journal_dict[state['journal']]
+    journaldict: LatexPresets = journal_dict[state['paper']['journal']]
 
     paper = rf"""\documentclass[{journaldict.layout}]{{{journaldict.article}}}
 
