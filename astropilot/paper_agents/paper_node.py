@@ -57,7 +57,6 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         temp_file(f_temp, 'write', keywords)
 
     print(f"Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
-    sys.exit()
 
     return {'paper': {**state['paper'], 'Keywords': keywords},
             'tokens': state['tokens']}
