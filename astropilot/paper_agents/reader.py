@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 from ..config import LaTeX_DIR
 from .parameters import GraphState
-from .dataclasses import Journal
+from .journal import Journal
 
 
 load_dotenv()

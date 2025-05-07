@@ -11,7 +11,8 @@ import cmbagent
 import shutil
 
 from .config import REPO_DIR as repo_dir_default
-from .paper_agents.dataclasses import Research, Journal
+from .research import Research
+from .paper_agents.journal import Journal
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
@@ -31,7 +32,8 @@ class AstroPilot:
         clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
-    def __init__(self, input_data: Research | None = None, params={}, 
+    def __init__(self, input_data: Research | None = None,
+                 params={}, 
                  project_dir: str = repo_dir_default, 
                  clear_project_dir: bool = False):
         if input_data is None:
@@ -69,7 +71,7 @@ class AstroPilot:
         Set the description of the data and tools to be used by the agents.
 
         Args:
-            data_description: string or path to markdown file including the description of the tools and data. If None, assume that a `data_description.md` is present in `project_dir/input_files`.
+            data_description: String or path to markdown file including the description of the tools and data. If None, assume that a `data_description.md` is present in `project_dir/input_files`.
         """
 
         if data_description is None:
@@ -254,7 +256,13 @@ class AstroPilot:
         display(Markdown(AAS_keyword_list))
 
     def get_paper(self, journal: Journal = Journal.NONE) -> None:
-        """Generate a full paper based on the methods and results."""
+        """
+        Generate a full paper based on the methods and results.
+
+        Args:
+            journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
+        
+        """
         
         # Start timer
         start_time = time.time()

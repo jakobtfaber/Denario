@@ -6,7 +6,7 @@ from pathlib import Path
 from .parameters import GraphState
 from .prompts import fix_latex_bug_prompt
 from .tools import LLM_call, extract_latex_block
-from .dataclasses import LatexPresets
+from .journal import LatexPresets
 from .latex_presets import journal_dict
 
 
