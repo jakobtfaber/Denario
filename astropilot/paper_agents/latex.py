@@ -6,6 +6,8 @@ from pathlib import Path
 from .parameters import GraphState
 from .prompts import fix_latex_bug_prompt
 from .tools import LLM_call, extract_latex_block
+from .dataclasses import LatexPresets
+from .latex_presets import journal_dict
 
 
 # Characters that should be escaped in BibTeX (outside math mode)
@@ -206,13 +208,18 @@ def save_paper(state: GraphState, paper_name: str):
        name: name of the file to save the paper
     """
 
-    paper = rf"""\documentclass[twocolumn]{{aastex631}}
+    journaldict: LatexPresets = journal_dict[state['journal']]
+
+    paper = rf"""\documentclass[{journaldict.layout}]{{{journaldict.article}}}
 
 \newcommand{{\vdag}}{{(v)^\dagger}}
 \newcommand\aastex{{AAS\TeX}}
 \newcommand\latex{{La\TeX}}
 \usepackage{{amsmath}}
 \usepackage{{multirow}}
+\usepackage{{natbib}}
+\usepackage{{graphicx}} 
+{journaldict.macros}
 
 
 \begin{{document}}
@@ -220,13 +227,10 @@ def save_paper(state: GraphState, paper_name: str):
 \title{{{state['paper'].get('Title','')}}}
 
 \author{{AstroPilot}}
-\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}
+{journaldict.affiliation}
 
-\begin{{abstract}}
-{state['paper'].get('Abstract','')}
-\end{{abstract}}
-
-\keywords{{{state['paper']['Keywords']}}}
+{journaldict.abstract(state['paper'].get('Abstract',''))}
+{journaldict.keywords(rf"\keywords{{{state['paper']['Keywords']}}}")}
 
 
 \section{{Introduction}}
@@ -246,7 +250,7 @@ def save_paper(state: GraphState, paper_name: str):
 {state['paper'].get('Conclusions','')}
 
 \bibliography{{bibliography}}{{}}
-\bibliographystyle{{aasjournal}}
+\bibliographystyle{{{journaldict.bibliographystyle}}}
 
 \end{{document}}
 """

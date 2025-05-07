@@ -1,5 +1,4 @@
-from pydantic import BaseModel, Field
-from typing import List, Dict
+from typing import List
 from IPython.display import display, Markdown
 import asyncio
 import time
@@ -12,6 +11,7 @@ import cmbagent
 import shutil
 
 from .config import REPO_DIR as repo_dir_default
+from .paper_agents.dataclasses import Research, Journal
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
@@ -261,7 +261,7 @@ class AstroPilot:
                         )
         display(Markdown(AAS_keyword_list))
 
-    def get_paper(self) -> None:
+    def get_paper(self, journal: Journal = Journal.NONE) -> None:
         """Generate a full paper based on the methods and results."""
         
         # Start timer
@@ -271,19 +271,22 @@ class AstroPilot:
         # build graph
         graph = build_graph(mermaid_diagram=False)
         #path_to_input_files = os.path.join(self.project_dir, "input_files")
-        
-        # run the graph
-        asyncio.run(graph.ainvoke(
-            {"files":{  "Folder":   self.project_dir, #name of project folder
-                        #"Folder":      path_to_input_files,   
-                        "Idea":         "idea.md",    #name of file containing idea description
-                        "Methods":      "methods.md", #name of file with methods description
-                        "Results":      "results.md", #name of file with results description
-                        "Plots":        "plots"},     #name of folder containing plots
-            "llm": {"model": "gemini-2.0-flash",      #name of the LLM model to use
-                    "temperature": 0.7, "max_output_tokens": 8192},  
-            }, config))
 
+        # Initialize the state
+        input_state = {
+            "files":{"Folder": self.project_dir, #name of project folder
+                     "Idea":   "idea.md",        #name of file containing idea description
+                     "Methods": "methods.md",    #name of file with methods description
+                     "Results": "results.md",    #name of file with results description
+                     "Plots":   "plots"},        #name of folder containing plots
+            "llm": {"model": "gemini-2.0-flash", #name of the LLM model to use
+                    "temperature": 0.7, "max_output_tokens": 8192},  
+            "journal": journal
+        }
+
+        # Run the graph
+        asyncio.run(graph.ainvoke(input_state, config))
+        
         # End timer and report duration in minutes and seconds
         end_time = time.time()
         elapsed_time = end_time - start_time
