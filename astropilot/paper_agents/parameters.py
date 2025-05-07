@@ -33,6 +33,7 @@ class FILES(TypedDict):
     Temp: str         #name of the folder with the temporary LaTeX files
     LLM_calls: str    #name of the file with the calls to the LLM
     Paper_folder: str #name of the folder containing all paper files
+    AAS_keywords: str #name of the file with the AAS keywords
 
 # Idea class
 class IDEA(TypedDict):
