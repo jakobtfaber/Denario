@@ -19,14 +19,6 @@ from .paper_agents.agents_graph import build_graph
 from .paper_agents.tools import input_check
 
 
-class Research(BaseModel):
-    data_description: str = Field(default="", description="The data description of the project")
-    idea: str = Field(default="", description="The idea of the project")
-    methodology: str = Field(default="", description="The methodology of the project")
-    results: str = Field(default="", description="The results of the project")
-    plot_paths: List[str] = Field(default_factory=list, description="The plot paths of the project")
-    keywords: Dict[str, str] = Field(default_factory=dict, description="The AAS keywords describing the project")
-
 # TODO: clean params and kwargs if not used
 # TODO: unify display and print by new method
 class AstroPilot:
