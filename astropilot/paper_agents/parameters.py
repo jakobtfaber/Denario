@@ -16,6 +16,7 @@ class PAPER(TypedDict):
     Conclusions: str
     References: str
     summary: str
+    journal: Journal
 
 # Class for Input/Output files
 class FILES(TypedDict):
@@ -68,4 +69,3 @@ class GraphState(TypedDict):
     tokens: TOKENS
     llm: LLM
     latex: LATEX
-    journal: Journal
