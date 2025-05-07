@@ -257,7 +257,11 @@ class AstroPilot:
 
     def get_paper(self, journal: Journal = Journal.NONE) -> None:
         """
-        Generate a full paper based on the methods and results.
+        Generate a full paper based on the files in input_files:
+           - idea.md
+           - methods.md
+           - results.md
+           - plots
 
         Args:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
@@ -270,17 +274,20 @@ class AstroPilot:
 
         # build graph
         graph = build_graph(mermaid_diagram=False)
-        #path_to_input_files = os.path.join(self.project_dir, "input_files")
 
         # Initialize the state
         input_state = {
-            "files":{"Folder": self.project_dir, #name of project folder
-                     "Idea":   "idea.md",        #name of file containing idea description
-                     "Methods": "methods.md",    #name of file with methods description
-                     "Results": "results.md",    #name of file with results description
-                     "Plots":   "plots"},        #name of folder containing plots
+            "files":{"Folder": self.project_dir}, #name of project folder
             "llm": {"model": "gemini-2.0-flash", #name of the LLM model to use
-                    "temperature": 0.7, "max_output_tokens": 8192},  
+                    "temperature": 0.7, "max_output_tokens": 8192},
+            #"llm": {"model": "gemini-2.5-flash-preview-04-17",
+            #        "temperature": 0.7, "max_output_tokens": 65536},  
+            #"llm": {"model": "gemini-2.5-pro-preview-03-25",
+            #        "temperature": 0.7, "max_output_tokens": 65536},  
+            #"llm": {"model": 'o3-mini-2025-01-31', "temperature": 0.5,
+            #        "max_output_tokens": 100000}
+            #"llm": {"model": 'claude-3-7-sonnet-20250219', "temperature":0,
+            #        "max_output_tokens": 64000}
             "paper":{"journal": journal},
         }
 
