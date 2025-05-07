@@ -237,7 +237,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
     """
 
     batch_size = 7 #number of images to process per LLM call
-    folder_path = Path(f"{state['files']['Folder']}/{state['files']['Plots']}")
+    folder_path = Path(f"{state['files']['Folder']}/input_files/{state['files']['Plots']}")
     files = [f for f in folder_path.iterdir()
          if f.is_file() and f.name != '.DS_Store']
     num_images = len(files)
@@ -421,8 +421,8 @@ async def citations_node(state: GraphState, config: RunnableConfig):
     save_bib(state)
 
     # sanitize bibliography
-    process_bib_file(f"{state['files']['Folder']}/bibliography_temp.bib",
-                     f"{state['files']['Folder']}/bibliography.bib")
+    process_bib_file(f"{state['files']['Paper_folder']}/bibliography_temp.bib",
+                     f"{state['files']['Paper_folder']}/bibliography.bib")
     print("✅ Citations added to all sections.")
 
     # compile latex

@@ -1,4 +1,3 @@
-
 from typing import List
 from IPython.display import display, Markdown
 import asyncio
@@ -12,12 +11,12 @@ import cmbagent
 import shutil
 
 from .config import REPO_DIR as repo_dir_default
-from .dataclasses import Research, Journal
+from .paper_agents.dataclasses import Research, Journal
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
-from .graph import build_graph
-from .tools import input_check
+from .paper_agents.agents_graph import build_graph
+from .paper_agents.tools import input_check
 
 
 # TODO: clean params and kwargs if not used
@@ -32,8 +31,7 @@ class AstroPilot:
         clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
-    def __init__(self, input_data: Research | None = None,
-                 params={},
+    def __init__(self, input_data: Research | None = None, params={}, 
                  project_dir: str = repo_dir_default, 
                  clear_project_dir: bool = False):
         if input_data is None:
@@ -262,24 +260,25 @@ class AstroPilot:
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
-        # Build graph
+        # build graph
         graph = build_graph(mermaid_diagram=False)
-        path_to_input_files = os.path.join(self.project_dir, "input_files")
+        #path_to_input_files = os.path.join(self.project_dir, "input_files")
 
         # Initialize the state
-        input_state = { "files":{   "Folder":       path_to_input_files,    #name of folder containing input files
-                                    "Idea":         "idea.md",              #name of file containing idea description
-                                    "Methods":      "methods.md",           #name of file with methods description
-                                    "Results":      "results.md",           #name of file with results description
-                                    "Plots":        "plots"},               #name of folder containing plots
-                        "llm": {"model": "gemini-2.0-flash",                #name of the LLM model to use
-                                "temperature": 0.7, "max_output_tokens": 8192},  
-                        "journal": journal
+        input_state = {
+            "files":{"Folder": self.project_dir, #name of project folder
+                     "Idea":   "idea.md",        #name of file containing idea description
+                     "Methods": "methods.md",    #name of file with methods description
+                     "Results": "results.md",    #name of file with results description
+                     "Plots":   "plots"},        #name of folder containing plots
+            "llm": {"model": "gemini-2.0-flash", #name of the LLM model to use
+                    "temperature": 0.7, "max_output_tokens": 8192},  
+            "journal": journal
         }
-        
+
         # Run the graph
         asyncio.run(graph.ainvoke(input_state, config))
-
+        
         # End timer and report duration in minutes and seconds
         end_time = time.time()
         elapsed_time = end_time - start_time

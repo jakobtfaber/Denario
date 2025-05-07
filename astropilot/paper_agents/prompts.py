@@ -450,7 +450,7 @@ Respond in this format:
 <Section>
 \end{{Section}}
 
-In <Section>, put the new section with the images and their captions. The location of each image should be "../{state['files']['Folder']}/plots/image_name". Choose a label for each image given its caption. The width of the images should be half the page. Note that all text in <Section> should be compatible with LaTex. Make sure you do not put extra brackets at the end of the captions. The captions of the figures must be on a single paragraph. Do create enumerates or itemize inside the caption.
+In <Section>, put the new section with the images and their captions. The location of each image should be "../input_files/plots/image_name". Choose a label for each image given its caption. The width of the images should be half the page. Note that all text in <Section> should be compatible with LaTex. Make sure you do not put extra brackets at the end of the captions. The captions of the figures must be on a single paragraph. Do create enumerates or itemize inside the caption.
 """)]
 
 
