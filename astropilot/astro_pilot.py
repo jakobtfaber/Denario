@@ -11,7 +11,8 @@ import cmbagent
 import shutil
 
 from .config import REPO_DIR as repo_dir_default
-from .paper_agents.dataclasses import Research, Journal
+from .research import Research
+from .paper_agents.journal import Journal
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
@@ -31,7 +32,8 @@ class AstroPilot:
         clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
-    def __init__(self, input_data: Research | None = None, params={}, 
+    def __init__(self, input_data: Research | None = None,
+                 params={}, 
                  project_dir: str = repo_dir_default, 
                  clear_project_dir: bool = False):
         if input_data is None:

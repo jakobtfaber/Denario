@@ -1,4 +1,4 @@
-from .dataclasses import Journal, LatexPresets
+from .journal import Journal, LatexPresets
 
 latex_none = LatexPresets(article="article",
                          layout="",
