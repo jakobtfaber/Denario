@@ -99,7 +99,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         if os.path.exists(f_in):  os.remove(f"{f_in}")
 
     # copy LaTeX files to project folder
-    journal_files = get_journal_latex_files(state["journal"])
+    journal_files = get_journal_latex_files(state["paper"]["journal"])
 
     # copy LaTeX journal files to project folder
     for f in journal_files:
@@ -138,6 +138,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         "files": state['files'],
         "latex": state['latex'],
         "idea": idea,
-        "paper": {"summary": ""},
+        "paper": {**state['paper'], "summary": ""},
     }
 

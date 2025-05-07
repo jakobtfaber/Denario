@@ -281,7 +281,7 @@ class AstroPilot:
                      "Plots":   "plots"},        #name of folder containing plots
             "llm": {"model": "gemini-2.0-flash", #name of the LLM model to use
                     "temperature": 0.7, "max_output_tokens": 8192},  
-            "journal": journal
+            "paper":{"journal": journal},
         }
 
         # Run the graph
