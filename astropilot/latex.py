@@ -6,7 +6,8 @@ from pathlib import Path
 from .parameters import GraphState
 from .prompts import fix_latex_bug_prompt
 from .tools import LLM_call, extract_latex_block
-from .dataclasses import Journal
+from .dataclasses import LatexPresets
+from .latex_presets import journal_dict
 
 # Characters that should be escaped in BibTeX (outside math mode)
 special_chars = {
@@ -196,33 +197,6 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True):
 #    os.chdir(original_dir)
 
 
-journal_dict = {
-    Journal.NONE: {"article": "article",
-                   "bibliographystyle": "abbrv",
-                   "sty": rf"",
-                   "affiliation":rf"\date{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
-                   "maketitle":rf"\maketitle",
-                },
-    Journal.AAS: {"article": "aastex631",
-                  "bibliographystyle":"aasjournal",
-                  "sty": rf"\usepackage{{aas_macros}}",
-                  "affiliation":rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
-                  "maketitle":rf"",
-                },
-    Journal.JHEP: {"article": "article",
-                   "bibliographystyle":"JHEP",
-                   "sty": rf"\usepackage{{jcappub}}",
-                   "affiliation": rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}",
-                   "maketitle":rf"\maketitle",
-                },
-    Journal.PASJ: {"article": "pasj01",
-                   "bibliographystyle":"aasjournal",
-                   "sty": rf"\usepackage{{aas_macros}}",
-                   "affiliation":rf"\affiliation{{Anthropic, Gemini \& OpenAI servers. Planet Earth.}}"
-                },
-}
-
-
 def save_paper(state: GraphState, paper_name: str):
     """
     This function just saves the current state of the paper
@@ -232,9 +206,9 @@ def save_paper(state: GraphState, paper_name: str):
        name: name of the file to save the paper
     """
 
-    journaldict = journal_dict[state['journal']]
+    journaldict: LatexPresets = journal_dict[state['journal']]
 
-    paper = rf"""\documentclass[twocolumn]{{{journaldict["article"]}}}
+    paper = rf"""\documentclass[{journaldict.layout}]{{{journaldict.article}}}
 
 \newcommand{{\vdag}}{{(v)^\dagger}}
 \newcommand\aastex{{AAS\TeX}}
@@ -243,23 +217,18 @@ def save_paper(state: GraphState, paper_name: str):
 \usepackage{{multirow}}
 \usepackage{{natbib}}
 \usepackage{{graphicx}} 
-{journaldict["sty"]}
+{journaldict.macros}
 
 \begin{{document}}
 
 \title{{{state['paper'].get('Title','')}}}
 
 \author{{AstroPilot}}
-{journaldict["affiliation"]}
+{journaldict.affiliation}
 
-{journaldict["maketitle"]}
+{journaldict.abstract(state['paper'].get('Abstract',''))}
 
-\begin{{abstract}}
-{state['paper'].get('Abstract','')}
-\end{{abstract}}
-
-\keywords{{{state['paper']['Keywords']}}}
-
+{journaldict.keywords(rf"\keywords{{{state['paper']['Keywords']}}}")}
 
 \section{{Introduction}}
 \label{{sec:intro}}
@@ -278,7 +247,7 @@ def save_paper(state: GraphState, paper_name: str):
 {state['paper'].get('Conclusions','')}
 
 \bibliography{{bibliography}}{{}}
-\bibliographystyle{{{journal_dict[journal]["bibliographystyle"]}}}
+\bibliographystyle{{{journaldict.bibliographystyle}}}
 
 \end{{document}}
 """
