@@ -6,17 +6,10 @@ from langchain_core.runnables import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
-from dotenv import load_dotenv
 
 from ..config import LaTeX_DIR
 from .parameters import GraphState
 from .latex_presets import get_journal_latex_files
-
-load_dotenv()
-GOOGLE_API_KEY     = os.getenv("GOOGLE_API_KEY")
-PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
-OPENAI_API_KEY     = os.getenv("OPENAI_API_KEY")
-ANTHROPIC_API_KEY  = os.getenv("ANTHROPIC_API_KEY")
 
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
@@ -28,17 +21,17 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     if 'gemini' in state['llm']['model']:
         state['llm']['llm'] = ChatGoogleGenerativeAI(model=state['llm']['model'],
                                                 temperature=state['llm']['temperature'],
-                                                google_api_key=GOOGLE_API_KEY)
+                                                google_api_key=state["keys"].GEMINI)
 
     elif any(key in state['llm']['model'] for key in ['gpt', 'o3']):
         state['llm']['llm'] = ChatOpenAI(model=state['llm']['model'],
                                          temperature=state['llm']['temperature'],
-                                         openai_api_key=OPENAI_API_KEY)
+                                         openai_api_key=state["keys"].OPENAI)
                     
     elif 'claude' in state['llm']['model']  or 'anthropic' in state['llm']['model'] :
         state['llm']['llm'] = ChatAnthropic(model=state['llm']['model'],
                                             temperature=state['llm']['temperature'],
-                                            anthropic_api_key=ANTHROPIC_API_KEY)
+                                            anthropic_api_key=state["keys"].ANTHROPIC)
     
     # set the tokens usage
     state['tokens'] = {'ti': 0, 'to': 0, 'i': 0, 'o': 0}
