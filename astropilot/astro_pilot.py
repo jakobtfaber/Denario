@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Literal
 # from IPython.display import display, Markdown
 import asyncio
 import time
@@ -13,6 +13,7 @@ import shutil
 
 from .config import DEFAUL_PROJECT_NAME, INPUT_FILES, PLOTS_FOLDER, DESCRIPTION_FILE, IDEA_FILE, METHOD_FILE, RESULTS_FILE
 from .research import Research
+from .key_manager import KeyManager
 from .llm import LLM
 from .paper_agents.journal import Journal
 from .idea import Idea
