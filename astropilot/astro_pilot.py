@@ -1,5 +1,5 @@
 from typing import List
-from IPython.display import display, Markdown
+# from IPython.display import display, Markdown
 import asyncio
 import time
 import os
@@ -11,6 +11,7 @@ import cmbagent
 import shutil
 
 from .config import REPO_DIR as repo_dir_default
+from .key_manager import KeyManager
 from .research import Research
 from .paper_agents.journal import Journal
 from .idea import Idea
@@ -55,6 +56,8 @@ class AstroPilot:
             self.project_dir = project_dir
 
         self._setup_input_files()
+        self.keys = KeyManager()
+        self.keys.get_keys_from_dotenv()
 
     def _setup_input_files(self) -> None:
         input_files_dir = os.path.join(self.project_dir, 'input_files')
@@ -169,7 +172,8 @@ class AstroPilot:
     def show_method(self) -> None:
         """Show the provided or generated methods by `set_method` or `get_method`."""
 
-        display(Markdown(self.research.methodology))
+        # display(Markdown(self.research.methodology))
+        print(self.research.methodology)
 
     def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], **kwargs) -> None:
         """
@@ -229,7 +233,8 @@ class AstroPilot:
     def show_results(self) -> None:
         """Show the obtained results."""
 
-        display(Markdown(self.research.results))
+        # display(Markdown(self.research.results))
+        print(self.research.methodology)
     
     def get_keywords(self, input_text: str, n_keywords: int = 5, **kwargs) -> None:
         """
@@ -253,7 +258,8 @@ class AstroPilot:
         AAS_keyword_list = "\n".join(
                             [f"- [{keyword}]({self.research.keywords[keyword]})" for keyword in self.research.keywords]
                         )
-        display(Markdown(AAS_keyword_list))
+        # display(Markdown(AAS_keyword_list))
+        print(AAS_keyword_list)
 
     def get_paper(self, journal: Journal = Journal.NONE) -> None:
         """
@@ -272,7 +278,10 @@ class AstroPilot:
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
-        # build graph
+        # Get keys
+        self.keys.get_keys_from_env()
+
+        # Build graph
         graph = build_graph(mermaid_diagram=False)
 
         # Initialize the state
@@ -289,6 +298,7 @@ class AstroPilot:
             #"llm": {"model": 'claude-3-7-sonnet-20250219', "temperature":0,
             #        "max_output_tokens": 64000}
             "paper":{"journal": journal},
+            "keys": self.keys
         }
 
         # Run the graph
