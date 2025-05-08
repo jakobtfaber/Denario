@@ -7,8 +7,6 @@ LaTeX/bibliography.bib
 graph_diagram.png
 */bibliography.bib
 */bibliography_temp.bib
-*/aasjournal.bst
-*/aastex631.cls
 Error.txt
 */LLM_calls.txt
 */Temp
@@ -206,3 +204,5 @@ astrop_env/
 AstroPilotApp/
 
 uv.lock
+
+project*

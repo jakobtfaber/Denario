@@ -7,7 +7,7 @@ BASE_DIR = Path(__file__).resolve().parent
 REPO_DIR = BASE_DIR.parent
 ## in colab we need REPO_DIR = "/content/AstroPilot/"
 
-LaTeX_DIR = BASE_DIR / ".." / "LaTeX"
+LaTeX_DIR = BASE_DIR / "paper_agents" / "LaTeX"
 
 DEFAUL_PROJECT_NAME = "project"
 """Default name of the project"""
