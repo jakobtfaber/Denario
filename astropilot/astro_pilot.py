@@ -117,7 +117,12 @@ class AstroPilot:
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
     def get_idea(self, idea_maker_model: LLMType="gpt-4o",
                  idea_hater_model: LLMType="claude-3.7-sonnet", **kwargs) -> None:
-        """Generate an idea making use of the data and tools described in `data_description.md`."""
+        """Generate an idea making use of the data and tools described in `data_description.md`.
+        Args:
+           idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
+           idea_hater_model: the LLM to be used for the idea hater agent. Default is claude-3.7-sonnet
+           **kwargs: additional keywords arguments.
+        """
         
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
@@ -279,6 +284,7 @@ class AstroPilot:
 
         Args:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
+            llm: The LLM model to be used to write the paper. Default is set to gemini-2.0-flash
         """
         
         # Start timer
