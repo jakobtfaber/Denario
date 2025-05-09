@@ -22,6 +22,8 @@ from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
 from .paper_agents.tools import input_check
 
+LLMType = Literal[tuple(LLM.keys())]
+
 
 # TODO: clean params and kwargs if not used
 # TODO: unify display and print by new method
@@ -113,7 +115,8 @@ class AstroPilot:
         print(self.research.data_description)
 
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
-    def get_idea(self, idea_maker_model = "gpt-4o-2024-11-20", idea_hater_model = "claude-3-7-sonnet-20250219", **kwargs) -> None:
+    def get_idea(self, idea_maker_model: LLMType="gpt-4o",
+                 idea_hater_model: LLMType="claude-3.7-sonnet", **kwargs) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`."""
         
         if self.research.data_description == "":
@@ -121,8 +124,8 @@ class AstroPilot:
                 self.research.data_description = f.read()
 
         idea = Idea(work_dir = self.project_dir,
-                    idea_maker_model = idea_maker_model,
-                    idea_hater_model = idea_hater_model)
+                    idea_maker_model = LLM[idea_maker_model]["name"],
+                    idea_hater_model = LLM[idea_hater_model]["name"])
         idea = idea.develop_idea(self.research.data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
@@ -266,7 +269,7 @@ class AstroPilot:
         print(AAS_keyword_list)
 
     def get_paper(self, journal: Journal = Journal.NONE,
-                  llm: Literal[tuple(LLM.keys())]="gemini-2.0-flash" ) -> None:
+                  llm: LLMType="gemini-2.0-flash" ) -> None:
         """
         Generate a full paper based on the files in input_files:
            - idea.md
