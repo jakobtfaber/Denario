@@ -56,6 +56,10 @@ class AstroPilot:
             os.makedirs(project_dir, exist_ok=True)
         self.project_dir = project_dir
 
+        self.plots_folder = os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER)
+        # Ensure the folder exists
+        os.makedirs(self.plots_folder, exist_ok=True)
+
         self._setup_input_files()
         self.keys = KeyManager()
         self.keys.get_keys_from_dotenv()
@@ -202,19 +206,16 @@ class AstroPilot:
         self.research.plot_paths = experiment.plot_paths
 
         # move plots to the plots folder in input_files/plots 
-        plots_folder = os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER)
-        # Ensure the folder exists
-        os.makedirs(plots_folder, exist_ok=True)
         ## Clearing the folder
-        if os.path.exists(plots_folder):
-            for file in os.listdir(plots_folder):
-                file_path = os.path.join(plots_folder, file)
+        if os.path.exists(self.plots_folder):
+            for file in os.listdir(self.plots_folder):
+                file_path = os.path.join(self.plots_folder, file)
                 if os.path.isfile(file_path):
                     os.remove(file_path)
                 elif os.path.isdir(file_path):
                     shutil.rmtree(file_path)
         for plot_path in self.research.plot_paths:
-            shutil.move(plot_path, plots_folder)
+            shutil.move(plot_path, self.plots_folder)
 
         # Write results to file
         results_path = os.path.join(self.project_dir, INPUT_FILES, RESULTS_FILE)
