@@ -7,9 +7,13 @@ nav:
   - Prompts: prompts.md
   - API Reference:
     - Astropilot: api_astropilot.md
+    - Classes: api_classes.md
     - Paper: api_paper.md
 
-theme: readthedocs
+theme:
+  name: material
+  features:
+    - content.code.copy
 
 plugins:
   - search
@@ -18,7 +22,7 @@ plugins:
       handlers:
         python:
           options:
-            show_source: false
+            # show_source: false
             docstring_style: google
             annotations_path: brief
             show_signature: true
@@ -32,3 +36,12 @@ plugins:
 
 extra_css:
   - css/mkdocstrings.css
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences

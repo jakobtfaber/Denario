@@ -42,6 +42,7 @@ dependencies = [
 dev = [
   "mkdocs",
   "mkdocstrings[python]",
+  "mkdocs-material>=9.6.12",
 ]
 
 [build-system]
