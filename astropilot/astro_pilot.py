@@ -105,14 +105,16 @@ class AstroPilot:
         print(self.research.data_description)
 
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
-    def get_idea(self, **kwargs) -> None:
+    def get_idea(self, idea_maker_model = "gpt-4o-2024-11-20", idea_hater_model = "claude-3-7-sonnet-20250219", **kwargs) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`."""
         
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
                 self.research.data_description = f.read()
 
-        idea = Idea(work_dir = self.project_dir)
+        idea = Idea(work_dir = self.project_dir,
+                    idea_maker_model = idea_maker_model,
+                    idea_hater_model = idea_hater_model)
         idea = idea.develop_idea(self.research.data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
