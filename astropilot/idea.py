@@ -22,7 +22,9 @@ class Idea:
     Args:
         work_dir: working directory.
     """
-    def __init__(self, work_dir = None, idea_maker_model = "gpt-4o-2024-11-20", idea_hater_model = "claude-3-7-sonnet-20250219"):
+    def __init__(self, work_dir = None, 
+                 idea_maker_model = "gpt-4o", 
+                 idea_hater_model = "claude-3-7-sonnet"):
         if work_dir is None:
             raise ValueError("workdir must be provided")
         

@@ -13,8 +13,19 @@ LLM = {
 
     "gpt-4o":
     {"name": "gpt-4o-2024-11-20", "max_output_tokens":16384, "temperature":0.5},
+
+    'gpt-4.1':
+    {"name": "gpt-4.1-2025-04-14", "max_output_tokens": 16384, "temperature":0.5},
+
+    'gpt-4o-mini':
+    {"name": "gpt-4o-mini-2024-07-18", "max_output_tokens": 16384, "temperature":0.5},
+
+    "gpt-4.5":
+    {"name": "gpt-4.5-preview-2025-02-27", "max_output_tokens": 16384, "temperature":0.5},
        
     'claude-3-7-sonnet':
     {"name":'claude-3-7-sonnet-20250219', "max_output_tokens": 64000, "temperature":0},
+
+
 }
     
