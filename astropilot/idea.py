@@ -22,11 +22,13 @@ class Idea:
     Args:
         work_dir: working directory.
     """
-    def __init__(self, work_dir = None):
+    def __init__(self, work_dir = None, idea_maker_model = "gpt-4o-2024-11-20", idea_hater_model = "claude-3-7-sonnet-20250219"):
         if work_dir is None:
             raise ValueError("workdir must be provided")
         
         self.idea_dir = os.path.join(work_dir, "idea_generation_output")
+        self.idea_maker_model = idea_maker_model
+        self.idea_hater_model = idea_hater_model
         # Create directory if it doesn't exist
         os.makedirs(self.idea_dir, exist_ok=True)
 
@@ -82,9 +84,9 @@ Don't suggest to perform any calculations or analyses here. The only goal of thi
         
         results = cmbagent.planning_and_control(data_description,
                               n_plan_reviews = 1,
-                              max_n_attempts = 4,
                               max_plan_steps = 6,
-                              engineer_model = "gpt-4.1-2025-04-14",
+                              idea_maker_model = self.idea_maker_model,
+                              idea_hater_model = self.idea_hater_model,
                               plan_instructions=self.planner_append_instructions,
                               work_dir = self.idea_dir
                              )
