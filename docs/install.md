@@ -12,7 +12,7 @@ pip install astropilot
 
 ## Install from source
 
-### Pip
+### pip
 
 You will need python 3.12 installed.
 
