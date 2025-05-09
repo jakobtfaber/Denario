@@ -6,17 +6,10 @@ from langchain_core.runnables import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
-from dotenv import load_dotenv
 
 from ..config import LaTeX_DIR
 from .parameters import GraphState
 from .latex_presets import get_journal_latex_files
-
-load_dotenv()
-GOOGLE_API_KEY     = os.getenv("GOOGLE_API_KEY")
-PERPLEXITY_API_KEY = os.getenv("PERPLEXITY_API_KEY")
-OPENAI_API_KEY     = os.getenv("OPENAI_API_KEY")
-ANTHROPIC_API_KEY  = os.getenv("ANTHROPIC_API_KEY")
 
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
@@ -28,30 +21,27 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     if 'gemini' in state['llm']['model']:
         state['llm']['llm'] = ChatGoogleGenerativeAI(model=state['llm']['model'],
                                                 temperature=state['llm']['temperature'],
-                                                google_api_key=GOOGLE_API_KEY)
+                                                google_api_key=state["keys"].GEMINI)
 
     elif any(key in state['llm']['model'] for key in ['gpt', 'o3']):
         state['llm']['llm'] = ChatOpenAI(model=state['llm']['model'],
                                          temperature=state['llm']['temperature'],
-                                         openai_api_key=OPENAI_API_KEY)
+                                         openai_api_key=state["keys"].OPENAI)
                     
     elif 'claude' in state['llm']['model']  or 'anthropic' in state['llm']['model'] :
         state['llm']['llm'] = ChatAnthropic(model=state['llm']['model'],
                                             temperature=state['llm']['temperature'],
-                                            anthropic_api_key=ANTHROPIC_API_KEY)
+                                            anthropic_api_key=state["keys"].ANTHROPIC)
     
     # set the tokens usage
-    state['tokens'] = {}
-    state['tokens']['ti']  = 0
-    state['tokens']['to']  = 0
-    state['tokens']['i']   = 0
-    state['tokens']['o']   = 0
+    state['tokens'] = {'ti': 0, 'to': 0, 'i': 0, 'o': 0}
     
-    # set the names of standard files
+    # get Paper folder
     state['files'] = {**state['files'],
                       "Paper_folder": f"{state['files']['Folder']}/Paper"}
     os.makedirs(state['files']['Paper_folder'], exist_ok=True)
-    
+
+    # set the name of the other files
     state['files'] = {**state['files'],
                       "Idea":      "idea.md",     #name of file containing idea description
                       "Methods":   "methods.md",  #name of file with methods description
@@ -68,19 +58,17 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "AAS_keywords": "LaTeX/AAS_keywords.txt"}
 
     # set the Latex class
-    state['latex'] = {}
-    state['latex']['section'] = ""
-    
-    idea = {}
+    state['latex'] = {'section': ''}
     
     # read input files
+    idea = {}
     for key in ["Idea", "Methods", "Results"]:
-        try:
-            path = Path(f"{state['files']['Folder']}/input_files/{state['files'][key]}")
+        path = Path(f"{state['files']['Folder']}/input_files/{state['files'][key]}")
+        if path.exists():
             with path.open("r", encoding="utf-8") as f:
                 idea[key] = f.read()
-        except Exception as e:
-            raise RuntimeError(f"Failed to read {key} file: {e}")
+        else:
+            idea[key] = None
 
     # remove these files if they already exist
     for f in ['Paper_v1', 'Paper_v2', 'Paper_v3', 'Paper_v4']:
