@@ -38,7 +38,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     
     # get Paper folder
     state['files'] = {**state['files'],
-                      "Paper_folder": f"{state['files']['Folder']}/Paper"}
+                      "Paper_folder": f"{state['files']['Folder']}/paper"}
     os.makedirs(state['files']['Paper_folder'], exist_ok=True)
 
     # set the name of the other files
@@ -53,7 +53,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "Paper_v4":  "paper_v4.tex",
                       "Error":     f"{state['files']['Paper_folder']}/Error.txt",
                       "LaTeX_log": f"{state['files']['Paper_folder']}/LaTeX_compilation.log",
-                      "Temp":      f"{state['files']['Paper_folder']}/Temp",
+                      "Temp":      f"{state['files']['Paper_folder']}/temp",
                       "LLM_calls": f"{state['files']['Paper_folder']}/LLM_calls.txt",
                       "AAS_keywords": str( LaTeX_DIR / "AAS_keywords.txt" )}
 
