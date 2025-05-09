@@ -36,7 +36,8 @@ dependencies = [
   "pymupdf",
   "pillow",
   "jsonschema",
-  "streamlit_pdf_viewer', ## needed for streamlit
+  "streamlit",		
+  "streamlit_pdf_viewer", ## needed for streamlit
 ]
 
 [dependency-groups]
