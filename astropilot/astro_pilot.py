@@ -1,8 +1,9 @@
-from typing import List
-from IPython.display import display, Markdown
+from typing import List, Literal
+# from IPython.display import display, Markdown
 import asyncio
 import time
 import os
+
 
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
@@ -10,8 +11,10 @@ os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 import cmbagent
 import shutil
 
-from .config import REPO_DIR as repo_dir_default
+from .config import DEFAUL_PROJECT_NAME, INPUT_FILES, PLOTS_FOLDER, DESCRIPTION_FILE, IDEA_FILE, METHOD_FILE, RESULTS_FILE
 from .research import Research
+from .key_manager import KeyManager
+from .llm import LLM
 from .paper_agents.journal import Journal
 from .idea import Idea
 from .method import Method
@@ -28,36 +31,37 @@ class AstroPilot:
 
     Args:
         input_data: Input data to be used. Employ default data if `None`.
-        project_dir: Directory project. If `None`, use the current directory.
+        project_dir: Directory project. If `None`, create a `project` folder in the current directory.
         clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
     def __init__(self, input_data: Research | None = None,
                  params={}, 
-                 project_dir: str = repo_dir_default, 
+                 project_dir: str | None = None, 
                  clear_project_dir: bool = False):
+        
+        if project_dir is None:
+            project_dir = os.path.join( os.getcwd(), DEFAUL_PROJECT_NAME )
+        if not os.path.exists(project_dir):
+            os.mkdir(project_dir)
+
         if input_data is None:
             input_data = Research()  # Initialize with default values
         self.clear_project_dir = clear_project_dir
         self.research = input_data
         self.params = params
-        if project_dir != repo_dir_default:
-            # Create directory if it doesn't exist, or clear it if it does
-            new_dir = os.path.join(repo_dir_default, os.path.basename(project_dir))
-            if os.path.exists(new_dir):
-                if clear_project_dir:
-                    shutil.rmtree(new_dir)
-                else:
-                    pass
-            os.makedirs(new_dir, exist_ok=True)
-            self.project_dir = new_dir 
-        else:
-            self.project_dir = project_dir
+
+        if os.path.exists(project_dir) and clear_project_dir:
+            shutil.rmtree(project_dir)
+            os.makedirs(project_dir, exist_ok=True)
+        self.project_dir = project_dir
 
         self._setup_input_files()
+        self.keys = KeyManager()
+        self.keys.get_keys_from_dotenv()
 
     def _setup_input_files(self) -> None:
-        input_files_dir = os.path.join(self.project_dir, 'input_files')
+        input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
         
         # If directory exists, remove it and all its contents
         if os.path.exists(input_files_dir) and self.clear_project_dir:
@@ -76,7 +80,7 @@ class AstroPilot:
 
         if data_description is None:
             try:
-                with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
+                with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
                     data_description = f.read()
                 data_description = data_description.replace("{path_to_project_data}", str(self.project_dir)+ "/project_data/")
             except FileNotFoundError:
@@ -95,7 +99,7 @@ class AstroPilot:
         self.research.data_description = data_description
 
         # overwrite the data_description.md file
-        with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'w') as f:
+        with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'w') as f:
             f.write(data_description)
 
     def show_data_description(self) -> None:
@@ -109,7 +113,7 @@ class AstroPilot:
         """Generate an idea making use of the data and tools described in `data_description.md`."""
         
         if self.research.data_description == "":
-            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
                 self.research.data_description = f.read()
 
         idea = Idea(work_dir = self.project_dir,
@@ -118,7 +122,7 @@ class AstroPilot:
         idea = idea.develop_idea(self.research.data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
-        idea_path = os.path.join(self.project_dir, 'input_files', 'idea.md')
+        idea_path = os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE)
         with open(idea_path, 'w') as f:
             f.write(idea)
     
@@ -129,7 +133,7 @@ class AstroPilot:
         
         self.research.idea = idea
         
-        with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'w') as f:
+        with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'w') as f:
             f.write(idea)
     
     def show_idea(self) -> None:
@@ -142,11 +146,11 @@ class AstroPilot:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`."""
 
         if self.research.data_description == "":
-            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
                 self.research.data_description = f.read()        
 
         if self.research.idea == "":
-            with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
                 self.research.idea = f.read()
 
         method = Method(self.research.idea, work_dir = self.project_dir)
@@ -154,7 +158,7 @@ class AstroPilot:
         self.research.methodology = methododology
 
         # Write idea to file
-        method_path = os.path.join(self.project_dir, 'input_files', 'methods.md')
+        method_path = os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE)
         with open(method_path, 'w') as f:
             f.write(methododology)
     
@@ -165,13 +169,14 @@ class AstroPilot:
         
         self.research.methodology = method
         
-        with open(os.path.join(self.project_dir, 'input_files', 'method.md'), 'w') as f:
+        with open(os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE), 'w') as f:
             f.write(method)
     
     def show_method(self) -> None:
         """Show the provided or generated methods by `set_method` or `get_method`."""
 
-        display(Markdown(self.research.methodology))
+        # display(Markdown(self.research.methodology))
+        print(self.research.methodology)
 
     def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], **kwargs) -> None:
         """
@@ -182,15 +187,15 @@ class AstroPilot:
         """
 
         if self.research.data_description == "":
-            with open(os.path.join(self.project_dir, 'input_files', 'data_description.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
                 self.research.data_description = f.read()
 
         if self.research.idea == "":
-            with open(os.path.join(self.project_dir, 'input_files', 'idea.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
                 self.research.idea = f.read()
 
         if self.research.methodology == "":
-            with open(os.path.join(self.project_dir, 'input_files', 'methods.md'), 'r') as f:
+            with open(os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE), 'r') as f:
                 self.research.methodology = f.read()
 
         experiment = Experiment(self.research.idea, self.research.methodology, involved_agents=involved_agents, work_dir = self.project_dir)
@@ -199,7 +204,7 @@ class AstroPilot:
         self.research.plot_paths = experiment.plot_paths
 
         # move plots to the plots folder in input_files/plots 
-        plots_folder = os.path.join(self.project_dir, 'input_files', 'plots')
+        plots_folder = os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER)
         # Ensure the folder exists
         os.makedirs(plots_folder, exist_ok=True)
         ## Clearing the folder
@@ -214,7 +219,7 @@ class AstroPilot:
             shutil.move(plot_path, plots_folder)
 
         # Write results to file
-        results_path = os.path.join(self.project_dir, 'input_files', 'results.md')
+        results_path = os.path.join(self.project_dir, INPUT_FILES, RESULTS_FILE)
         with open(results_path, 'w') as f:
             f.write(self.research.results)
 
@@ -225,13 +230,14 @@ class AstroPilot:
         
         self.research.results = results
         
-        with open(os.path.join(self.project_dir, 'input_files', 'results.md'), 'w') as f:
+        with open(os.path.join(self.project_dir, INPUT_FILES, RESULTS_FILE), 'w') as f:
             f.write(results)
     
     def show_results(self) -> None:
         """Show the obtained results."""
 
-        display(Markdown(self.research.results))
+        # display(Markdown(self.research.results))
+        print(self.research.methodology)
     
     def get_keywords(self, input_text: str, n_keywords: int = 5, **kwargs) -> None:
         """
@@ -255,9 +261,11 @@ class AstroPilot:
         AAS_keyword_list = "\n".join(
                             [f"- [{keyword}]({self.research.keywords[keyword]})" for keyword in self.research.keywords]
                         )
-        display(Markdown(AAS_keyword_list))
+        # display(Markdown(AAS_keyword_list))
+        print(AAS_keyword_list)
 
-    def get_paper(self, journal: Journal = Journal.NONE) -> None:
+    def get_paper(self, journal: Journal = Journal.NONE,
+                  llm: Literal[tuple(LLM.keys())]="gemini-2.0-flash" ) -> None:
         """
         Generate a full paper based on the files in input_files:
            - idea.md
@@ -267,30 +275,26 @@ class AstroPilot:
 
         Args:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
-        
         """
         
         # Start timer
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
-        # build graph
+        # Get keys
+        self.keys.get_keys_from_env()
+
+        # Build graph
         graph = build_graph(mermaid_diagram=False)
 
         # Initialize the state
         input_state = {
             "files":{"Folder": self.project_dir}, #name of project folder
-            "llm": {"model": "gemini-2.0-flash", #name of the LLM model to use
-                    "temperature": 0.7, "max_output_tokens": 8192},
-            #"llm": {"model": "gemini-2.5-flash-preview-04-17",
-            #        "temperature": 0.7, "max_output_tokens": 65536},  
-            #"llm": {"model": "gemini-2.5-pro-preview-03-25",
-            #        "temperature": 0.7, "max_output_tokens": 65536},  
-            #"llm": {"model": 'o3-mini-2025-01-31', "temperature": 0.5,
-            #        "max_output_tokens": 100000}
-            #"llm": {"model": 'claude-3-7-sonnet-20250219', "temperature":0,
-            #        "max_output_tokens": 64000}
+            "llm": {"model": LLM[llm]['name'],  #name of the LLM model to use
+                    "temperature": LLM[llm]['temperature'],
+                    "max_output_tokens": LLM[llm]['max_output_tokens']},
             "paper":{"journal": journal},
+            "keys": self.keys
         }
 
         # Run the graph
