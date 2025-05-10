@@ -136,7 +136,7 @@ class AstroPilot:
         with open(idea_path, 'w') as f:
             f.write(idea)
 
-    def get_idea_fast(self, llm: LLMType="gemini-2.0-flash", **kwargs) -> None:
+    def get_idea_fast(self, llm: LLM=models["gemini-2.0-flash"], **kwargs) -> None:
         """
         Generate an idea using the idea maker - idea hater method.
         """
@@ -155,9 +155,9 @@ class AstroPilot:
         input_state = {
             "files":{"Folder": self.project_dir,
                      "data_description": f_data_description}, #name of project folder
-            "llm": {"model": LLM[llm]['name'],                #name of the LLM model to use
-                    "temperature": LLM[llm]['temperature'],
-                    "max_output_tokens": LLM[llm]['max_output_tokens']},
+            "llm": {"model": llm.name,                #name of the LLM model to use
+                    "temperature": llm.temperature,
+                    "max_output_tokens": llm.max_output_tokens},
             "keys": self.keys,
             "idea": {"total_iterations": 4},
         }
