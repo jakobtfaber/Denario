@@ -20,7 +20,7 @@ from .method import Method
 from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
 from .paper_agents.tools import input_check
-from .langgraph_agents.agents_graph import build_idea
+from .langgraph_agents.agents_graph import build_lg_graph
 
 
 # TODO: clean params and kwargs if not used
@@ -146,13 +146,14 @@ class AstroPilot:
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
         # Build graph
-        graph = build_idea(mermaid_diagram=False)
+        graph = build_lg_graph(mermaid_diagram=False)
 
         # get name of data description file
         f_data_description = os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE)
 
         # Initialize the state
         input_state = {
+            "task": "idea_generation",
             "files":{"Folder": self.project_dir,
                      "data_description": f_data_description}, #name of project folder
             "llm": {"model": llm.name,                #name of the LLM model to use
@@ -208,6 +209,45 @@ class AstroPilot:
         method_path = os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE)
         with open(method_path, 'w') as f:
             f.write(methododology)
+
+    def get_method_fast(self, llm: LLM=models["gemini-2.0-flash"], **kwargs) -> None:
+        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method."""
+
+        # Start timer
+        start_time = time.time()
+        config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
+
+        # Build graph
+        graph = build_lg_graph(mermaid_diagram=False)
+
+        # get name of data description file and idea
+        f_data_description = os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE)
+        f_idea = os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE)
+        
+        # Initialize the state
+        input_state = {
+            "task": "methods_generation",
+            "files":{"Folder": self.project_dir,              #name of project folder
+                     "data_description": f_data_description,
+                     "idea": f_idea}, 
+            "llm": {"model": llm.name,                #name of the LLM model to use
+                    "temperature": llm.temperature,
+                    "max_output_tokens": llm.max_output_tokens},
+            "keys": self.keys,
+            "idea": {"total_iterations": 4},
+        }
+        
+        # Run the graph
+        graph.invoke(input_state, config)
+        
+        # End timer and report duration in minutes and seconds
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        minutes = int(elapsed_time // 60)
+        seconds = int(elapsed_time % 60)
+        print(f"Idea generated in {minutes} min {seconds} sec.")  
+        
+        
     
     def set_method(self, method: str = None) -> None:
         """Manually set methods, either directly from a string or providing the path of a markdown file with the methods."""

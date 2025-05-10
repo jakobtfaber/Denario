@@ -33,19 +33,50 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # set the tokens usage
     state['tokens'] = {'ti': 0, 'to': 0, 'i': 0, 'o': 0}
 
-    # set idea class
-    idea = {**state['idea'],
-            'iteration':0, 'previous_ideas': "", 'idea': "", 'criticism': ""}
+    # read data description
+    try:
+        with open(state['files']['data_description'], 'r', encoding='utf-8') as f:
+            description = f.read()
+    except FileNotFoundError:
+        raise Exception("Data description file not found!")
+    except Exception as e:
+        raise Exception("Error reading the data description file!")
 
-    # set the name of the other files
-    folder_name = 'idea_generation_output'
+    # read idea description
+    if state['task']=='methods_generation':
+        try:
+            with open(state['files']['idea'], 'r', encoding='utf-8') as f:
+                idea = f.read()
+        except FileNotFoundError:
+            raise Exception("Data description file not found!")
+        except Exception as e:
+            raise Exception("Error reading the data description file!")
+    
+    # set the name of the common files
+    if state['task']=='idea_generation':
+        folder_name = 'idea_generation_output'    
+    elif state['task']=='methods_generation':
+        folder_name = 'methods_generation_output'
     state['files'] = {**state['files'],
                       "Temp":      f"{state['files']['Folder']}/{folder_name}",
                       "LLM_calls": f"{state['files']['Folder']}/{folder_name}/LLM_calls.txt",
-                      "idea":      f"{state['files']['Folder']}/input_files/idea.md",
-                      "idea_log":  f"{state['files']['Folder']}/{folder_name}/idea.log",
                       "Error":     f"{state['files']['Folder']}/{folder_name}/Error.txt",
     }
+
+    # set particulars for different tasks
+    if state['task']=='idea_generation':
+        idea = {**state['idea'],
+                'iteration':0, 'previous_ideas': "", 'idea': "", 'criticism': ""}
+        state['files'] = {**state['files'],
+                          "idea":      f"{state['files']['Folder']}/input_files/idea.md",
+                          "idea_log":  f"{state['files']['Folder']}/{folder_name}/idea.log",
+        }
+    elif state['task']=='methods_generation':
+        state['files'] = {**state['files'],
+                          "methods": f"{state['files']['Folder']}/input_files/methods.md",
+        }
+        idea = {**state['idea'], 'idea': idea}
+        
 
     # create project folder, input files, and temp files
     os.makedirs(state['files']['Folder'],                  exist_ok=True)
@@ -53,25 +84,28 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.makedirs(f"{state['files']['Folder']}/input_files", exist_ok=True)
 
     # clean existing files
-    for f in ["LLM_calls", "idea", "idea_log"]:
+    for f in ["LLM_calls", "Error"]:
         file_path = state['files'][f]
         if os.path.exists(file_path):
             os.remove(file_path)
-    
-    # read data description
-    try:
-        with open(state['files']['data_description'], 'r', encoding='utf-8') as f:
-            description = f.read()
-    except FileNotFoundError:
-        raise Exception("File not found!")
-    except Exception as e:
-        raise Exception("Error reading the data description file!")
+
+    if state['task']=='idea_generation':
+        for f in ["idea", "idea_log"]:
+            file_path = state['files'][f]
+            if os.path.exists(file_path):
+                os.remove(file_path)
+                
+    if state['task']=='methods_generation':
+        for f in ["methods"]:
+            file_path = state['files'][f]
+            if os.path.exists(file_path):
+                os.remove(file_path)
 
     return {
         "files": state['files'],
         "llm": state['llm'],
         "tokens": state['tokens'],
-        "idea": idea,
         "data_description": description,
+        "idea": idea,
     }
 

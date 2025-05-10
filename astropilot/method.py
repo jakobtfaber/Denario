@@ -27,7 +27,7 @@ Instruction for planning:
 Given these datasets, and information on the features and project idea, we want to design a methodology to implement this idea.
 The goal of the task is to write a plan that will be used to generate a detailed description of the methodology that will be used to perform the research project.
 
-**Elicit Project-Specific Reasoning:**
+**Explicit Project-Specific Reasoning:**
    - Ask the *researcher* to provide reasoning  relevant to the given project idea.
    - Clarify the specific hypotheses, assumptions, or questions that should be investigated.
    - This can be done in multiple steps. 

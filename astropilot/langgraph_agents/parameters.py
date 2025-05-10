@@ -13,6 +13,7 @@ class FILES(TypedDict):
     LLM_calls: str        #name of the file with the calls to the LLM
     Temp: str             #name of the folder with the temporary LaTeX files
     idea: str             #name of the file to write the final idea
+    methods: str          #name of the file to write the methods
     idea_log: str         #name of the file to write generated ideas and critics
     Error: str            #name of the error file
 
@@ -47,3 +48,4 @@ class GraphState(TypedDict):
     files: FILES
     keys: KeyManager
     data_description: str
+    task: str
