@@ -14,6 +14,7 @@ class FILES(TypedDict):
     Temp: str             #name of the folder with the temporary LaTeX files
     idea: str             #name of the file to write the final idea
     idea_log: str         #name of the file to write generated ideas and critics
+    Error: str            #name of the error file
 
 # Token class
 class TOKENS(TypedDict):
