@@ -8,6 +8,7 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 
 from .parameters import GraphState
+from ..config import INPUT_FILES, IDEA_FILE, METHOD_FILE, RESULTS_FILE
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
     """
@@ -65,23 +66,23 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
     # set particulars for different tasks
     if state['task']=='idea_generation':
-        idea = {**state['idea'],
-                'iteration':0, 'previous_ideas': "", 'idea': "", 'criticism': ""}
+        idea = {**state['idea'], 'iteration':0, 'previous_ideas': "",
+                'idea': "", 'criticism': ""}
         state['files'] = {**state['files'],
-                          "idea":      f"{state['files']['Folder']}/input_files/idea.md",
+                          "idea":      f"{state['files']['Folder']}/{INPUT_FILES}/{IDEA_FILE}",
                           "idea_log":  f"{state['files']['Folder']}/{folder_name}/idea.log",
         }
     elif state['task']=='methods_generation':
         state['files'] = {**state['files'],
-                          "methods": f"{state['files']['Folder']}/input_files/methods.md",
+                          "methods": f"{state['files']['Folder']}/{INPUT_FILES}/{METHOD_FILE}",
         }
         idea = {**state['idea'], 'idea': idea}
         
 
     # create project folder, input files, and temp files
-    os.makedirs(state['files']['Folder'],                  exist_ok=True)
-    os.makedirs(state['files']['Temp'],                    exist_ok=True)
-    os.makedirs(f"{state['files']['Folder']}/input_files", exist_ok=True)
+    os.makedirs(state['files']['Folder'],                    exist_ok=True)
+    os.makedirs(state['files']['Temp'],                      exist_ok=True)
+    os.makedirs(f"{state['files']['Folder']}/{INPUT_FILES}", exist_ok=True)
 
     # clean existing files
     for f in ["LLM_calls", "Error"]:
@@ -101,11 +102,10 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             if os.path.exists(file_path):
                 os.remove(file_path)
 
-    return {
-        "files": state['files'],
-        "llm": state['llm'],
-        "tokens": state['tokens'],
-        "data_description": description,
-        "idea": idea,
-    }
+    return {**state,
+            "files":            state['files'],
+            "llm":              state['llm'],
+            "tokens":           state['tokens'],
+            "data_description": description,
+            "idea":             idea}
 
