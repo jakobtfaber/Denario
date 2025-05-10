@@ -15,6 +15,7 @@ DEFAUL_PROJECT_NAME = "project"
 # Constants for defining .md files and folder names
 INPUT_FILES = "input_files"
 PLOTS_FOLDER = "plots"
+PAPER_FOLDER = "Paper"
 
 DESCRIPTION_FILE = "data_description.md"
 IDEA_FILE = "idea.md"
