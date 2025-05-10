@@ -1,4 +1,4 @@
-import time
+import time,sys
 from astropilot.langgraph_agents.agents_graph import build_idea
 from astropilot.key_manager import KeyManager
 from astropilot.llm import LLM
@@ -9,18 +9,20 @@ config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
 # Get keys
 keys = KeyManager()
-keys.get_keys_from_env()
+keys.get_keys_from_dotenv()
 
 # Build graph
 graph = build_idea(mermaid_diagram=False)
 
 # Initialize the state
 input_state = {
-    "files":{"data_description": "data.txt"}, #name of data_description file
+    "files":{"Folder": "Project3",
+             "data_description": "data.txt"}, #data_description file name
     "llm": {"model": 'gemini-2.0-flash',  #name of the LLM model to use
             "temperature": 0.7,
             "max_output_tokens": 8192},
     "keys": keys,
+    "idea": {"total_iterations": 4},
 }
 
 # Run the graph
