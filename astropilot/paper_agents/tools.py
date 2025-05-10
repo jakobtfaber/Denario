@@ -165,6 +165,8 @@ def clean_section(text, section):
     text = text.replace(r"\maketitle", "")
     text = text.replace(r"<PARAGRAPH>", "")
     text = text.replace(r"</PARAGRAPH>", "")
+    text = text.replace(r"</{section}>", "")
+    text = text.replace(r"<{section}>", "")
     text = text.replace(r"```latex", "")
     text = text.replace(r"```", "")
     text = text.replace(r"\usepackage{amsmath}", "")

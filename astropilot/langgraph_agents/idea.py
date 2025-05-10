@@ -63,9 +63,3 @@ def idea_hater(state: GraphState, config: RunnableConfig):
     return {"idea": state['idea']}
 
 
-def router(state: GraphState):
-
-    if state['idea']['iteration']<state['idea']['total_iterations']:
-        return "hater"
-    else: 
-        return "__end__"

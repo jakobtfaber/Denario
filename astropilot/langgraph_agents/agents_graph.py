@@ -3,12 +3,17 @@ from langgraph.checkpoint.memory import MemorySaver
 
 from .parameters import GraphState
 from .reader import preprocess_node
-from .idea import idea_maker, idea_hater, router
+from .idea import idea_maker, idea_hater
+from .methods import methods_fast
+from .routers import router, task_router
 
 
-def build_idea(mermaid_diagram=False):
+def build_lg_graph(mermaid_diagram=False):
     """
     This function builds the graph
+
+    Args:
+       mermaid_diagram: whether to create a diagram with the graph
     """
 
     # Define the graph
@@ -18,12 +23,14 @@ def build_idea(mermaid_diagram=False):
     builder.add_node("preprocess_node",   preprocess_node)
     builder.add_node("maker",             idea_maker)
     builder.add_node("hater",             idea_hater)
+    builder.add_node("methods",           methods_fast)
     
     # Define edges: these determine how the control flow moves
-    builder.add_edge(START,                "preprocess_node")
-    builder.add_edge("preprocess_node",    "maker")
-    builder.add_edge("hater",              "maker")
-    builder.add_conditional_edges("maker", router)
+    builder.add_edge(START,                          "preprocess_node")
+    builder.add_conditional_edges("preprocess_node", task_router)
+    builder.add_conditional_edges("maker",           router)
+    builder.add_edge("hater",                        "maker")
+    builder.add_edge("methods",                      END)
     
 
     memory = MemorySaver()
@@ -47,5 +54,4 @@ def build_idea(mermaid_diagram=False):
         except Exception as e:
             print(f"⚠️ Failed to generate or save graph diagram: {e}")
             
-    
     return graph
