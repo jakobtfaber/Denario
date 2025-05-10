@@ -43,6 +43,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "LLM_calls": f"{state['files']['Folder']}/LLM_calls.txt",
                       "idea":      f"{state['files']['Folder']}/input_files/idea.md",
                       "idea_log":  f"{state['files']['Folder']}/temp/idea.log",
+                      "Error":     f"{state['files']['Folder']}/Error.txt",
     }
 
     # create project folder, input files, and temp files
