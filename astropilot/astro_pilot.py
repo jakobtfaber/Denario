@@ -20,6 +20,7 @@ from .method import Method
 from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
 from .paper_agents.tools import input_check
+from .langgraph_agents.agents_graph import build_idea
 
 
 # TODO: clean params and kwargs if not used
@@ -134,6 +135,43 @@ class AstroPilot:
         idea_path = os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE)
         with open(idea_path, 'w') as f:
             f.write(idea)
+
+    def get_idea_fast(self, llm: LLMType="gemini-2.0-flash", **kwargs) -> None:
+        """
+        Generate an idea using the idea maker - idea hater method.
+        """
+
+        # Start timer
+        start_time = time.time()
+        config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
+
+        # Build graph
+        graph = build_idea(mermaid_diagram=False)
+
+        # get name of data description file
+        f_data_description = os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE)
+
+        # Initialize the state
+        input_state = {
+            "files":{"Folder": self.project_dir,
+                     "data_description": f_data_description}, #name of project folder
+            "llm": {"model": LLM[llm]['name'],                #name of the LLM model to use
+                    "temperature": LLM[llm]['temperature'],
+                    "max_output_tokens": LLM[llm]['max_output_tokens']},
+            "keys": self.keys,
+            "idea": {"total_iterations": 4},
+        }
+        
+        # Run the graph
+        graph.invoke(input_state, config)
+        
+        # End timer and report duration in minutes and seconds
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        minutes = int(elapsed_time // 60)
+        seconds = int(elapsed_time % 60)
+        print(f"Idea generated in {minutes} min {seconds} sec.")  
+        
     
     def set_idea(self, idea: str = None) -> None:
         """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
