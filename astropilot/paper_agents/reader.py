@@ -7,9 +7,9 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 
-from ..config import LaTeX_DIR
 from .parameters import GraphState
 from .latex_presets import get_journal_latex_files
+from ..config import INPUT_FILES, IDEA_FILE, METHOD_FILE, RESULTS_FILE, PAPER_FOLDER, PLOTS_FOLDER, LaTeX_DIR
 
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
@@ -38,15 +38,15 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     
     # get Paper folder
     state['files'] = {**state['files'],
-                      "Paper_folder": f"{state['files']['Folder']}/paper"}
+                      "Paper_folder": f"{state['files']['Folder']}/{PAPER_FOLDER}"}
     os.makedirs(state['files']['Paper_folder'], exist_ok=True)
 
     # set the name of the other files
     state['files'] = {**state['files'],
-                      "Idea":      "idea.md",     #name of file containing idea description
-                      "Methods":   "methods.md",  #name of file with methods description
-                      "Results":   "results.md",  #name of file with results description
-                      "Plots":     "plots",       #name of folder containing plots
+                      "Idea":      f"{IDEA_FILE}",    #name of file containing idea description
+                      "Methods":   f"{METHOD_FILE}",  #name of file with methods description
+                      "Results":   f"{RESULTS_FILE}", #name of file with results description
+                      "Plots":     f"{PLOTS_FOLDER}", #name of folder containing plots
                       "Paper_v1":  "paper_v1.tex",
                       "Paper_v2":  "paper_v2.tex",
                       "Paper_v3":  "paper_v3.tex",
@@ -63,7 +63,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # read input files
     idea = {}
     for key in ["Idea", "Methods", "Results"]:
-        path = Path(f"{state['files']['Folder']}/input_files/{state['files'][key]}")
+        path = Path(f"{state['files']['Folder']}/{INPUT_FILES}/{state['files'][key]}")
         if path.exists():
             with path.open("r", encoding="utf-8") as f:
                 idea[key] = f.read()
@@ -103,7 +103,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.makedirs(state['files']['Temp'], exist_ok=True)
 
     # deal with repeated plots
-    plots_dir    = Path(f"{state['files']['Folder']}/input_files/{state['files']['Plots']}")
+    plots_dir    = Path(f"{state['files']['Folder']}/{INPUT_FILES}/{state['files']['Plots']}")
     repeated_dir = Path(f"{plots_dir}_repeated")
 
     # Walk through all plot files
@@ -124,12 +124,12 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                 hash_dict[file_hash] = file
 
 
-    return {
-        "llm": state['llm'],
-        "tokens": state['tokens'],
-        "files": state['files'],
-        "latex": state['latex'],
-        "idea": idea,
-        "paper": {**state['paper'], "summary": ""},
+    return {**state,
+            "llm": state['llm'],
+            "tokens": state['tokens'],
+            "files": state['files'],
+            "latex": state['latex'],
+            "idea": idea,
+            "paper": {**state['paper'], "summary": ""},
     }
 
