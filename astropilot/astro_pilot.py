@@ -1,9 +1,8 @@
-from typing import List, Literal
+from typing import List
 # from IPython.display import display, Markdown
 import asyncio
 import time
 import os
-
 
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
@@ -14,15 +13,13 @@ import shutil
 from .config import DEFAUL_PROJECT_NAME, INPUT_FILES, PLOTS_FOLDER, DESCRIPTION_FILE, IDEA_FILE, METHOD_FILE, RESULTS_FILE
 from .research import Research
 from .key_manager import KeyManager
-from .llm import LLM
+from .llm import LLM, models
 from .paper_agents.journal import Journal
 from .idea import Idea
 from .method import Method
 from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
 from .paper_agents.tools import input_check
-
-LLMType = Literal[tuple(LLM.keys())]
 
 
 # TODO: clean params and kwargs if not used
@@ -115,8 +112,8 @@ class AstroPilot:
         print(self.research.data_description)
 
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
-    def get_idea(self, idea_maker_model: LLMType="gpt-4o",
-                 idea_hater_model: LLMType="claude-3.7-sonnet", **kwargs) -> None:
+    def get_idea(self, idea_maker_model: LLM=models["gpt-4o"],
+                 idea_hater_model: LLM=models["claude-3.7-sonnet"], **kwargs) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
            idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
@@ -129,8 +126,8 @@ class AstroPilot:
                 self.research.data_description = f.read()
 
         idea = Idea(work_dir = self.project_dir,
-                    idea_maker_model = LLM[idea_maker_model]["name"],
-                    idea_hater_model = LLM[idea_hater_model]["name"])
+                    idea_maker_model = idea_maker_model.name,
+                    idea_hater_model = idea_hater_model.name)
         idea = idea.develop_idea(self.research.data_description, **kwargs)
         self.research.idea = idea
         # Write idea to file
@@ -274,7 +271,7 @@ class AstroPilot:
         print(AAS_keyword_list)
 
     def get_paper(self, journal: Journal = Journal.NONE,
-                  llm: LLMType="gemini-2.0-flash" ) -> None:
+                  llm: LLM=models["gemini-2.0-flash"] ) -> None:
         """
         Generate a full paper based on the files in input_files:
            - idea.md
@@ -300,9 +297,9 @@ class AstroPilot:
         # Initialize the state
         input_state = {
             "files":{"Folder": self.project_dir}, #name of project folder
-            "llm": {"model": LLM[llm]['name'],  #name of the LLM model to use
-                    "temperature": LLM[llm]['temperature'],
-                    "max_output_tokens": LLM[llm]['max_output_tokens']},
+            "llm": {"model": llm.name,  #name of the LLM model to use
+                    "temperature": llm.temperature,
+                    "max_output_tokens": llm.max_output_tokens},
             "paper":{"journal": journal},
             "keys": self.keys
         }
