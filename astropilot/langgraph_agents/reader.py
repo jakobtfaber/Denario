@@ -38,12 +38,13 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             'iteration':0, 'previous_ideas': "", 'idea': "", 'criticism': ""}
 
     # set the name of the other files
+    folder_name = 'idea_generation_output'
     state['files'] = {**state['files'],
-                      "Temp":      f"{state['files']['Folder']}/temp",
-                      "LLM_calls": f"{state['files']['Folder']}/LLM_calls.txt",
+                      "Temp":      f"{state['files']['Folder']}/{folder_name}",
+                      "LLM_calls": f"{state['files']['Folder']}/{folder_name}/LLM_calls.txt",
                       "idea":      f"{state['files']['Folder']}/input_files/idea.md",
-                      "idea_log":  f"{state['files']['Folder']}/temp/idea.log",
-                      "Error":     f"{state['files']['Folder']}/Error.txt",
+                      "idea_log":  f"{state['files']['Folder']}/{folder_name}/idea.log",
+                      "Error":     f"{state['files']['Folder']}/{folder_name}/Error.txt",
     }
 
     # create project folder, input files, and temp files
