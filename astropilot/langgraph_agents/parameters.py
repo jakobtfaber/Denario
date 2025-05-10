@@ -8,9 +8,12 @@ from ..key_manager import KeyManager
 
 # Class for Input/Output files
 class FILES(TypedDict):
+    Folder: str           #project folder
     data_description: str #name of the file with the data description
     LLM_calls: str        #name of the file with the calls to the LLM
     Temp: str             #name of the folder with the temporary LaTeX files
+    idea: str             #name of the file to write the final idea
+    idea_log: str         #name of the file to write generated ideas and critics
 
 # Token class
 class TOKENS(TypedDict):
@@ -32,6 +35,7 @@ class IDEA(TypedDict):
     previous_ideas: str
     idea: str
     criticism: str
+    total_iterations: int
 
 # Graph state class
 class GraphState(TypedDict):

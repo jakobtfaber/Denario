@@ -7,6 +7,8 @@ from .parameters import GraphState
 
 
 def idea_maker(state: GraphState, config: RunnableConfig):
+
+    print('Maker...', end="", flush=True)
     
     PROMPT = idea_maker_prompt(state)
     state, result = LLM_call(PROMPT, state)
@@ -15,7 +17,11 @@ def idea_maker(state: GraphState, config: RunnableConfig):
     # remove LLM added lines
     text = clean_section(text, "IDEA")
 
-    print(state['idea']['iteration'])
+    with open(state['files']['idea_log'], 'a') as f:
+        f.write(f"""Iteration {state['idea']['iteration']}:
+{text}
+---------------------------------------------
+""")
 
     state['idea']['idea'] = text
     state['idea']['previous_ideas'] = f"""
@@ -26,13 +32,19 @@ Idea: {text}
 """
     state['idea']['iteration'] += 1
 
-    print(text)
+    if state['idea']['iteration']==state['idea']['total_iterations']:
+        with open(state['files']['idea'], 'w') as f:
+            f.write(text)
+
+        print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
     
     return {"idea": state['idea']}
 
 
 def idea_hater(state: GraphState, config: RunnableConfig):
 
+    print('Hater...', end="", flush=True)
+    
     PROMPT = idea_hater_prompt(state)
     state, result = LLM_call(PROMPT, state)
     text = extract_latex_block(state, result, "CRITIC")
@@ -42,14 +54,18 @@ def idea_hater(state: GraphState, config: RunnableConfig):
     
     state['idea']['criticism'] = text
 
-    print(text)
+    with open(state['files']['idea_log'], 'a') as f:
+        f.write(f"""Criticism:
+{text}
+---------------------------------------------
+""")
 
     return {"idea": state['idea']}
 
 
 def router(state: GraphState):
 
-    if state['idea']['iteration']<3:
+    if state['idea']['iteration']<state['idea']['total_iterations']:
         return "hater"
     else: 
         return "__end__"
