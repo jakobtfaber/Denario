@@ -71,7 +71,7 @@ def get_journal_latex_files(journal: Journal) -> list[str]:
     """Get journal .bst, .cls and .sty files according to the selected journal."""
 
     if journal==Journal.NONE:
-        journal_files = []
+        journal_files = ["abbvr.bst"]
     elif journal==Journal.AAS:
         journal_files = ['aasjournal.bst', 'aastex631.cls', 'aas_macros.sty']
     elif journal==Journal.APS:

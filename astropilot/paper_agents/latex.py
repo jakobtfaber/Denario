@@ -24,7 +24,14 @@ special_chars = {
 }
 
 
-def compile_latex(state: GraphState, paper_name: str, verbose=True):
+def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
+    """Compile the generated latex file
+
+    Args:
+        state (GraphState): input state
+        paper_name (str): name of the paper
+        verbose (bool, optional): whether to output more logs. Defaults to True.
+    """
 
     # get the paper stem
     paper_stem = Path(paper_name).stem
