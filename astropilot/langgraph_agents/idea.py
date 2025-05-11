@@ -1,7 +1,6 @@
 from langchain_core.runnables import RunnableConfig
-import sys,os
 
-from ..paper_agents.tools import json_parser, extract_latex_block, LLM_call, temp_file, clean_section
+from ..paper_agents.tools import extract_latex_block, LLM_call, clean_section
 from .prompts import idea_maker_prompt, idea_hater_prompt
 from .parameters import GraphState
 
