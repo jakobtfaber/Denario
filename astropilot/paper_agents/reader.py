@@ -90,6 +90,14 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                  state['files']['LaTeX_log']]:
         if os.path.exists(f_in):  os.remove(f"{f_in}")
 
+    # create a folder to save LaTeX progress
+    os.makedirs(state['files']['Temp'], exist_ok=True)
+
+    # create symbolic link to input_files in Temp to compile files in Temp
+    link1 = Path(f"{state['files']['Folder']}/{INPUT_FILES}").resolve()
+    link2 = Path(f"{state['files']['Paper_folder']}/{INPUT_FILES}").resolve()
+    os.system(f"ln -s {link1} {link2}")
+    
     # copy LaTeX files to project folder
     journal_files = get_journal_latex_files(state["paper"]["journal"])
 
@@ -98,9 +106,9 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         f_in = f"{state['files']['Paper_folder']}/{f}"
         if not(os.path.exists(f_in)):
             os.system(f"cp {LaTeX_DIR}/{f} {state['files']['Paper_folder']}")
-
-    # create a folder to save LaTeX progress
-    os.makedirs(state['files']['Temp'], exist_ok=True)
+        f_in = f"{state['files']['Temp']}/{f}"
+        if not(os.path.exists(f_in)):
+            os.system(f"cp {LaTeX_DIR}/{f} {state['files']['Temp']}")
 
     # deal with repeated plots
     plots_dir    = Path(f"{state['files']['Folder']}/{INPUT_FILES}/{state['files']['Plots']}")
