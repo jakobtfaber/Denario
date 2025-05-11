@@ -39,25 +39,6 @@ class Experiment:
         The goal here is to do the in-depth research and analysis, not the EDAs.
         """
 
-        # self.plan_reviewer_append_instructions = rf"""
-        #     {research_idea}
-
-        #     {methodology}
-
-        #     Check that the agents called in each sub-task only include, if needed: 
-        #     - engineer: an expert Python coder who writes entire Python pipelines ready to be executed, and generates results, plots and key statistics. It does not aim to discuss the results of the code, only to write the code.
-        #     - researcher: an expert researcher that produces reasoning but does not run code. This agent also discusses and interprets results. 
-
-        # **Agents roles**:
-        # - engineer: To generate the results and do the computations, plots and key statistics via code pipelines.
-        # - researcher: To generate the discussion and interpretation of the results.
-
-        # The goal here is to do the in-depth research and analysis, not the EDAs.
-
-        # In the final step of the plan, researcher should generate extensive insights (around 2000 words), including discussion of quantitative results and plots previously generated. This final report is intended to be the core material of the Results section of a paper.
-        # The last agent in the plan must be the researcher.
-        # """
-
         self.engineer_append_instructions = rf"""
         {research_idea}
 
@@ -96,46 +77,6 @@ class Experiment:
         TODO: improve docstring
         """
 
-        # ## planning
-        # cmbagent = CMBAgent()
-
-        # cmbagent.solve(data_description,
-        #             max_rounds=500,
-        #             initial_agent="planner",
-        #             shared_context = {'feedback_left': 1,
-        #                                 'maximum_number_of_steps_in_plan': 3,
-        #                                 'planner_append_instructions': self.planner_append_instructions,
-        #                                 'engineer_append_instructions': self.engineer_append_instructions,
-        #                                 'researcher_append_instructions': self.researcher_append_instructions,
-        #                                 'plan_reviewer_append_instructions': self.plan_reviewer_append_instructions}
-        #             )
-        
-        # planning_output = copy.deepcopy(cmbagent.final_context)
-
-        # ## control
-
-        # cmbagent = CMBAgent(
-        #     agent_llm_configs = {
-        #                         'engineer': {
-        #                             "model": "o3-mini-2025-01-31",
-        #                             "reasoning_effort": "high",
-        #                             "api_key": os.getenv("OPENAI_API_KEY"),
-        #                             "api_type": "openai"},
-        #                         'researcher': {
-        #                             "model": "o3-mini-2025-01-31",
-        #                             "reasoning_effort": "high",
-        #                             "api_key": os.getenv("OPENAI_API_KEY"),
-        #                             "api_type": "openai"},
-        #     })
-            
-
-        # cmbagent.solve(data_description,
-        #                 max_rounds=500,
-        #                 initial_agent="control",
-        #                 shared_context = planning_output
-        #                 )
-        
-
         results = cmbagent.planning_and_control(data_description,
                             n_plan_reviews = 1,
                             max_n_attempts = 4,
@@ -162,7 +103,6 @@ class Experiment:
             
         MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"
         extracted_results = re.findall(MD_CODE_BLOCK_PATTERN, task_result, flags=re.DOTALL)[0]
-        # print(extracted_methodology)
         clean_results = re.sub(r'^<!--.*?-->\s*\n', '', extracted_results)
         self.results = clean_results
         self.plot_paths = final_context['displayed_images']
