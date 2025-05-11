@@ -13,6 +13,7 @@ latex_none = LatexPresets(article="article",
                          affiliation=rf"\date{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: rf"\maketitle \begin{{abstract}}{x}\end{{abstract}}",
+                         files=["abbvr.bst"],
                          )
 """No Latex preset"""
 
@@ -23,6 +24,7 @@ latex_aas = LatexPresets(article="aastex631",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: x,
                          abstract=lambda x: f"\\begin{{abstract}}\n {x} \n\\end{{abstract}}\n",
+                         files=['aasjournal.bst', 'aastex631.cls', 'aas_macros.sty'],
                          )
 """AAS Latex preset"""
 
@@ -33,8 +35,21 @@ latex_aps = LatexPresets(article="revtex4",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n \\maketitle",
+                         files=['revtex4.cls'],
                          )
 """APS Latex preset"""
+
+latex_icml = LatexPresets(article="article",
+                        layout="",
+                        bibliographystyle="",
+                        macros=r"\usepackage{icml2025}",
+                        #  affiliation=rf"\begin{{icmlauthorlist}} \n \icmlauthor{{{affiliation}}}{{aff}} \n \end{{icmlauthorlist}} \n \icmlaffiliation{{aff}}{{affiliation}}",
+                        affiliation=rf"\icmlaffiliation{{aff}}{{affiliation}} \n \printAffiliationsAndNotice{{}}",
+                        keywords=lambda x: "",
+                        abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n",
+                        files=['icml2015.sty'],
+                         )
+"""ICML Latex preset"""
 
 latex_jhep = LatexPresets(article="article",
                          layout="",
@@ -43,8 +58,20 @@ latex_jhep = LatexPresets(article="article",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: f"\\abstract{{{x}}} \\maketitle",
+                         files=['JHEP.bst', 'jcappub.sty'],
                          )
 """JHEP Latex preset"""
+
+latex_neurips = LatexPresets(article="article",
+                        layout="",
+                        bibliographystyle="",
+                        macros=r"\usepackage{neurips}",
+                        affiliation=rf"",
+                        keywords=lambda x: "",
+                        abstract=lambda x: f"\maketitle \begin{{abstract}}{x}\end{{abstract}} \n",
+                        files=['neurips.sty']
+                         )
+"""NeurIPS Latex preset"""
 
 latex_pasj = LatexPresets(article="pasj01",
                          layout="twocolumn",
@@ -53,6 +80,7 @@ latex_pasj = LatexPresets(article="pasj01",
                          affiliation=rf"\altaffiltext{{1}}{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: f"\\maketitle \n \\begin{{abstract}} \n {x} \n \\end{{abstract}}",
+                         files=['aasjournal.bst', 'pasj01.cls', 'aas_macros.sty'],
                          )
 """PASJ Latex preset"""
 
@@ -62,23 +90,9 @@ journal_dict = {
     Journal.NONE: latex_none,
     Journal.AAS: latex_aas,
     Journal.APS: latex_aps,
+    Journal.ICML: latex_icml,
     Journal.JHEP: latex_jhep,
+    Journal.NeurIPS: latex_neurips,
     Journal.PASJ: latex_pasj,
 }
 """Dictionary to relate the journal with their presets."""
-
-def get_journal_latex_files(journal: Journal) -> list[str]:
-    """Get journal .bst, .cls and .sty files according to the selected journal."""
-
-    if journal==Journal.NONE:
-        journal_files = ["abbvr.bst"]
-    elif journal==Journal.AAS:
-        journal_files = ['aasjournal.bst', 'aastex631.cls', 'aas_macros.sty']
-    elif journal==Journal.APS:
-        journal_files = ['revtex4.cls']
-    elif journal==Journal.JHEP:
-        journal_files = ['JHEP.bst', 'jcappub.sty']
-    elif journal==Journal.PASJ:
-        journal_files = ['aasjournal.bst', 'pasj01.cls', 'aas_macros.sty']
-
-    return journal_files
