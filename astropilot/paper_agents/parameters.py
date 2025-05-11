@@ -32,6 +32,7 @@ class FILES(TypedDict):
     Paper_v4: str     #name of the file containing the version 4 of the paper
     Error: str        #name of the error file
     LaTeX_log: str    #name of the file with the LaTeX log (when compiling it)
+    LaTeX_err: str    #name of the file with just the LaTeX errors
     Temp: str         #name of the folder with the temporary LaTeX files
     LLM_calls: str    #name of the file with the calls to the LLM
     Paper_folder: str #name of the folder containing all paper files

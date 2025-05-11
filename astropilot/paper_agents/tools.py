@@ -80,6 +80,7 @@ def json_parser(text):
     json_pattern = r"```json(.*)```"
     match = re.findall(json_pattern, text, re.DOTALL)
     json_string = match[0].strip()
+    json_string = json_string.replace("\\", "\\\\") #deal with unescaped backslashes
     try:
         parsed_json = json.loads(json_string)
     except json.decoder.JSONDecodeError:

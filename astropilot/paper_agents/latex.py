@@ -1,11 +1,11 @@
 import subprocess
-import os
+import os,sys
 import re
 from pathlib import Path
 
 from .parameters import GraphState
 from .prompts import fix_latex_bug_prompt
-from .tools import LLM_call, extract_latex_block
+from .tools import LLM_call, extract_latex_block, temp_file
 from .journal import LatexPresets
 from .latex_presets import journal_dict
 
@@ -23,6 +23,59 @@ special_chars = {
     "^": r"\^{}",
 }
 
+
+def extract_latex_errors(state):
+    """
+    This function takes a LaTeX compilation file and extracts the compilation errors.
+    """
+
+    with open(state['files']['LaTeX_log'], 'r') as f:
+        lines = f.readlines()
+
+    errors = []
+    i = 0
+    while i < len(lines):
+        line = lines[i].strip()
+
+        if line.startswith("! "):  # Start of error
+            error_block = [line]
+            i += 1
+
+            # Keep capturing lines until a new section or file is loaded
+            while i < len(lines):
+                next_line = lines[i].strip()
+
+                if (
+                    next_line.startswith("! ") or
+                    next_line.startswith("(/") or
+                    next_line.startswith(")") or
+                    next_line.startswith("Package ") or
+                    next_line.startswith("Document Class") or
+                    next_line.startswith("(/usr") or
+                    re.match(r'^\([^\)]+\.sty', next_line) or
+                    re.match(r'^\(/', next_line) or
+                    re.match(r'^.*\.tex$', next_line)  # new .tex file
+                ):
+                    break
+
+                # Always include potentially helpful lines
+                error_block.append(next_line)
+                i += 1
+
+            errors.append("\n".join(error_block))
+        else:
+            i += 1
+
+    # Write the errors to the output file
+    with open(state['files']['LaTeX_err'], 'w') as f:
+        if errors:
+            f.write("LaTeX Compilation Errors Found:\n\n")
+            for error in errors:
+                f.write(error + "\n\n")
+        else:
+            f.write("✅ No LaTeX errors found.\n")
+
+
 def clean_files(doc_name, doc_folder):
 
     file_path = Path(doc_name)
@@ -32,8 +85,7 @@ def clean_files(doc_name, doc_folder):
             os.system(f'rm {doc_folder}/{doc_stem}.{suffix}')
 
 
-def compile_tex_document(state: dict, doc_name: str,
-                         doc_folder: str, verbose=True) -> None:
+def compile_tex_document(state: dict, doc_name: str, doc_folder: str) -> None:
 
     file_path = Path(doc_name)
     doc_name = file_path.name
@@ -46,6 +98,8 @@ def compile_tex_document(state: dict, doc_name: str,
         if result.returncode != 0:
             print("❌", end="", flush=True)
             clean_files(doc_name, doc_folder)
+            log_output(result)
+            extract_latex_errors(state)
             return False
             #raise RuntimeError(f"XeLaTeX failed (pass {pass_num}):\n{result.stderr}")
         return True
@@ -55,12 +109,17 @@ def compile_tex_document(state: dict, doc_name: str,
                                 capture_output=True, text=True)
         if result.returncode != 0:
             raise RuntimeError(f"BibTeX failed:\n{result.stderr}")
-        if verbose:
-            print("    BibTeX ran successfully")
+
+    def log_output(result):
+        with open(state['files']['LaTeX_log'], 'a') as f:
+            f.write("---- STDOUT ----\n")
+            f.write(result.stdout)
+            f.write("---- STDERR ----\n")
+            f.write(result.stderr)
 
     # Pass 1
     if not(run_xelatex(pass_num=1)):
-        return
+        return False
 
     # Bibliography step if needed
     if os.path.exists(bib_path):
@@ -75,16 +134,15 @@ def compile_tex_document(state: dict, doc_name: str,
 
     print(f"✅", end="", flush=True)
     clean_files(doc_name, doc_folder)
-    
+    return True
     
 
-def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
+def compile_latex(state: GraphState, paper_name: str) -> None:
     """Compile the generated latex file
 
     Args:
         state (GraphState): input state
         paper_name (str): name of the paper
-        verbose (bool, optional): whether to output more logs. Defaults to True.
     """
 
     # get the paper stem
@@ -142,8 +200,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
     print(f'Compiling {paper_stem}'.ljust(28,'.'), end="", flush=True)
     try:
         run_xelatex()
-        if verbose:
-            print(f"✅", end="", flush=True)
+        print(f"✅", end="", flush=True)
     except subprocess.CalledProcessError as e:
         log_output("Pass 1", e, is_error=True)
         print("❌", end="", flush=True)
@@ -158,8 +215,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
     for i in range(further_iterations):        
         try:
             run_xelatex()
-            if verbose:
-                print(f"✅", end="", flush=True)
+            print(f"✅", end="", flush=True)
         except subprocess.CalledProcessError as e:
             log_output(f"Final Pass {i+1}", e, is_error=True)
             print("❌", end="", flush=True)
@@ -372,15 +428,35 @@ def process_bib_file(input_file, output_file):
 
     print(f"Sanitized BibTeX saved to: {output_file}")
 
-
-
-def fix_latex_bug(state, text, error):
+    
+def fix_latex(state, f_temp):
     """
-    This function tries to fix the error identified by LaTeX
+    This function is designed to attemp to fix LaTeX errors
     """
 
-    PROMPT = fix_latex_bug_prompt(state, text, error)
-    state, result = LLM_call(PROMPT, state)
-    result = extract_latex_block(state, result, "Text")
+    file_path = Path(f_temp)
+    f_stem    = file_path.with_suffix('')
+    suffix    = file_path.suffix
+    
+    # You have three attemps to fix the problem
+    for i in range(3):
 
-    return result
+        # make a LLM call with the problematic text and the LaTeX errors
+        # uses state['files']['LaTeX_err'] and state['latex']['sction'] for the prompt
+        PROMPT = fix_latex_bug_prompt(state)  
+        state, result = LLM_call(PROMPT, state)
+        fixed_text = extract_latex_block(state, result, "Text")
+        state['paper'][state['latex']['section']] = fixed_text
+
+        # save text to file
+        f_name = f"{f_stem}_v{i+1}{suffix}"
+        temp_file(f_name, 'write', fixed_text)
+
+        # compile again; if successful change file names and exit
+        if compile_tex_document(state, f_name, state['files']['Temp']):
+            os.system(f'mv {f_temp} {f_stem}_orig{suffix}')
+            os.system(f"mv {f_name} {f_temp}")
+            break
+    
+    return state
+        
