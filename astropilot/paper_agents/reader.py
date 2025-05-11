@@ -8,7 +8,7 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 
 from .parameters import GraphState
-from .latex_presets import get_journal_latex_files
+from .latex_presets import journal_dict
 from ..config import INPUT_FILES, IDEA_FILE, METHOD_FILE, RESULTS_FILE, PAPER_FOLDER, PLOTS_FOLDER, LaTeX_DIR
 
 
@@ -100,7 +100,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.system(f"ln -s {link1} {link2}")
     
     # copy LaTeX files to project folder
-    journal_files = get_journal_latex_files(state["paper"]["journal"])
+    journal_files = journal_dict[state["paper"]["journal"]].files
 
     # copy LaTeX journal files to project folder
     for f in journal_files:
