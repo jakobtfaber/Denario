@@ -19,7 +19,7 @@ from .idea import Idea
 from .method import Method
 from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
-from .paper_agents.tools import input_check
+from .utils import llm_parser, input_check
 from .langgraph_agents.agents_graph import build_lg_graph
 
 
@@ -136,7 +136,7 @@ class AstroPilot:
         with open(idea_path, 'w') as f:
             f.write(idea)
 
-    def get_idea_fast(self, llm: LLM=models["gemini-2.0-flash"], **kwargs) -> None:
+    def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"]) -> None:
         """
         Generate an idea using the idea maker - idea hater method.
         """
@@ -144,6 +144,9 @@ class AstroPilot:
         # Start timer
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
+
+        # Get LLM instance
+        llm = llm_parser(llm)
 
         # Build graph
         graph = build_lg_graph(mermaid_diagram=False)
@@ -210,12 +213,15 @@ class AstroPilot:
         with open(method_path, 'w') as f:
             f.write(methododology)
 
-    def get_method_fast(self, llm: LLM=models["gemini-2.0-flash"], **kwargs) -> None:
+    def get_method_fast(self, llm: LLM | str = models["gemini-2.0-flash"]) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method."""
 
         # Start timer
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
+
+        # Get LLM instance
+        llm = llm_parser(llm)
 
         # Build graph
         graph = build_lg_graph(mermaid_diagram=False)
@@ -247,8 +253,6 @@ class AstroPilot:
         seconds = int(elapsed_time % 60)
         print(f"Idea generated in {minutes} min {seconds} sec.")  
         
-        
-    
     def set_method(self, method: str = None) -> None:
         """Manually set methods, either directly from a string or providing the path of a markdown file with the methods."""
 
@@ -349,7 +353,7 @@ class AstroPilot:
         print(AAS_keyword_list)
 
     def get_paper(self, journal: Journal = Journal.NONE,
-                  llm: LLM=models["gemini-2.0-flash"] ) -> None:
+                  llm: LLM | str = models["gemini-2.0-flash"] ) -> None:
         """
         Generate a full paper based on the files in input_files:
            - idea.md
@@ -365,6 +369,9 @@ class AstroPilot:
         # Start timer
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
+
+        # Get LLM instance
+        llm = llm_parser(llm)
 
         # Get keys
         self.keys.get_keys_from_env()
