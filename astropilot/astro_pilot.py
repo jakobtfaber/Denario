@@ -3,12 +3,14 @@ from typing import List
 import asyncio
 import time
 import os
+import shutil
+from pathlib import Path
+from PIL import Image 
 
 os.environ["CMBAGENT_DEBUG"] = "false"
 os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 
 import cmbagent
-import shutil
 
 from .config import DEFAUL_PROJECT_NAME, INPUT_FILES, PLOTS_FOLDER, DESCRIPTION_FILE, IDEA_FILE, METHOD_FILE, RESULTS_FILE
 from .research import Research
@@ -320,6 +322,20 @@ class AstroPilot:
         
         with open(os.path.join(self.project_dir, INPUT_FILES, RESULTS_FILE), 'w') as f:
             f.write(results)
+
+    def set_plots(self, plots: list[str] | list[Image.Image]) -> None:
+        """Manually set the plots from their path."""
+
+        for i, plot in enumerate(plots):
+            if isinstance(plot,str):
+                plot_path= Path(plot)
+                img = Image.open(plot_path)
+                plot_name = str(plot_path.name)
+            else:
+                img = plot
+                plot_name = f"plot_{i}.png"
+            print(plot)
+            img.save( os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER, plot_name) )
     
     def show_results(self) -> None:
         """Show the obtained results."""
