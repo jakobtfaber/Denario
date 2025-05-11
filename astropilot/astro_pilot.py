@@ -334,7 +334,7 @@ class AstroPilot:
             else:
                 img = plot
                 plot_name = f"plot_{i}.png"
-            print(plot)
+            
             img.save( os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER, plot_name) )
     
     def show_results(self) -> None:
