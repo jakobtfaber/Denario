@@ -109,7 +109,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         if not(success):
             state['latex']['section'] = 'Abstract'
             state['paper']['Abstract'] = abstract
-            state = fix_latex(state, f_temp)
+            state = fix_latex(state, f_temp1)
 
     # Save paper and temporary file
     state['paper']['Abstract'] = abstract
