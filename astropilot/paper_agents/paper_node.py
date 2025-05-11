@@ -1,16 +1,15 @@
 from langchain_core.runnables import RunnableConfig
 import random
 import base64
-import time,sys
+import time
 from pathlib import Path
 from tqdm import tqdm
 import asyncio
 from functools import partial
 import fitz  # PyMuPDF
-import cmbagent
 
 from .parameters import GraphState
-from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
+from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt
 from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document
@@ -88,7 +87,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
                 state['paper']['Title']    = parsed_json["Title"]
                 state['paper']['Abstract'] = parsed_json["Abstract"]
                 break  # success
-            except Exception as e:
+            except Exception:
                 time.sleep(2)
         else:
             raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")

@@ -1,14 +1,11 @@
-import os,sys
-from pathlib import Path
-import hashlib
-import shutil
+import os
 from langchain_core.runnables import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 
 from .parameters import GraphState
-from ..config import INPUT_FILES, IDEA_FILE, METHOD_FILE, RESULTS_FILE
+from ..config import INPUT_FILES, IDEA_FILE, METHOD_FILE
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
     """
@@ -40,7 +37,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             description = f.read()
     except FileNotFoundError:
         raise Exception("Data description file not found!")
-    except Exception as e:
+    except Exception:
         raise Exception("Error reading the data description file!")
 
     # read idea description
@@ -50,7 +47,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                 idea = f.read()
         except FileNotFoundError:
             raise Exception("Data description file not found!")
-        except Exception as e:
+        except Exception:
             raise Exception("Error reading the data description file!")
     
     # set the name of the common files

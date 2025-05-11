@@ -1,6 +1,6 @@
 from .journal import Journal, LatexPresets
 
-affiliation = rf"Anthropic, Gemini \& OpenAI servers. Planet Earth."
+affiliation = r"Anthropic, Gemini \& OpenAI servers. Planet Earth."
 
 #---
 # Latex journal presets definition
@@ -8,8 +8,8 @@ affiliation = rf"Anthropic, Gemini \& OpenAI servers. Planet Earth."
 
 latex_none = LatexPresets(article="article",
                          layout="",
-                         bibliographystyle=rf"\bibliographystyle{{abbrv}}",
-                         macros=rf"",
+                         bibliographystyle=r"\bibliographystyle{abbrv}",
+                         macros=r"",
                          affiliation=rf"\date{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: rf"\maketitle \begin{{abstract}}{x}\end{{abstract}}",
@@ -18,8 +18,8 @@ latex_none = LatexPresets(article="article",
 
 latex_aas = LatexPresets(article="aastex631",
                          layout="twocolumn",
-                         bibliographystyle=rf"\bibliographystyle{{aasjournal}}",
-                         macros=rf"\usepackage{{aas_macros}}",
+                         bibliographystyle=r"\bibliographystyle{aasjournal}",
+                         macros=r"\usepackage{aas_macros}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: x,
                          abstract=lambda x: f"\\begin{{abstract}}\n {x} \n\\end{{abstract}}\n",
@@ -29,7 +29,7 @@ latex_aas = LatexPresets(article="aastex631",
 latex_aps = LatexPresets(article="revtex4",
                          layout="twocolumn",
                          bibliographystyle="",
-                         macros=rf"\usepackage{{aas_macros}}",
+                         macros=r"\usepackage{aas_macros}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n \\maketitle",
@@ -38,8 +38,8 @@ latex_aps = LatexPresets(article="revtex4",
 
 latex_jhep = LatexPresets(article="article",
                          layout="",
-                         bibliographystyle=rf"\bibliographystyle{{JHEP}}",
-                         macros=rf"\usepackage{{jcappub}}",
+                         bibliographystyle=r"\bibliographystyle{JHEP}",
+                         macros=r"\usepackage{jcappub}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: f"\\abstract{{{x}}} \\maketitle",
@@ -48,8 +48,8 @@ latex_jhep = LatexPresets(article="article",
 
 latex_pasj = LatexPresets(article="pasj01",
                          layout="twocolumn",
-                         bibliographystyle=rf"\bibliographystyle{{aasjournal}}",
-                         macros=rf"\usepackage{{aas_macros}}",
+                         bibliographystyle=r"\bibliographystyle{aasjournal}",
+                         macros=r"\usepackage{aas_macros}",
                          affiliation=rf"\altaffiltext{{1}}{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: f"\\maketitle \n \\begin{{abstract}} \n {x} \n \\end{{abstract}}",

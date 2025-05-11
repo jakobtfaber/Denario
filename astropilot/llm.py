@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import ClassVar, Dict
+from typing import Dict
 
 class LLM(BaseModel):
     name: str
