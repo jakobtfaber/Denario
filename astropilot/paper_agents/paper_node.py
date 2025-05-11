@@ -13,7 +13,7 @@ from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
 from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file
 from .literature import process_tex_file_with_references
-from .latex import compile_latex, save_paper, save_bib, process_bib_file
+from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document
 
 
 def keywords_node(state: GraphState, config: RunnableConfig):
@@ -55,8 +55,9 @@ def keywords_node(state: GraphState, config: RunnableConfig):
 
         # write results to temporary file
         temp_file(f_temp, 'write', keywords)
+        compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
 
-    print(f"Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
+    print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
 
     return {'paper': {**state['paper'], 'Keywords': keywords},
             'tokens': state['tokens']}
@@ -68,7 +69,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     """
 
     # temporary file with the selected keywords
-    print("Writing Abstract...", end="", flush=True)
+    print("Writing Abstract".ljust(28, '.'), end="", flush=True)
     f_temp1 = Path(f"{state['files']['Temp']}/Abstract.tex")
     f_temp2 = Path(f"{state['files']['Temp']}/Title.tex")
 
@@ -113,8 +114,9 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     state['paper']['Abstract'] = abstract
     state['latex']['section'] = 'Abstract'
     save_paper(state, state['files']['Paper_v1'])
-    #compile_latex(state, state['files']['Paper_v1'], verbose=False)
-    print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
+    compile_tex_document(state, f_temp1, state['files']['Temp'], verbose=True)
+    compile_tex_document(state, f_temp2, state['files']['Temp'], verbose=True)
+    print(f"....done {state['tokens']['ti']} {state['tokens']['to']}")
 
     return {'paper':{**state['paper'],
                      'Title': state['paper']['Title'],
@@ -136,7 +138,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     """
 
     # temporary file with the selected keywords
-    print(f'Writing {section_name}...', end="", flush=True)
+    print(f'Writing {section_name}'.ljust(28, '.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/{section_name}.tex")
 
     # check if abstract already exists
@@ -175,8 +177,8 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     # --- Step 5: Save paper ---
     state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v1'])
-    #compile_latex(state, state['files']['Paper_v1'], verbose=False)
-    print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
+    compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
+    print(f"......done {state['tokens']['ti']} {state['tokens']['to']}")
 
     # --- Step 7: Update state ---
     return {"paper": {**state["paper"],
@@ -266,11 +268,10 @@ def plots_node(state: GraphState, config: RunnableConfig):
             temp_file(f_temp, 'write', images, json_file=True)
 
         # temporary file with the images
-        print(f'   Inserting figures {start+1}-{min(start+batch_size, num_images)}...', end="", flush=True)
+        print(f'   Inserting figures {start+1}-{min(start+batch_size, num_images)}'.ljust(28,'.'), end="", flush=True)
         f_temp = Path(f"{state['files']['Temp']}/Results_{start+1}_{min(start+batch_size, num_images)}.tex")
         if f_temp.exists():
             state['paper']['Results'] = temp_file(f_temp, 'read')
-            print("")
         else:
             PROMPT = plot_prompt(state, images)
             state, result = LLM_call(PROMPT, state)
@@ -284,11 +285,11 @@ def plots_node(state: GraphState, config: RunnableConfig):
             
             # save temporary file
             temp_file(f_temp, 'write', state['paper']['Results'])
-            print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
 
         # save paper
         save_paper(state, state['files']['Paper_v1'])
-        #compile_latex(state, state['files']['Paper_v1'], verbose=False)
+        compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
+        print(f"......done {state['tokens']['ti']} {state['tokens']['to']}")
 
     # compile paper
     compile_latex(state, state['files']['Paper_v1'])
@@ -305,7 +306,7 @@ def refine_results(state: GraphState, config: RunnableConfig):
     """
 
     # temporary file with the selected keywords
-    print('Refining results...', end="", flush=True)
+    print('Refining results'.ljust(28,'.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/Results_refined.tex")
 
     # check if this has already been done
@@ -331,7 +332,8 @@ def refine_results(state: GraphState, config: RunnableConfig):
     # save paper and compile it
     state['paper']['Results'] = section_text
     save_paper(state, state['files']['Paper_v2'])
-    print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
+    compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
+    print(f"......done {state['tokens']['ti']} {state['tokens']['to']}")
     compile_latex(state, state['files']['Paper_v2'])
 
     return {'paper':{**state['paper'], 'Results': section_text},

@@ -23,6 +23,60 @@ special_chars = {
     "^": r"\^{}",
 }
 
+def clean_files(doc_name, doc_folder):
+
+    file_path = Path(doc_name)
+    doc_stem = file_path.stem
+    for suffix in ['aux', 'log', 'pdf', 'out']:
+        if os.path.exists(f'{doc_folder}/{doc_stem}.{suffix}'):
+            os.system(f'rm {doc_folder}/{doc_stem}.{suffix}')
+
+
+def compile_tex_document(state: dict, doc_name: str,
+                         doc_folder: str, verbose=True) -> None:
+
+    file_path = Path(doc_name)
+    doc_name = file_path.name
+    doc_stem = file_path.stem
+    bib_path = os.path.join(state['files']['Temp'], "bibliography.bib")
+
+    def run_xelatex(pass_num=None):
+        result = subprocess.run(["xelatex", doc_name], cwd=doc_folder,
+                                input="\n", capture_output=True, text=True)
+        if result.returncode != 0:
+            print("❌", end="", flush=True)
+            clean_files(doc_name, doc_folder)
+            return False
+            #raise RuntimeError(f"XeLaTeX failed (pass {pass_num}):\n{result.stderr}")
+        return True
+
+    def run_bibtex():
+        result = subprocess.run(["bibtex", doc_stem], cwd=doc_folder,
+                                capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RuntimeError(f"BibTeX failed:\n{result.stderr}")
+        if verbose:
+            print("    BibTeX ran successfully")
+
+    # Pass 1
+    if not(run_xelatex(pass_num=1)):
+        return
+
+    # Bibliography step if needed
+    if os.path.exists(bib_path):
+        run_bibtex()
+        total_passes = 3
+    else:
+        total_passes = 2
+
+    # Additional passes
+    for i in range(2, total_passes + 1):
+        run_xelatex(pass_num=i)
+
+    print(f"✅", end="", flush=True)
+    clean_files(doc_name, doc_folder)
+    
+    
 
 def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
     """Compile the generated latex file
@@ -85,13 +139,14 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
     #    raise RuntimeError("LaTeX failed after 3 attempts")
 
     # Try to compile it the first time
+    print(f'Compiling {paper_stem}'.ljust(28,'.'), end="", flush=True)
     try:
         run_xelatex()
         if verbose:
-            print("    LaTeX compiled successfully: Pass 1")
+            print(f"✅", end="", flush=True)
     except subprocess.CalledProcessError as e:
         log_output("Pass 1", e, is_error=True)
-        print("LaTeX failed on pass 1")
+        print("❌", end="", flush=True)
 
     # if there is bibliography, compile it
     further_iterations = 1
@@ -104,10 +159,10 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
         try:
             run_xelatex()
             if verbose:
-                print(f"    LaTeX compiled successfully: Pass {i+2}")
+                print(f"✅", end="", flush=True)
         except subprocess.CalledProcessError as e:
             log_output(f"Final Pass {i+1}", e, is_error=True)
-            print(f"LaTeX failed on pass {i+2}")
+            print("❌", end="", flush=True)
 
     # remove auxiliary files
     for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
@@ -116,6 +171,7 @@ def compile_latex(state: GraphState, paper_name: str, verbose=True) -> None:
         if os.path.exists(f"{state['files']['Paper_folder']}/{fin}"):
             os.remove(f"{state['files']['Paper_folder']}/{fin}")
 
+    print("")
 
 
 
