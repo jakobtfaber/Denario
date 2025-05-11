@@ -110,10 +110,13 @@ Respond in the following format:
 
 
 
-def abstract_prompt(state):
+def abstract_prompt(state, attempt):
     
     return [SystemMessage(content="""You are an astrophysicist"""),
-            HumanMessage(content=rf"""Given the idea, methods, and results below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
+            HumanMessage(content=rf"""
+Attempt {attempt}.
+
+Given the idea, methods, and results below, get a title and write an abstract for a scientific paper. Please, follow these guidelines:
 - Briefly describe the problem
 - Briefly describe how we try to solve it
 - Mention the dataset and methods used
@@ -606,19 +609,22 @@ In <{section_name}> put the extracted text. In the extracted text, do not includ
 
 """)]
 
-def fix_latex_bug_prompt(state, text, error):
+def fix_latex_bug_prompt(state):
 
-    return [HumanMessage(content=fr"""The text below has a problem and LaTeX cannot compile it. Your task is to fix it following these instructions:
+    # read error message
+    with open(state['files']['LaTeX_err'], 'r') as f:
+        error = f.read()
+
+    return [HumanMessage(content=fr"""The text below has problems and LaTeX cannot compile it. You are provided with the text together with the LaTeX compilation error. Your task is to fix the text so that it compiles properly in LaTeX. Please follow these instructions:
 
 - The text you are given is just a small part of a LaTeX paper. Thus, you dont need to add things like \\begin{{document}}.
-- If you see a LaTeX error, e.g. a missing $, a _ instead of \\_ fix it
+- Fix **all LaTeX errors** found in the compilation error
 - Pay special attention to underscores. It is likely that an underscores _ may need to be \\_ to compile properly
-- Reply with the corrected text, nothing else
-- Look at the error to fix the LaTeX mistake and only fix that. Do not close brackets if asked in the prompt
-- Keep the text intact. Only fix the error without changing anything else
+- Return the original text but with the errors fixed
+- Keep the text intact. Only fix the errors without changing anything else
 
 Text:
-{text}
+{state['paper'][state['latex']['section']]}
 
 Error:
 {error}
@@ -629,7 +635,7 @@ Respond in this format:
 <TEXT>
 \end{{Text}}
 
-In <TEXT>, put the fixed version of the line in LaTeX.
+In <TEXT>, put the new version of the text with the LaTeX errors fixed.
     """)]
 
 

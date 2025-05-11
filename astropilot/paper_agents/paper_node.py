@@ -12,7 +12,7 @@ from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt
 from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file
 from .literature import process_tex_file_with_references
-from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document
+from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex
 
 
 def keywords_node(state: GraphState, config: RunnableConfig):
@@ -54,7 +54,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
 
         # write results to temporary file
         temp_file(f_temp, 'write', keywords)
-        compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
+        compile_tex_document(state, f_temp, state['files']['Temp'])
 
     print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']}")
 
@@ -78,8 +78,8 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         state['paper']['Title'] = temp_file(f_temp2, 'read')
 
     else:
-        for i in range(3): #sometimes it fails. Allow it to try up to 3 times
-            PROMPT = abstract_prompt(state)
+        for attempt in range(3): #sometimes it fails. Allow it to try up to 3 times
+            PROMPT = abstract_prompt(state, attempt)
             state, result = LLM_call(PROMPT, state)
 
             try:
@@ -87,7 +87,8 @@ def abstract_node(state: GraphState, config: RunnableConfig):
                 state['paper']['Title']    = parsed_json["Title"]
                 state['paper']['Abstract'] = parsed_json["Abstract"]
                 break  # success
-            except Exception:
+            except Exception as e:
+                print(result)
                 time.sleep(2)
         else:
             raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
@@ -103,18 +104,17 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         # save temporary file
         temp_file(f_temp2, 'write', state['paper']['Title'])
         temp_file(f_temp1, 'write', abstract)
-
-        # summarize text
-        #PROMPT = summary_prompt("", abstract)
-        #result = llm.invoke(PROMPT).content
-        #summary = extract_latex_block(state, result, "Summary")
+        success = compile_tex_document(state, f_temp1, state['files']['Temp'])
+        compile_tex_document(state, f_temp2, state['files']['Temp'])
+        if not(success):
+            state['latex']['section'] = 'Abstract'
+            state['paper']['Abstract'] = abstract
+            state = fix_latex(state, f_temp)
 
     # Save paper and temporary file
     state['paper']['Abstract'] = abstract
     state['latex']['section'] = 'Abstract'
     save_paper(state, state['files']['Paper_v1'])
-    compile_tex_document(state, f_temp1, state['files']['Temp'], verbose=True)
-    compile_tex_document(state, f_temp2, state['files']['Temp'], verbose=True)
     print(f"....done {state['tokens']['ti']} {state['tokens']['to']}")
 
     return {'paper':{**state['paper'],
@@ -150,9 +150,8 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
         PROMPT = prompt_fn(state)
         state, result = LLM_call(PROMPT, state)
         section_text = extract_latex_block(state, result, section_name)
-
         state['paper'][section_name] = section_text
-
+            
         # --- Step 2: Optional self-reflection ---
         if reflection_fn:
             for _ in range(2):
@@ -168,15 +167,16 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
         # save temporary file
         temp_file(f_temp, 'write', section_text)
 
-        # --- Step 6: Summarize ---
-        #prompt = summary_prompt(state['paper']['summary'], section_text)
-        #result = llm.invoke(prompt).content
-        #summary = extract_latex_block(state, result, "Summary")
+        # compile file
+        success = compile_tex_document(state, f_temp, state['files']['Temp'])
+        if not(success):
+            state['latex']['section'] = f"{section_name}"
+            state['paper'][section_name] = section_text
+            state = fix_latex(state, f_temp)
         
     # --- Step 5: Save paper ---
     state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v1'])
-    compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
     print(f"......done {state['tokens']['ti']} {state['tokens']['to']}")
 
     # --- Step 7: Update state ---
@@ -287,7 +287,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
         # save paper
         save_paper(state, state['files']['Paper_v1'])
-        compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
+        compile_tex_document(state, f_temp, state['files']['Temp'])
         print(f"......done {state['tokens']['ti']} {state['tokens']['to']}")
 
     # compile paper
@@ -312,26 +312,33 @@ def refine_results(state: GraphState, config: RunnableConfig):
     if f_temp.exists():
         section_text = temp_file(f_temp, 'read')
     else:
-        PROMPT = refine_results_prompt(state)
-        state, result = LLM_call(PROMPT, state)
-        results = extract_latex_block(state, result, "Results")
 
-        # Check LaTeX
-        results = LaTeX_checker(state, results)
+        for attempt in range(3):
+        
+            PROMPT = refine_results_prompt(state)
+            state, result = LLM_call(PROMPT, state)
+            results = extract_latex_block(state, result, "Results")
+
+            # Check LaTeX
+            results = LaTeX_checker(state, results)
     
-        # --- Remove unwanted LaTeX wrappers ---
-        section_text = clean_section(results, 'Results')
+            # --- Remove unwanted LaTeX wrappers ---
+            section_text = clean_section(results, 'Results')
 
-        # check that all references are done properly
-        section_text = check_references(state, section_text)
+            # check that all references are done properly
+            section_text = check_references(state, section_text)
 
-        # save temporary file
-        temp_file(f_temp, 'write', section_text)
+            # save temporary file
+            temp_file(f_temp, 'write', section_text)
+
+            # try to compile the paper
+            success = compile_tex_document(state, f_temp, state['files']['Temp'])
+            if success:
+                break
 
     # save paper and compile it
-    state['paper']['Results'] = section_text
+    state['paper']['Results'] = section_text        
     save_paper(state, state['files']['Paper_v2'])
-    compile_tex_document(state, f_temp, state['files']['Temp'], verbose=True)
     print(f"......done {state['tokens']['ti']} {state['tokens']['to']}")
     compile_latex(state, state['files']['Paper_v2'])
 
