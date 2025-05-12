@@ -1,5 +1,5 @@
 import subprocess
-import os,sys
+import os
 import re
 from pathlib import Path
 
@@ -132,7 +132,7 @@ def compile_tex_document(state: dict, doc_name: str, doc_folder: str) -> None:
     for i in range(2, total_passes + 1):
         run_xelatex(pass_num=i)
 
-    print(f"✅", end="", flush=True)
+    print("✅", end="", flush=True)
     clean_files(doc_name, doc_folder)
     return True
     
@@ -167,40 +167,11 @@ def compile_latex(state: GraphState, paper_name: str) -> None:
             f.write("---- STDERR ----\n")
             f.write(result_or_error.stderr or "")
 
-    def fix_error(e):
-        lines = (e.stdout or "").splitlines() + (e.stderr or "").splitlines()
-        error_lines = []
-        show_context = 0
-        for line in lines:
-            if line.lstrip().startswith("!"):
-                error_lines.append("\n" + line)
-                show_context = 3
-            elif show_context > 0:
-                error_lines.append(line)
-                show_context -= 1
-        error_msg = ' '.join(line.strip() for line in error_lines if line.strip())
-        section = state['latex']['section']
-        fixed_text = fix_latex_bug(state, state['paper'][section], error_msg)
-        state['paper'][section] = fixed_text
-        save_paper(state, paper_name)
-
-    # --- Retry loop ---
-    #for attempt in range(3):
-    #    try:
-    #        run_xelatex()
-    #        break  # success
-    #    except subprocess.CalledProcessError as e:
-    #        print('Fixing things...')
-    #        fix_error(e)
-    #else:
-    #    os.chdir(original_dir)
-    #    raise RuntimeError("LaTeX failed after 3 attempts")
-
     # Try to compile it the first time
     print(f'Compiling {paper_stem}'.ljust(28,'.'), end="", flush=True)
     try:
         run_xelatex()
-        print(f"✅", end="", flush=True)
+        print("✅", end="", flush=True)
     except subprocess.CalledProcessError as e:
         log_output("Pass 1", e, is_error=True)
         print("❌", end="", flush=True)
@@ -215,7 +186,7 @@ def compile_latex(state: GraphState, paper_name: str) -> None:
     for i in range(further_iterations):        
         try:
             run_xelatex()
-            print(f"✅", end="", flush=True)
+            print("✅", end="", flush=True)
         except subprocess.CalledProcessError as e:
             log_output(f"Final Pass {i+1}", e, is_error=True)
             print("❌", end="", flush=True)
