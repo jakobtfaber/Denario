@@ -18,6 +18,7 @@ class PAPER(TypedDict):
     References: str
     summary: str
     journal: Journal
+    add_citations: bool
 
 # Class for Input/Output files
 class FILES(TypedDict):
