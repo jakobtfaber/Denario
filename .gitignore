@@ -206,3 +206,5 @@ AstroPilotApp/
 uv.lock
 
 project*
+
+cmbagent_output/*
