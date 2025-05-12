@@ -446,7 +446,7 @@ def fix_latex(state, f_temp):
         PROMPT = fix_latex_bug_prompt(state)  
         state, result = LLM_call(PROMPT, state)
         fixed_text = extract_latex_block(state, result, "Text")
-        state['paper'][state['latex']['section']] = fixed_text
+        state['paper'][state['latex']['section_to_fix']] = fixed_text
 
         # save text to file
         f_name = f"{f_stem}_v{i+1}{suffix}"

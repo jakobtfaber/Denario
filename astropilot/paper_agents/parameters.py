@@ -53,7 +53,7 @@ class TOKENS(TypedDict):
 
 # LaTeX class
 class LATEX(TypedDict):
-    section: str
+    section_to_fix: str
     
 # LLM class
 class LLM(TypedDict):
@@ -61,6 +61,10 @@ class LLM(TypedDict):
     max_output_tokens: int
     llm: Any
     temperature: float
+
+# TIME class
+class TIME(TypedDict):
+    start: float
     
 # Graph state class
 class GraphState(TypedDict):
@@ -72,3 +76,4 @@ class GraphState(TypedDict):
     llm: LLM
     latex: LATEX
     keys: KeyManager
+    time: TIME
