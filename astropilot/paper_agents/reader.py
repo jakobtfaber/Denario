@@ -1,7 +1,5 @@
-import os
+import os, time, hashlib, shutil
 from pathlib import Path
-import hashlib
-import shutil
 from langchain_core.runnables import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_openai import ChatOpenAI
@@ -35,6 +33,9 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     
     # set the tokens usage
     state['tokens'] = {'ti': 0, 'to': 0, 'i': 0, 'o': 0}
+
+    # set time
+    state['time'] = {'start': time.time()}
     
     # get Paper folder
     state['files'] = {**state['files'],
@@ -140,5 +141,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             "latex": state['latex'],
             "idea": idea,
             "paper": {**state['paper'], "summary": ""},
+            "time": state['time'],
     }
 

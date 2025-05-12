@@ -624,7 +624,7 @@ def fix_latex_bug_prompt(state):
 - Keep the text intact. Only fix the errors without changing anything else
 
 Text:
-{state['paper'][state['latex']['section']]}
+{state['paper'][state['latex']['section_to_fix']]}
 
 Error:
 {error}
