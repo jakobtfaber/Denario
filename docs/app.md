@@ -1,15 +1,24 @@
-# Astropilot App
+# AstroPilotApp
 
-Astropilot has a GUI powered by [streamlit](https://streamlit.io) for an easier user experience through the assisted research and paper creation process.
-
-Get it from github:
-```sh
-git clone https://github.com/AstroPilot-AI/AstroPilotApp
-```
+GUI for [AstroPilot](https://github.com/AstroPilot-AI/AstroPilot.git), powered by [streamlit](https://streamlit.io).
 
 ## Run locally
 
-Run with:
+Install the GUI from source following one of the following steps.
+
+1. Install with pip
+
+    ```bash
+    pip install -e .
+    ```
+
+2. Install with [uv](https://docs.astral.sh/uv/)
+
+    ```bash
+    uv sync
+    ```
+
+Run the webapp with:
 
 ```bash
 streamlit run src/app.py

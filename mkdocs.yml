@@ -9,9 +9,12 @@ nav:
   - Examples:
       - Full run: astropilot_oscillator_full_run.ipynb
   - API Reference:
-    - Astropilot: api_astropilot.md
+    - AstroPilot: api_astropilot.md
     - Classes: api_classes.md
+    - LLMs: api_llms.md
     - Paper: api_paper.md
+    - Journals: api_journals.md
+    - Utils: api_utils.md
 
 theme:
   name: material
@@ -34,6 +37,7 @@ plugins:
             show_root_members_full_path: true
             merge_init_into_class: true
             show_signature_annotations: true
+            # show_root_heading: true
             filters:
               - "!^_"
   - mkdocs-jupyter:

@@ -29,7 +29,12 @@ from .langgraph_agents.agents_graph import build_lg_graph
 # TODO: unify display and print by new method
 class AstroPilot:
     """
-    AstroPilot main class.
+    AstroPilot main class. Allows to set the data and tools description, generate a research idea, generate methodology and compute the results. The it can generate the latex draft of a scientific article with a given journal style from the computed results.
+    
+    It uses two main backends:
+
+    - `cmbagent`,  for detailed planning and control involving numerous agents for the idea, methods and results generation.
+    - `langgraph`, for faster idea and method generation, and for the paper writing.
 
     Args:
         input_data: Input data to be used. Employ default data if `None`.
