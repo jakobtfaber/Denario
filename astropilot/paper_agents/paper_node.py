@@ -329,6 +329,7 @@ def refine_results(state: GraphState, config: RunnableConfig):
         # save paper and compile it
         save_paper(state, state['files']['Paper_v2'])
         compile_latex(state, state['files']['Paper_v2'])
+        return state
         
     
     # temporary file with the selected keywords
