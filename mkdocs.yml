@@ -4,7 +4,10 @@ nav:
   - Home: index.md
   - Installation: install.md
   - Get started: get_started.md
+  - App: app.md
   - Prompts: prompts.md
+  - Examples:
+      - Full run: astropilot_oscillator_full_run.ipynb
   - API Reference:
     - Astropilot: api_astropilot.md
     - Classes: api_classes.md
@@ -33,6 +36,11 @@ plugins:
             show_signature_annotations: true
             filters:
               - "!^_"
+  - mkdocs-jupyter:
+      include_source: True
+      execute: False
+      ignore_h1_titles: True
+      #   execute_ignore: "*.ipynb"
 
 extra_css:
   - css/mkdocstrings.css
@@ -45,3 +53,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.snippets:
+      base_path: './'

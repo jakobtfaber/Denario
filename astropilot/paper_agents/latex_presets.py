@@ -68,7 +68,7 @@ latex_neurips = LatexPresets(article="article",
                         macros=r"\usepackage{neurips}",
                         affiliation=rf"",
                         keywords=lambda x: "",
-                        abstract=lambda x: f"\maketitle \begin{{abstract}}{x}\end{{abstract}} \n",
+                        abstract=lambda x: r"\maketitle \begin{{abstract}}{x}\end{{abstract}} \n",
                         files=['neurips.sty']
                          )
 """NeurIPS Latex preset"""
