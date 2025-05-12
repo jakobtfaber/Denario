@@ -1,4 +1,7 @@
-import os, time, hashlib, shutil
+import os
+import time
+import hashlib
+import shutil
 from pathlib import Path
 from langchain_core.runnables import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -75,7 +78,8 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # remove these files if they already exist
     for f in ['Paper_v1', 'Paper_v2', 'Paper_v3', 'Paper_v4']:
         f_in = f"{state['files']['Paper_folder']}/{state['files'][f]}"
-        if os.path.exists(f_in): os.remove(f"{f_in}")
+        if os.path.exists(f_in):
+            os.remove(f"{f_in}")
 
         # get the root of the paper file (if paper.tex, root=paper)
         root = Path(state['files'][f]).stem
@@ -85,12 +89,14 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                      f'{root}.synctex(busy)', 'bibliography.bib',
                      'bibliography_temp.bib',]:
             fin = f"{state['files']['Paper_folder']}/{f_in}"
-            if os.path.exists(fin): os.remove(f"{fin}")
+            if os.path.exists(fin):
+                os.remove(f"{fin}")
 
     # remove these files if they already exist
     for f_in in [state['files']['Error'], state['files']['LLM_calls'],
                  state['files']['LaTeX_log'], state['files']['LaTeX_err']]:
-        if os.path.exists(f_in):  os.remove(f"{f_in}")
+        if os.path.exists(f_in):
+            os.remove(f"{f_in}")
 
     # create a folder to save LaTeX progress
     os.makedirs(state['files']['Temp'], exist_ok=True)
@@ -133,6 +139,11 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             else:
                 hash_dict[file_hash] = file
 
+    # get the number of plots in the project
+    folder_path = Path(f"{state['files']['Folder']}/{INPUT_FILES}/{state['files']['Plots']}")
+    files = [f for f in folder_path.iterdir()
+         if f.is_file() and f.name != '.DS_Store']
+    state['files']['num_plots'] = len(files)
 
     return {**state,
             "llm": state['llm'],

@@ -18,6 +18,7 @@ class PAPER(TypedDict):
     References: str
     summary: str
     journal: Journal
+    add_citations: bool
 
 # Class for Input/Output files
 class FILES(TypedDict):
@@ -37,6 +38,7 @@ class FILES(TypedDict):
     LLM_calls: str    #name of the file with the calls to the LLM
     Paper_folder: str #name of the folder containing all paper files
     AAS_keywords: str #name of the file with the AAS keywords
+    num_plots: int    #number of plots
 
 # Idea class
 class IDEA(TypedDict):

@@ -4,6 +4,7 @@ from langgraph.checkpoint.memory import MemorySaver
 from .parameters import GraphState
 from .paper_node import abstract_node, citations_node, conclusions_node, introduction_node, keywords_node, methods_node, plots_node, refine_results, results_node
 from .reader import preprocess_node
+from .routers import citation_router
 
 
 def build_graph(mermaid_diagram=False):
@@ -27,17 +28,17 @@ def build_graph(mermaid_diagram=False):
     builder.add_node("citations_node",    citations_node)
     
     # Define edges: these determine how the control flow moves
-    builder.add_edge(START,               "preprocess_node")
-    builder.add_edge("preprocess_node",   "keywords_node")
-    builder.add_edge("keywords_node",     "abstract_node")
-    builder.add_edge("abstract_node",     "introduction_node")
-    builder.add_edge("introduction_node", "methods_node")
-    builder.add_edge("methods_node",      "results_node")
-    builder.add_edge("results_node",      "conclusions_node")
-    builder.add_edge("conclusions_node",  "plots_node")
-    builder.add_edge("plots_node",        "refine_results")
-    builder.add_edge("refine_results",    "citations_node")
-    builder.add_edge("citations_node",    END)
+    builder.add_edge(START,                         "preprocess_node")
+    builder.add_edge("preprocess_node",             "keywords_node")
+    builder.add_edge("keywords_node",               "abstract_node")
+    builder.add_edge("abstract_node",               "introduction_node")
+    builder.add_edge("introduction_node",           "methods_node")
+    builder.add_edge("methods_node",                "results_node")
+    builder.add_edge("results_node",                "conclusions_node")
+    builder.add_edge("conclusions_node",            "plots_node")
+    builder.add_edge("plots_node",                  "refine_results")
+    builder.add_conditional_edges("refine_results", citation_router)
+    builder.add_edge("citations_node",              END)
 
     memory = MemorySaver()
     graph  = builder.compile(checkpointer=memory)
