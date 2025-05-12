@@ -26,7 +26,7 @@ Don't suggest to perform any calculations or analyses here. The only goal of thi
 
 ```text
 
-        {research_idea}
+{research_idea}
 
 Instruction for planning:
 

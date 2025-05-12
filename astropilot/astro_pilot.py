@@ -29,7 +29,12 @@ from .langgraph_agents.agents_graph import build_lg_graph
 # TODO: unify display and print by new method
 class AstroPilot:
     """
-    AstroPilot main class.
+    AstroPilot main class. Allows to set the data and tools description, generate a research idea, generate methodology and compute the results. The it can generate the latex draft of a scientific article with a given journal style from the computed results.
+    
+    It uses two main backends:
+
+    - `cmbagent`,  for detailed planning and control involving numerous agents for the idea, methods and results generation.
+    - `langgraph`, for faster idea and method generation, and for the paper writing.
 
     Args:
         input_data: Input data to be used. Employ default data if `None`.
@@ -369,7 +374,7 @@ class AstroPilot:
         print(AAS_keyword_list)
 
     def get_paper(self, journal: Journal = Journal.NONE,
-                  llm: LLM | str = models["gemini-2.0-flash"] ) -> None:
+                  llm: LLM | str = models["gemini-2.0-flash"], add_citations=True) -> None:
         """
         Generate a full paper based on the files in input_files:
            - idea.md
@@ -380,6 +385,7 @@ class AstroPilot:
         Args:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
             llm: The LLM model to be used to write the paper. Default is set to gemini-2.0-flash
+            add_citations: whether to add citations to the paper or not
         """
         
         # Start timer
@@ -401,7 +407,7 @@ class AstroPilot:
             "llm": {"model": llm.name,  #name of the LLM model to use
                     "temperature": llm.temperature,
                     "max_output_tokens": llm.max_output_tokens},
-            "paper":{"journal": journal},
+            "paper":{"journal": journal, "add_citations": add_citations},
             "keys": self.keys
         }
 

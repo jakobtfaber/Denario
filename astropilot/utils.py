@@ -13,6 +13,7 @@ def input_check(str_input: str) -> str:
     return content
 
 def llm_parser(llm: LLM | str) -> LLM:
+    """Get the LLM instance from a string."""
     if isinstance(llm, str):
         try:
             llm = models[llm]
