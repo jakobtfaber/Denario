@@ -1,4 +1,4 @@
-import os, time, hashlib, shutil
+import os, time, hashlib, shutil,sys
 from pathlib import Path
 from langchain_core.runnables import RunnableConfig
 from langchain_google_genai import ChatGoogleGenerativeAI
@@ -133,6 +133,11 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             else:
                 hash_dict[file_hash] = file
 
+    # get the number of plots in the project
+    folder_path = Path(f"{state['files']['Folder']}/{INPUT_FILES}/{state['files']['Plots']}")
+    files = [f for f in folder_path.iterdir()
+         if f.is_file() and f.name != '.DS_Store']
+    state['files']['num_plots'] = len(files)
 
     return {**state,
             "llm": state['llm'],

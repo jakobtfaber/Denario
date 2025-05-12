@@ -14,6 +14,7 @@ from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean
 from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex
+from ..config import INPUT_FILES
 
 
 def keywords_node(state: GraphState, config: RunnableConfig):
@@ -231,7 +232,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
     """
 
     batch_size = 7 #number of images to process per LLM call
-    folder_path = Path(f"{state['files']['Folder']}/input_files/{state['files']['Plots']}")
+    folder_path = Path(f"{state['files']['Folder']}/{INPUT_FILES}/{state['files']['Plots']}")
     files = [f for f in folder_path.iterdir()
          if f.is_file() and f.name != '.DS_Store']
     num_images = len(files)
@@ -297,14 +298,17 @@ def plots_node(state: GraphState, config: RunnableConfig):
         minutes, seconds = divmod(time.time()-state['time']['start'], 60)
         print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
-    # try to fix any errors in the Results in the last generated file
-    print('Compiling text+figures'.ljust(28,'.'), end="", flush=True)
-    success = compile_tex_document(state, f_temp, state['files']['Temp'])
-    if not(success):
-        state['latex']['section_to_fix'] = "Results"
-        state = fix_latex(state, f_temp)
-    minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+    # if the project has no images, no need to do this
+    if num_images>0:
+        
+        # try to fix any errors in the Results in the last generated file
+        print('Compiling text+figures'.ljust(28,'.'), end="", flush=True)
+        success = compile_tex_document(state, f_temp, state['files']['Temp'])
+        if not(success):
+            state['latex']['section_to_fix'] = "Results"
+            state = fix_latex(state, f_temp)
+        minutes, seconds = divmod(time.time()-state['time']['start'], 60)
+        print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
     
     # compile paper
     compile_latex(state, state['files']['Paper_v1'])
@@ -320,6 +324,13 @@ def refine_results(state: GraphState, config: RunnableConfig):
     This agent takes the results section with plots and improves it
     """
 
+    # if the number of plots is 0, just compile the existing version of the paper
+    if state['files']['num_plots']==0:
+        # save paper and compile it
+        save_paper(state, state['files']['Paper_v2'])
+        compile_latex(state, state['files']['Paper_v2'])
+        
+    
     # temporary file with the selected keywords
     print('Refining results'.ljust(28,'.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/Results_refined.tex")
