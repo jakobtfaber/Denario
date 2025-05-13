@@ -13,7 +13,7 @@ latex_none = LatexPresets(article="article",
                          affiliation=rf"\date{{{affiliation}}}",
                          keywords=lambda x: "",
                          abstract=lambda x: rf"\maketitle \begin{{abstract}}{x}\end{{abstract}}",
-                         files=["abbvr.bst"],
+                         files=["abbrv.bst"],
                          )
 """No Latex preset"""
 
