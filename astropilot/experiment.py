@@ -77,9 +77,9 @@ class Experiment:
         TODO: improve docstring
         """
 
-        results = cmbagent.planning_and_control(data_description,
+        results = cmbagent.planning_and_control_context_carryover(data_description,
                             n_plan_reviews = 1,
-                            max_n_attempts = 4,
+                            max_n_attempts = 6,
                             max_plan_steps = 6,
                             max_rounds_control = 500,
                             engineer_model = "gpt-4.1-2025-04-14",
