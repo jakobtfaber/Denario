@@ -346,7 +346,7 @@ class AstroPilot:
         """Show the obtained results."""
 
         # display(Markdown(self.research.results))
-        print(self.research.methodology)
+        print(self.research.results)
     
     def get_keywords(self, input_text: str, n_keywords: int = 5, **kwargs) -> None:
         """
