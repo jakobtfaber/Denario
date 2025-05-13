@@ -104,6 +104,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     # create symbolic link to input_files in Temp to compile files in Temp
     link1 = Path(f"{state['files']['Folder']}/{INPUT_FILES}").resolve()
     link2 = Path(f"{state['files']['Paper_folder']}/{INPUT_FILES}").resolve()
+    # this next line causes infinite loop (commented out by BB 13/05/2025)
     # os.system(f"ln -s {link1} {link2}")
     
     # copy LaTeX files to project folder
