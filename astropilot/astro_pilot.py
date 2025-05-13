@@ -376,6 +376,7 @@ class AstroPilot:
     def get_paper(self,
                   journal: Journal = Journal.NONE,
                   llm: LLM | str = models["gemini-2.0-flash"],
+                  writer: str = 'scientist',
                   add_citations=True) -> None:
         """
         Generate a full paper based on the files in input_files:
@@ -387,6 +388,7 @@ class AstroPilot:
         Args:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
             llm: The LLM model to be used to write the paper. Default is set to gemini-2.0-flash
+            writer: set the style and tone to write. E.g. astrophysicist, biologist, chemist
             add_citations: whether to add citations to the paper or not
 
         Ddifferent journals considered
@@ -419,7 +421,8 @@ class AstroPilot:
                     "temperature": llm.temperature,
                     "max_output_tokens": llm.max_output_tokens},
             "paper":{"journal": journal, "add_citations": add_citations},
-            "keys": self.keys
+            "keys": self.keys,
+            "writer": writer,
         }
 
         # Run the graph
