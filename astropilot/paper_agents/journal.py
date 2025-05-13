@@ -23,13 +23,17 @@ class LatexPresets(BaseModel):
     """Latex presets to be set depending on the journal"""
     article: str
     """Article preset or .cls file."""
-    layout: str
+    layout: str = ""
     """Layout, twocolumn or singlecolum layout."""
+    title: str = r"\title"
+    """Title setter of the article."""
+    author: Callable[[str], str] = lambda x: f"\\author{{{x}}}"
+    """Author command of the article."""
     bibliographystyle: str
     """Bibliography style, indicated by a .bst file."""
-    macros: str
-    """Usepackage with .sty file including macros."""
-    affiliation: str
+    usepackage: str = ""
+    """Extra packages, including those from .sty files."""
+    affiliation: Callable[[str], str] = lambda x: rf"\affiliation{{{x}}}"
     """Command for affiliations."""
     abstract: Callable[[str], str]
     """Command for abstract. Include maketitle here if needed since some journals require before or after the abstract."""

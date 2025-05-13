@@ -149,7 +149,7 @@ def compile_latex(state: GraphState, paper_name: str) -> None:
     paper_stem = Path(paper_name).stem
 
     def run_xelatex():
-        return subprocess.run(["xelatex", paper_name],
+        return subprocess.run(["xelatex", "-interaction=nonstopmode", "-file-line-error", paper_name],
                               cwd=state['files']['Paper_folder'],
                               input="\n", capture_output=True,
                               text=True, check=True)
@@ -300,6 +300,9 @@ def save_paper(state: GraphState, paper_name: str):
 
     journaldict: LatexPresets = journal_dict[state['paper']['journal']]
 
+    author = "AstroPilot"
+    affiliation = r"Anthropic, Gemini \& OpenAI servers. Planet Earth."
+
     paper = rf"""\documentclass[{journaldict.layout}]{{{journaldict.article}}}
 
 \newcommand{{\vdag}}{{(v)^\dagger}}
@@ -309,18 +312,18 @@ def save_paper(state: GraphState, paper_name: str):
 \usepackage{{multirow}}
 \usepackage{{natbib}}
 \usepackage{{graphicx}} 
-{journaldict.macros}
+{journaldict.usepackage}
 
 
 \begin{{document}}
 
-\title{{{state['paper'].get('Title','')}}}
+{journaldict.title}{{{state['paper'].get('Title','')}}}
 
-\author{{AstroPilot}}
-{journaldict.affiliation}
+{journaldict.author(author)}
+{journaldict.affiliation(affiliation)}
 
 {journaldict.abstract(state['paper'].get('Abstract',''))}
-{journaldict.keywords(rf"\keywords{{{state['paper']['Keywords']}}}")}
+{journaldict.keywords(state['paper']['Keywords'])}
 
 
 \section{{Introduction}}
