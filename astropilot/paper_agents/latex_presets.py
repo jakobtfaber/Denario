@@ -11,8 +11,7 @@ latex_none = LatexPresets(article="article",
                          bibliographystyle=r"\bibliographystyle{abbrv}",
                          macros=r"",
                          affiliation=rf"\date{{{affiliation}}}",
-                         keywords=lambda x: "",
-                         abstract=lambda x: rf"\maketitle \begin{{abstract}}{x}\end{{abstract}}",
+                         abstract=lambda x: f"\\maketitle\n \\begin{{abstract}}\n{x}\n\end{{abstract}}\n",
                          files=["abbrv.bst"],
                          )
 """No Latex preset"""
@@ -22,9 +21,9 @@ latex_aas = LatexPresets(article="aastex631",
                          bibliographystyle=r"\bibliographystyle{aasjournal}",
                          macros=r"\usepackage{aas_macros}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
-                         keywords=lambda x: x,
                          abstract=lambda x: f"\\begin{{abstract}}\n {x} \n\\end{{abstract}}\n",
                          files=['aasjournal.bst', 'aastex631.cls', 'aas_macros.sty'],
+                         keywords=lambda x: x,
                          )
 """AAS Latex preset"""
 
@@ -33,7 +32,6 @@ latex_aps = LatexPresets(article="revtex4",
                          bibliographystyle="",
                          macros=r"\usepackage{aas_macros}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
-                         keywords=lambda x: "",
                          abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n \\maketitle",
                          files=['revtex4.cls'],
                          )
@@ -44,8 +42,7 @@ latex_icml = LatexPresets(article="article",
                         bibliographystyle="",
                         macros=r"\usepackage{icml2025}",
                         #  affiliation=rf"\begin{{icmlauthorlist}} \n \icmlauthor{{{affiliation}}}{{aff}} \n \end{{icmlauthorlist}} \n \icmlaffiliation{{aff}}{{affiliation}}",
-                        affiliation=r"\icmlaffiliation{aff}{affiliation} \n \printAffiliationsAndNotice{}",
-                        keywords=lambda x: "",
+                        affiliation="\\icmlaffiliation{aff}{affiliation} \n \\printAffiliationsAndNotice{}",
                         abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n",
                         files=['icml2015.sty'],
                          )
@@ -56,8 +53,7 @@ latex_jhep = LatexPresets(article="article",
                          bibliographystyle=r"\bibliographystyle{JHEP}",
                          macros=r"\usepackage{jcappub}",
                          affiliation=rf"\affiliation{{{affiliation}}}",
-                         keywords=lambda x: "",
-                         abstract=lambda x: f"\\abstract{{{x}}} \\maketitle",
+                         abstract=lambda x: f"\\abstract{{ \n {x} \n }} \n \\maketitle",
                          files=['JHEP.bst', 'jcappub.sty'],
                          )
 """JHEP Latex preset"""
@@ -67,8 +63,7 @@ latex_neurips = LatexPresets(article="article",
                         bibliographystyle="",
                         macros=r"\usepackage{neurips}",
                         affiliation=r"",
-                        keywords=lambda x: "",
-                        abstract=lambda x: r"\maketitle \begin{{abstract}}{x}\end{{abstract}} \n",
+                        abstract=lambda x: f"\\maketitle \n \begin{{abstract}} \n {x} \n \end{{abstract}} \n",
                         files=['neurips.sty']
                          )
 """NeurIPS Latex preset"""
@@ -78,7 +73,6 @@ latex_pasj = LatexPresets(article="pasj01",
                          bibliographystyle=r"\bibliographystyle{aasjournal}",
                          macros=r"\usepackage{aas_macros}",
                          affiliation=rf"\altaffiltext{{1}}{{{affiliation}}}",
-                         keywords=lambda x: "",
                          abstract=lambda x: f"\\maketitle \n \\begin{{abstract}} \n {x} \n \\end{{abstract}}",
                          files=['aasjournal.bst', 'pasj01.cls', 'aas_macros.sty'],
                          )

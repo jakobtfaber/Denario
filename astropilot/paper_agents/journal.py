@@ -33,7 +33,7 @@ class LatexPresets(BaseModel):
     """Command for affiliations."""
     abstract: Callable[[str], str]
     """Command for abstract. Include maketitle here if needed since some journals require before or after the abstract."""
-    keywords: Callable[[str], str]
-    """Keywords of the research."""
     files: list[str]
     """Files to be included in the latex: .bst, .cls and .sty."""
+    keywords: Callable[[str], str] = lambda x: ""
+    """Keywords of the research."""
