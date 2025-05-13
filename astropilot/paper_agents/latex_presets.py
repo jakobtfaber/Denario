@@ -1,17 +1,13 @@
 from .journal import Journal, LatexPresets
 
-affiliation = r"Anthropic, Gemini \& OpenAI servers. Planet Earth."
-
 #---
 # Latex journal presets definition
 #---
 
 latex_none = LatexPresets(article="article",
-                         layout="",
                          bibliographystyle=r"\bibliographystyle{abbrv}",
-                         macros=r"",
-                         affiliation=rf"\date{{{affiliation}}}",
-                         abstract=lambda x: f"\\maketitle\n \\begin{{abstract}}\n{x}\n\end{{abstract}}\n",
+                         affiliation=lambda x: rf"\date{{{x}}}",
+                         abstract=lambda x: f"\\maketitle\n\\begin{{abstract}}\n{x}\n\end{{abstract}}\n",
                          files=["abbrv.bst"],
                          )
 """No Latex preset"""
@@ -19,51 +15,45 @@ latex_none = LatexPresets(article="article",
 latex_aas = LatexPresets(article="aastex631",
                          layout="twocolumn",
                          bibliographystyle=r"\bibliographystyle{aasjournal}",
-                         macros=r"\usepackage{aas_macros}",
-                         affiliation=rf"\affiliation{{{affiliation}}}",
-                         abstract=lambda x: f"\\begin{{abstract}}\n {x} \n\\end{{abstract}}\n",
+                         usepackage=r"\usepackage{aas_macros}",
+                         abstract=lambda x: f"\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n",
                          files=['aasjournal.bst', 'aastex631.cls', 'aas_macros.sty'],
-                         keywords=lambda x: x,
+                         keywords=lambda x: f"\keywords{{{x}}}",
                          )
 """AAS Latex preset"""
 
 latex_aps = LatexPresets(article="revtex4",
                          layout="twocolumn",
                          bibliographystyle="",
-                         macros="",
-                         affiliation=rf"\affiliation{{{affiliation}}}",
-                         abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n \\maketitle",
-                         files=['revtex4.cls'],
+                         abstract=lambda x: f"\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n\\maketitle",
+                         files=[],
                          )
 """APS Latex preset"""
 
 latex_icml = LatexPresets(article="article",
-                        layout="",
+                        title=r"\icmltitle",
+                        author=lambda x: f"\\begin{{icmlauthorlist}}\n\\icmlauthor{{{x}}}{{aff}}\n\\end{{icmlauthorlist}}",
                         bibliographystyle="",
-                        macros=r"\usepackage{icml2025}",
-                        #  affiliation=rf"\begin{{icmlauthorlist}} \n \icmlauthor{{{affiliation}}}{{aff}} \n \end{{icmlauthorlist}} \n \icmlaffiliation{{aff}}{{affiliation}}",
-                        affiliation="\\icmlaffiliation{aff}{affiliation} \n \\printAffiliationsAndNotice{}",
-                        abstract=lambda x: f"\\begin{{abstract}} \n {x} \n\\end{{abstract}} \n",
-                        files=['icml2015.sty'],
+                        usepackage=r"\usepackage[accepted]{icml2025}",
+                        affiliation=lambda x: f"\\icmlaffiliation{{aff}}{{{x}}}\n",
+                        abstract=lambda x: f"\\printAffiliationsAndNotice{{}}\n\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n",
+                        files=['icml2025.sty'],
+                        icmlkeywords=lambda x: f"\keywords{{{x}}}",
                          )
 """ICML Latex preset"""
 
 latex_jhep = LatexPresets(article="article",
-                         layout="",
                          bibliographystyle=r"\bibliographystyle{JHEP}",
-                         macros=r"\usepackage{jcappub}",
-                         affiliation=rf"\affiliation{{{affiliation}}}",
-                         abstract=lambda x: f"\\abstract{{ \n {x} \n }} \n \\maketitle",
+                         usepackage=r"\usepackage{jcappub}",
+                         abstract=lambda x: f"\\abstract{{\n{x}\n}}\n\\maketitle",
                          files=['JHEP.bst', 'jcappub.sty'],
                          )
 """JHEP Latex preset"""
 
 latex_neurips = LatexPresets(article="article",
-                        layout="",
                         bibliographystyle="",
-                        macros=r"\usepackage{neurips}",
-                        affiliation=r"",
-                        abstract=lambda x: f"\\maketitle \n \begin{{abstract}} \n {x} \n \end{{abstract}} \n",
+                        usepackage=r"\usepackage{neurips}",
+                        abstract=lambda x: f"\\maketitle\n\begin{{abstract}}\n{x}\n\end{{abstract}}\n",
                         files=['neurips.sty']
                          )
 """NeurIPS Latex preset"""
@@ -71,9 +61,9 @@ latex_neurips = LatexPresets(article="article",
 latex_pasj = LatexPresets(article="pasj01",
                          layout="twocolumn",
                          bibliographystyle=r"\bibliographystyle{aasjournal}",
-                         macros=r"\usepackage{aas_macros}",
-                         affiliation=rf"\altaffiltext{{1}}{{{affiliation}}}",
-                         abstract=lambda x: f"\\maketitle \n \\begin{{abstract}} \n {x} \n \\end{{abstract}}",
+                         usepackage=r"\usepackage{aas_macros}",
+                         affiliation=lambda x: rf"\altaffiltext{{1}}{{{x}}}",
+                         abstract=lambda x: f"\\maketitle\n\\begin{{abstract}}\n{x}\n\\end{{abstract}}",
                          files=['aasjournal.bst', 'pasj01.cls', 'aas_macros.sty'],
                          )
 """PASJ Latex preset"""
