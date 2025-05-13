@@ -69,7 +69,7 @@ class Idea:
         
         try:
             for obj in chat_history[::-1]:
-                if obj['name'] == 'idea_maker_response_formatter':
+                if obj['name'] == 'idea_maker_nest':
                     result = obj['content']
                     break
             task_result = result
