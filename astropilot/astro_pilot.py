@@ -373,8 +373,10 @@ class AstroPilot:
         # display(Markdown(AAS_keyword_list))
         print(AAS_keyword_list)
 
-    def get_paper(self, journal: Journal = Journal.NONE,
-                  llm: LLM | str = models["gemini-2.0-flash"], add_citations=True) -> None:
+    def get_paper(self,
+                  journal: Journal = Journal.NONE,
+                  llm: LLM | str = models["gemini-2.0-flash"],
+                  add_citations=True) -> None:
         """
         Generate a full paper based on the files in input_files:
            - idea.md
