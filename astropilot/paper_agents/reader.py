@@ -102,10 +102,11 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.makedirs(state['files']['Temp'], exist_ok=True)
 
     # create symbolic link to input_files in Temp to compile files in Temp
-    link1 = Path(f"{state['files']['Folder']}/{INPUT_FILES}").resolve()
-    link2 = Path(f"{state['files']['Paper_folder']}/{INPUT_FILES}").resolve()
-    # this next line causes infinite loop (commented out by BB 13/05/2025)
-    # os.system(f"ln -s {link1} {link2}")
+    link_src = Path(f"{state['files']['Folder']}/{INPUT_FILES}").resolve()
+    link_dst = Path(f"{state['files']['Paper_folder']}/{INPUT_FILES}").resolve()
+    # Only create symlink if it doesn't already exist
+    if not link_dst.exists() and not link_dst.is_symlink():
+        link_dst.symlink_to(link_src, target_is_directory=True)
     
     # copy LaTeX files to project folder
     journal_files = journal_dict[state["paper"]["journal"]].files
