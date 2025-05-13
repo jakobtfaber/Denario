@@ -112,7 +112,7 @@ Respond in the following format:
 
 def abstract_prompt(state, attempt):
     
-    return [SystemMessage(content="""You are an astrophysicist"""),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""
 Attempt {attempt}.
 
@@ -146,7 +146,7 @@ Results:
 
 def abstract_reflection(state):
 
-    return [SystemMessage(content="""Your are an astrophysicist"""),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""Rewrite the below abstract to make it more clear. You are given the idea, methods, and results of the paper together with the previously written abstract.
 
 Idea:
@@ -179,7 +179,7 @@ In <ABSTRACT>, place the Abstract of the paper. Follow these guidelines:
 
 def introduction_prompt(state):
 
-    return [SystemMessage(content="You are an astrophysicist"),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""Given the title, idea, and methods below, write an introduction for a paper in LaTex.
 
 Paper title: 
@@ -216,7 +216,7 @@ Please make sure the introduction reads smoothly and is well-motivated. If you u
 
 def introduction_reflection(state):
 
-    return [SystemMessage(content="""Your are an astrophysicist"""),
+    return [SystemMessage(content=f"""Your are a {state['writer']}"""),
             HumanMessage(content=rf"""Rewrite the paper introduction below to make it more clear. Take into account the paper title, abstract, idea, and methods.
 
 
@@ -257,7 +257,7 @@ Please make sure the introduction reads smoothly and is well-motivated. If you u
 
 def methods_prompt(state):
 
-    return [SystemMessage(content='''You are an astrophysicist'''),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""Given the below paper title, abstract, introduction, and methods, write the methods section for the paper. Describe in detail each of the methods and techniques use in the paper.
 
 Paper title: 
@@ -294,7 +294,7 @@ Follow these guidelines:
 
 def results_prompt(state):
 
-    return [SystemMessage(content='''You are an astrophysicist'''),
+    return [SystemMessage(content="""You are a {state['writer']}"""),
             HumanMessage(content=rf"""Given the paper title, abstract, introduction, and short results below, write the results section for a scientific paper. Describe in detail the results obtained and try to intepret them
 
 Paper title: 
@@ -338,7 +338,7 @@ Follow these guidelines:
 
 def refine_results_prompt(state):
     return [
-        SystemMessage(content='You are an astrophysicist'),
+        SystemMessage(content=f"""You are a {state['writer']}"""),
         HumanMessage(content=fr"""You are given the Results section of a paper that contains text and figures. The text and the figures were added independently, so there may not be a clear flow of integration between the two.
 
 Your task is to rewrite the text to make it more coherent with the figures and their captions. Follow these rules:
@@ -367,7 +367,7 @@ In <Results> put the new Results section.
 
 def conclusions_prompt(state):
 
-    return [SystemMessage(content='''You are an astrophysicist'''),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""Below you can find a paper title, abstract, introduction, methods, and results. Given that information, write the conclusions for the paper
 
 Paper title: 
@@ -409,7 +409,7 @@ In <Conclusions> put the paper conclusions section written in LaTeX.
 
 def caption_prompt(state, image, name=None):
     return [
-        SystemMessage(content="You are an astrophysicist"),
+        SystemMessage(content=f"""You are a {state['writer']}"""),
         HumanMessage(content=[
             {"type": "text", "text": rf"""Your task is to create a caption for a figure for a scientific paper. 
 
@@ -438,7 +438,7 @@ In <Caption> place the figure caption.
     ]
 
 def plot_prompt(state, images):
-    return [SystemMessage(content="""You are an astrophysics"""),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""Your task is to insert a set of images in the section of a paper. You are given the current Results section and a dictionary that contains the name and the caption of each image. Your task is to place these images in the best locations in the text together with their captions. Note that the text may contain some plots there already. If so, do not remove these images, and do not change the location of the images, just add the news plots.
 
 section:
@@ -529,9 +529,9 @@ Ensure the modified output can still be compiled in LaTeX without error.
 """)]
 
 
-def summary_prompt(summary, text):
+def summary_prompt(state, text):
 
-    return [SystemMessage(content="""You are a scientist."""),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""
 Summarize the text below and combine with the summarized text. 
 
@@ -662,7 +662,7 @@ def keyword_prompt(state):
     keywords_list = "".join(keywords)
 
 
-    return [SystemMessage(content="You are an astrophysicist."),
+    return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=fr"""Given the idea and methods below, select a few AAS keywords from the list below. You must follow these rules:
 
 - Selection: Only select keywords that appear exactly as written in the provided list below.

@@ -79,3 +79,4 @@ class GraphState(TypedDict):
     latex: LATEX
     keys: KeyManager
     time: TIME
+    writer: str  #determines who is writing the paper. E.g. astrophysicists, biologist
