@@ -388,6 +388,15 @@ class AstroPilot:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
             llm: The LLM model to be used to write the paper. Default is set to gemini-2.0-flash
             add_citations: whether to add citations to the paper or not
+
+        Ddifferent journals considered
+        NONE = None : No journal, use standard latex presets with abbrv for bibliography style.
+        AAS  = "AAS" : American Astronomical Society journals, including the Astrophysical Journal.
+        APS = "APS" : Physical Review Journals from the American Physical Society, including Physical Review Letters, PRA, etc.
+        ICML = "ICML" : ICML - International Conference on Machine Learning.
+        JHEP = "JHEP" : Journal of High Energy Physics, including JHEP, JCAP, etc.
+        NeurIPS = "NeurIPS" : NeurIPS - Conference on Neural Information Processing Systems.
+        PASJ = "PASJ" : Publications of the Astronomical Society of Japan.
         """
         
         # Start timer
