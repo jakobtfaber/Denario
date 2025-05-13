@@ -24,21 +24,19 @@ latex_aas = LatexPresets(article="aastex631",
 
 latex_aps = LatexPresets(article="revtex4",
                          layout="twocolumn",
-                         bibliographystyle="",
                          abstract=lambda x: f"\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n\\maketitle",
                          files=[],
                          )
 """APS Latex preset"""
 
 latex_icml = LatexPresets(article="article",
-                        title=r"\icmltitle",
+                        title="\twocolumn[\n\\icmltitle",
                         author=lambda x: f"\\begin{{icmlauthorlist}}\n\\icmlauthor{{{x}}}{{aff}}\n\\end{{icmlauthorlist}}",
-                        bibliographystyle="",
                         usepackage=r"\usepackage[accepted]{icml2025}",
-                        affiliation=lambda x: f"\\icmlaffiliation{{aff}}{{{x}}}\n",
+                        affiliation=lambda x: f"]\n\\icmlaffiliation{{aff}}{{{x}}}\n",
                         abstract=lambda x: f"\\printAffiliationsAndNotice{{}}\n\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n",
                         files=['icml2025.sty'],
-                        icmlkeywords=lambda x: f"\keywords{{{x}}}",
+                        keywords=lambda x: f"\\icmlkeywords{{{x}}}",
                          )
 """ICML Latex preset"""
 
@@ -51,9 +49,10 @@ latex_jhep = LatexPresets(article="article",
 """JHEP Latex preset"""
 
 latex_neurips = LatexPresets(article="article",
-                        bibliographystyle="",
-                        usepackage=r"\usepackage{neurips}",
-                        abstract=lambda x: f"\\maketitle\n\begin{{abstract}}\n{x}\n\end{{abstract}}\n",
+                        usepackage=r"\usepackage[final]{neurips}",
+                        author=lambda x: f"\\author{{\n{x}\\\\",
+                        affiliation=lambda x: f"{x}\n}}",
+                        abstract=lambda x: f"\\maketitle\n\\begin{{abstract}}\n{x}\n\end{{abstract}}\n",
                         files=['neurips.sty']
                          )
 """NeurIPS Latex preset"""

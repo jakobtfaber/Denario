@@ -29,7 +29,7 @@ class LatexPresets(BaseModel):
     """Title setter of the article."""
     author: Callable[[str], str] = lambda x: f"\\author{{{x}}}"
     """Author command of the article."""
-    bibliographystyle: str
+    bibliographystyle: str = ""
     """Bibliography style, indicated by a .bst file."""
     usepackage: str = ""
     """Extra packages, including those from .sty files."""
