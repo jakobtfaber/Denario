@@ -21,7 +21,10 @@ from astropilot import AstroPilot, Journal
 
 astro_pilot = AstroPilot(project_dir="project_dir")
 
-prompt = "Analyze the experimental data stored in /path/to/data.csv using sklearn and pandas. This data includes time-series measurements from a particle detector."
+prompt = """
+Analyze the experimental data stored in /path/to/data.csv using sklearn and pandas.
+This data includes time-series measurements from a particle detector.
+"""
 
 astro_pilot.set_data_description(prompt)
 ```

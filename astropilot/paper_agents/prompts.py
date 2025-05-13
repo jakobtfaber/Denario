@@ -3,7 +3,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 
 def idea_prompt(topic):
     return [
-        SystemMessage(content='''You are a cosmologist and your role is to generate a groundbreaking idea for a PhD student thesis.'''),
+        SystemMessage(content='''You are a scientist and your role is to generate a groundbreaking idea for a PhD student thesis.'''),
         HumanMessage(content=f'''Given the topic, generate a groundbreaking idea for a PhD thesis. Please provide a **title** for the idea, its **description**, and the **challenges** associated with it. Also provide a number for the **novelty** of the idea from 0 (not novel) to 10 (very novel).
         
 **Topic**: {topic}
@@ -23,7 +23,7 @@ Respond in **valid JSON format** as follows:
 def reflection_prompt(topic, ideas):
 
     return [
-        SystemMessage(content="You are a cosmologist professor and your task is to revise and improve a scientific idea for a PhD thesis."),
+        SystemMessage(content="You are a scientist professor and your task is to revise and improve a scientific idea for a PhD thesis."),
         HumanMessage(content=f"""Revise and improve the ideas below following these guidelines:
 - Consider the quality, novelty, and feasibility of the idea
 - Include any factor you think is import to evaluate the idea
@@ -60,7 +60,7 @@ Respond in the following format:
 # prompt to address whether an idea is novel or not
 def novelty_prompt(idea_round, idea, papers):
 
-    return [SystemMessage(content="You are a cosmology professor and your task is to decide whether an idea is novel or not."),
+    return [SystemMessage(content="You are a science professor and your task is to decide whether an idea is novel or not."),
             HumanMessage(content=f"""Given the idea and associated papers, reason whether the idea is novel or not. Novel means that it doesnt strongly overlaps with existing literature or already explored. Be a harsh critic for novelty, ensure there is a sufficient contribution in the idea for a scientific publication. You will be given access to the Semantic Scholar API, which you may use to survey the literature and find relevant papers to help you make your decision. The top 10 results for any search query will be presented to you with their abstracts.
 
 Decide an idea is novel if, after sufficient searching, you have not found a paper that significantly overlaps with your idea.  Decide an idea is not novel if you have found a paper that significantly overlaps with your idea. Pay attention to the details and search for strong similarities in all angles to decide is not novel. An idea cant be novel in the first round.
@@ -531,8 +531,9 @@ Ensure the modified output can still be compiled in LaTeX without error.
 
 def summary_prompt(summary, text):
 
-    return [SystemMessage(content="""You are a cosmologist."""),
-            HumanMessage(content=rf"""Summarize the text below and combine with the summarized text. 
+    return [SystemMessage(content="""You are a scientist."""),
+            HumanMessage(content=rf"""
+Summarize the text below and combine with the summarized text. 
 
 Summarized text:
 {summary}
@@ -551,7 +552,8 @@ In <Summary> put the total summary.
 
 def references_prompt(state, text):
 
-    return [HumanMessage(content=f"""You are provided an original text from a scientific paper written in LaTeX. In the text, there are figures and references to figures. Your task is to make sure that the references to the figures are correct. If there are errors, please correct the text to fix it. Follow these guidelines:
+    return [HumanMessage(content=f"""
+You are provided an original text from a scientific paper written in LaTeX. In the text, there are figures and references to figures. Your task is to make sure that the references to the figures are correct. If there are errors, please correct the text to fix it. Follow these guidelines:
 
 - Do not add or remove text
 - Focus on fixing errors in references to figures
@@ -615,7 +617,8 @@ def fix_latex_bug_prompt(state):
     with open(state['files']['LaTeX_err'], 'r') as f:
         error = f.read()
 
-    return [HumanMessage(content=fr"""The text below has problems and LaTeX cannot compile it. You are provided with the text together with the LaTeX compilation error. Your task is to fix the text so that it compiles properly in LaTeX. Please follow these instructions:
+    return [HumanMessage(content=fr"""
+The text below has problems and LaTeX cannot compile it. You are provided with the text together with the LaTeX compilation error. Your task is to fix the text so that it compiles properly in LaTeX. Please follow these instructions:
 
 - The text you are given is just a small part of a LaTeX paper. Thus, you dont need to add things like \\begin{{document}}.
 - Fix **all LaTeX errors** found in the compilation error
