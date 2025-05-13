@@ -22,6 +22,7 @@ theme:
   name: material
   features:
     - content.code.copy
+    - navigation.footer
     - navigation.tracking
   palette:
     # Palette toggle for light mode
@@ -46,7 +47,7 @@ plugins:
       handlers:
         python:
           options:
-            # show_source: false
+            show_source: true
             docstring_style: google
             annotations_path: brief
             show_signature: true
