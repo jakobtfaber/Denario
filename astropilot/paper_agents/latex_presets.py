@@ -22,8 +22,8 @@ latex_aas = LatexPresets(article="aastex631",
                          )
 """AAS Latex preset"""
 
-latex_aps = LatexPresets(article="revtex4",
-                         layout="twocolumn",
+latex_aps = LatexPresets(article="revtex4-2",
+                         layout="aps",
                          abstract=lambda x: f"\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n\\maketitle",
                          files=[],
                          )
