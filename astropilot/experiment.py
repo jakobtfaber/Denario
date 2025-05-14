@@ -82,13 +82,17 @@ class Experiment:
         TODO: improve docstring
         """
 
+        print(f"Engineer model: {engineer_model.name}")
+        print(f"Researcher model: {researcher_model.name}")
+        # import sys
+        # sys.exit()
         results = cmbagent.planning_and_control_context_carryover(data_description,
                             n_plan_reviews = 1,
-                            max_n_attempts = 6,
+                            max_n_attempts = 10,
                             max_plan_steps = 6,
                             max_rounds_control = 500,
-                            engineer_model = engineer_model,
-                            researcher_model = researcher_model,
+                            engineer_model = engineer_model.name,
+                            researcher_model = researcher_model.name,
                             plan_instructions=self.planner_append_instructions,
                             researcher_instructions=self.researcher_append_instructions,
                             engineer_instructions=self.engineer_append_instructions,
