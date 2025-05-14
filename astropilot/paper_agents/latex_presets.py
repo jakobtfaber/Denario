@@ -30,11 +30,11 @@ latex_aps = LatexPresets(article="revtex4",
 """APS Latex preset"""
 
 latex_icml = LatexPresets(article="article",
-                        title="\twocolumn[\n\\icmltitle",
+                        title="\\twocolumn[\n\\icmltitle",
                         author=lambda x: f"\\begin{{icmlauthorlist}}\n\\icmlauthor{{{x}}}{{aff}}\n\\end{{icmlauthorlist}}",
                         usepackage=r"\usepackage[accepted]{icml2025}",
-                        affiliation=lambda x: f"]\n\\icmlaffiliation{{aff}}{{{x}}}\n",
-                        abstract=lambda x: f"\\printAffiliationsAndNotice{{}}\n\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n",
+                        affiliation=lambda x: f"\\icmlaffiliation{{aff}}{{{x}}}\n",
+                        abstract=lambda x: f"]\n\\printAffiliationsAndNotice{{}}\n\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n",
                         files=['icml2025.sty'],
                         keywords=lambda x: f"\\icmlkeywords{{{x}}}",
                          )
@@ -49,11 +49,11 @@ latex_jhep = LatexPresets(article="article",
 """JHEP Latex preset"""
 
 latex_neurips = LatexPresets(article="article",
-                        usepackage=r"\usepackage[final]{neurips}",
+                        usepackage=r"\usepackage[final]{neurips_2025}",
                         author=lambda x: f"\\author{{\n{x}\\\\",
                         affiliation=lambda x: f"{x}\n}}",
                         abstract=lambda x: f"\\maketitle\n\\begin{{abstract}}\n{x}\n\end{{abstract}}\n",
-                        files=['neurips.sty']
+                        files=['neurips_2025.sty']
                          )
 """NeurIPS Latex preset"""
 
