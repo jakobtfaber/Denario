@@ -76,7 +76,7 @@ class Experiment:
 
         """
 
-    def run_experiment(self, data_description: str, **kwargs):
+    def run_experiment(self, data_description: str, engineer_model: str = "claude-3-7-sonnet-20250219", researcher_model: str = "o3-mini-2025-01-31", **kwargs):
         """
         Run the experiment.
         TODO: improve docstring
@@ -87,8 +87,8 @@ class Experiment:
                             max_n_attempts = 6,
                             max_plan_steps = 6,
                             max_rounds_control = 500,
-                            engineer_model = "gpt-4.1-2025-04-14",
-                            researcher_model = "o3-mini-2025-01-31",
+                            engineer_model = engineer_model,
+                            researcher_model = researcher_model,
                             plan_instructions=self.planner_append_instructions,
                             researcher_instructions=self.researcher_append_instructions,
                             engineer_instructions=self.engineer_append_instructions,
