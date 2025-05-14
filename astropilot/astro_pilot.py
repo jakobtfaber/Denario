@@ -276,7 +276,7 @@ class AstroPilot:
         # display(Markdown(self.research.methodology))
         print(self.research.methodology)
 
-    def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], **kwargs) -> None:
+    def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], engineer_model: str = "claude-3-7-sonnet-20250219", researcher_model: str = "o3-mini-2025-01-31", **kwargs) -> None:
         """
         Compute the results making use of the methods, idea and data description.
 
@@ -297,7 +297,7 @@ class AstroPilot:
                 self.research.methodology = f.read()
 
         experiment = Experiment(self.research.idea, self.research.methodology, involved_agents=involved_agents, work_dir = self.project_dir)
-        experiment.run_experiment(self.research.data_description, **kwargs)
+        experiment.run_experiment(self.research.data_description, engineer_model=engineer_model, researcher_model=researcher_model, **kwargs)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
 
