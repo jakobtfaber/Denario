@@ -40,7 +40,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-  {include-group = "docs"}
+  {include-group = "docs"},
+  {include-group = "app"}
 ]
 docs = [
   "mkdocs",
@@ -48,6 +49,10 @@ docs = [
   "mkdocs-material>=9.6.12",
   "mkdocs-jupyter>=0.25.1",
   "mkdocs-git-committers-plugin-2>=2.5.0",
+]
+app = [
+  "streamlit",
+  "streamlit_pdf_viewer",
 ]
 
 [build-system]
