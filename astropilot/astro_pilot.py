@@ -377,6 +377,7 @@ class AstroPilot:
                   journal: Journal = Journal.NONE,
                   llm: LLM | str = models["gemini-2.0-flash"],
                   writer: str = 'scientist',
+                  cmbagent_keywords: bool = False,
                   add_citations=True) -> None:
         """
         Generate a full paper based on the files in input_files:
@@ -389,6 +390,7 @@ class AstroPilot:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
             llm: The LLM model to be used to write the paper. Default is set to gemini-2.0-flash
             writer: set the style and tone to write. E.g. astrophysicist, biologist, chemist
+            cmbagent_keywords: whether to use CMBAgent to select the keywords
             add_citations: whether to add citations to the paper or not
 
         Ddifferent journals considered
@@ -420,7 +422,8 @@ class AstroPilot:
             "llm": {"model": llm.name,  #name of the LLM model to use
                     "temperature": llm.temperature,
                     "max_output_tokens": llm.max_output_tokens},
-            "paper":{"journal": journal, "add_citations": add_citations},
+            "paper":{"journal": journal, "add_citations": add_citations,
+                     "cmbagent_keywords": cmbagent_keywords},
             "keys": self.keys,
             "writer": writer,
         }

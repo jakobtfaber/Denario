@@ -19,6 +19,7 @@ class PAPER(TypedDict):
     summary: str
     journal: Journal
     add_citations: bool
+    cmbagent_keywords: bool
 
 # Class for Input/Output files
 class FILES(TypedDict):
