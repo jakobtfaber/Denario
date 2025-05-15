@@ -5,7 +5,7 @@ from enum import Enum
 class Journal(str, Enum):
     """Enum which includes the different journals considered."""
     NONE = None
-    """No journal, use standard latex presets with abbrv for bibliography style."""
+    """No journal, use standard latex presets with unsrt for bibliography style."""
     AAS  = "AAS"
     """American Astronomical Society journals, including the Astrophysical Journal."""
     APS = "APS"
@@ -37,7 +37,7 @@ class LatexPresets(BaseModel):
     """Command for affiliations."""
     abstract: Callable[[str], str]
     """Command for abstract. Include maketitle here if needed since some journals require before or after the abstract."""
-    files: list[str]
+    files: list[str] = []
     """Files to be included in the latex: .bst, .cls and .sty."""
     keywords: Callable[[str], str] = lambda x: ""
     """Keywords of the research."""
