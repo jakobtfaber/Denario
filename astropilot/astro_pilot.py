@@ -393,8 +393,8 @@ class AstroPilot:
             cmbagent_keywords: whether to use CMBAgent to select the keywords
             add_citations: whether to add citations to the paper or not
 
-        Ddifferent journals considered
-        NONE = None : No journal, use standard latex presets with abbrv for bibliography style.
+        Different journals considered
+        NONE = None : No journal, use standard latex presets with unsrt for bibliography style.
         AAS  = "AAS" : American Astronomical Society journals, including the Astrophysical Journal.
         APS = "APS" : Physical Review Journals from the American Physical Society, including Physical Review Letters, PRA, etc.
         ICML = "ICML" : ICML - International Conference on Machine Learning.

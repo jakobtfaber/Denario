@@ -7,8 +7,7 @@ from .journal import Journal, LatexPresets
 latex_none = LatexPresets(article="article",
                          affiliation=lambda x: rf"\date{{{x}}}",
                          abstract=lambda x: f"\\maketitle\n\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n",
-                         bibliographystyle=r"\bibliographystyle{abbrv}",
-                         files=["abbrv.bst"],
+                         bibliographystyle=r"\bibliographystyle{unsrt}",
                          )
 """No Latex preset"""
 
@@ -25,7 +24,6 @@ latex_aas = LatexPresets(article="aastex631",
 latex_aps = LatexPresets(article="revtex4-2",
                          layout="aps",
                          abstract=lambda x: f"\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n\\maketitle",
-                         files=[],
                          )
 """APS Latex preset"""
 
@@ -54,8 +52,8 @@ latex_neurips = LatexPresets(article="article",
                         author=lambda x: f"\\author{{\n{x}\\\\",
                         affiliation=lambda x: f"{x}\n}}",
                         abstract=lambda x: f"\\maketitle\n\\begin{{abstract}}\n{x}\n\\end{{abstract}}\n",
-                        bibliographystyle=r"\bibliographystyle{abbrv}",
-                        files=['neurips_2025.sty',"abbrv.bst"]
+                        bibliographystyle=r"\bibliographystyle{unsrt}",
+                        files=['neurips_2025.sty']
                          )
 """NeurIPS Latex preset"""
 
