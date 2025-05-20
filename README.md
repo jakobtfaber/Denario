@@ -19,39 +19,26 @@ Initialize an `AstroPilot` instance and describe the data and tools to be employ
 ```python
 from astropilot import AstroPilot, Journal
 
+# Initiate AstroPilot by setting the working directory
 astro_pilot = AstroPilot(project_dir="project_dir")
 
-prompt = """
+# Set the input text
+input_text = """
 Analyze the experimental data stored in /path/to/data.csv using sklearn and pandas.
 This data includes time-series measurements from a particle detector.
 """
+astro_pilot.set_data_description(input_text)
 
-astro_pilot.set_data_description(prompt)
-```
-
-Generate a research idea from that data specification.
-
-```python
+# Generate a research idea from the input text
 astro_pilot.get_idea()
-```
 
-Generate the methodology required for working on that idea.
-
-```python
+# Generate a research plan to carry out the idea
 astro_pilot.get_method()
-```
 
-With the methodology setup, perform the required computations and get the plots and results.
-
-```python
+# Follow the research plan, write and execute code, make plots, and summarize the results
 astro_pilot.get_results()
-```
 
-Finally, generate a latex article with the results. You can specify the journal style, in this example we choose the [APS (Physical Review Journals)](https://journals.aps.org/) style.
-
-```python
-from astropilot import Journal
-
+# Write a paper with [APS (Physical Review Journals)](https://journals.aps.org/) style
 astro_pilot.get_paper(journal=Journal.APS)
 ```
 
