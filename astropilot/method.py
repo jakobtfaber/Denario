@@ -37,7 +37,7 @@ class Method:
         - The description should be written as if it were a senior researcher explaining to her research assistant how to perform the research necessary for this project.
 
 
-        The final step of the plan must be entirely dedicated to writting the full Methodology description (it will be subsequently be saved under the name "full_methodology.md").
+        The final step of the plan must be entirely dedicated to writing the full Methodology description (it will be subsequently be saved under the name "full_methodology.md").
 
         The only agent involved in this workflow is the researcher.
 
