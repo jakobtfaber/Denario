@@ -258,7 +258,7 @@ class AstroPilot:
         elapsed_time = end_time - start_time
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
-        print(f"Idea generated in {minutes} min {seconds} sec.")  
+        print(f"Methods generated in {minutes} min {seconds} sec.")  
         
     def set_method(self, method: str = None) -> None:
         """Manually set methods, either directly from a string or providing the path of a markdown file with the methods."""
