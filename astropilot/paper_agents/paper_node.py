@@ -15,6 +15,7 @@ from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_bloc
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex
 from ..config import INPUT_FILES
+from ..key_manager import KeyManager
 
 
 def keywords_node(state: GraphState, config: RunnableConfig):
@@ -407,7 +408,7 @@ async def add_citations_async(state, text, section_name):
     else:
         
         loop = asyncio.get_event_loop()
-        func = partial(process_tex_file_with_references, text)
+        func = partial(process_tex_file_with_references, text, state["keys"])
         new_text, references = await loop.run_in_executor(None, func)
         new_text = clean_section(new_text, section_name)
 
