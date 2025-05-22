@@ -2,6 +2,9 @@ import os
 import re
 import cmbagent
 
+from .key_manager import KeyManager
+from .utils import get_model_config_from_env
+
 class Method:
     """
     This class is used to develop a research project methodology based on the data of interest and the project idea.
@@ -10,7 +13,16 @@ class Method:
         work_dir: working directory.
     """
 
-    def __init__(self, research_idea: str, work_dir = None):
+    def __init__(self,
+                 research_idea: str,
+                 keys: KeyManager,
+                 researcher_model = "gpt-4.1-2025-04-14",
+                 work_dir = None):
+        
+        self.researcher_model = researcher_model
+
+        self.config = {}
+        self.config["researcher"] = get_model_config_from_env(self.researcher_model, keys)
 
         if work_dir is None:
             raise ValueError("workdir must be provided")
@@ -61,7 +73,7 @@ class Method:
         It should be roughly 500 words long.
         """
 
-    def develop_method(self, data_description: str, **kwargs):
+    def develop_method(self, data_description: str):
         """
         Develops the methods based on the data description.
 
@@ -73,12 +85,10 @@ class Method:
                               n_plan_reviews = 1,
                               max_n_attempts = 4,
                               max_plan_steps = 4,
-                            #   engineer_model = "gpt-4.1-2025-04-14",
-                              researcher_model = "gpt-4.1-2025-04-14",
+                              researcher_model = self.researcher_model,
                               plan_instructions=self.planner_append_instructions,
                               researcher_instructions=self.researcher_append_instructions,
                               work_dir = self.method_dir
-                            #   engineer_instructions=self.engineer_append_instructions
                              )
         
         chat_history = results['chat_history']

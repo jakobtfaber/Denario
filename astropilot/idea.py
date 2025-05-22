@@ -2,6 +2,9 @@ import re
 import os
 import cmbagent
 
+from .key_manager import KeyManager
+from .utils import get_model_config_from_env
+
 class Idea:
     """
     This class is used to develop a research project idea based on the data of interest.
@@ -22,15 +25,24 @@ class Idea:
     Args:
         work_dir: working directory.
     """
-    def __init__(self, work_dir = None, 
+    def __init__(self, 
+                 keys : KeyManager,
                  idea_maker_model = "gpt-4o", 
-                 idea_hater_model = "claude-3-7-sonnet"):
+                 idea_hater_model = "claude-3-7-sonnet",
+                 work_dir = None, 
+                ):
+        
         if work_dir is None:
             raise ValueError("workdir must be provided")
         
         self.idea_dir = os.path.join(work_dir, "idea_generation_output")
         self.idea_maker_model = idea_maker_model
         self.idea_hater_model = idea_hater_model
+
+        self.config = {}
+        self.config["idea_maker"] = get_model_config_from_env(self.idea_maker_model, keys)
+        self.config["idea_hater"] = get_model_config_from_env(self.idea_hater_model, keys)
+
         # Create directory if it doesn't exist
         os.makedirs(self.idea_dir, exist_ok=True)
 
@@ -48,7 +60,7 @@ class Idea:
         Don't suggest to perform any calculations or analyses here. The only goal of this task is to obtain the best possible project idea.
         """
         
-    def develop_idea(self, data_description: str, **kwargs):
+    def develop_idea(self, data_description: str):
         """
         Develops an idea based on the data description.
 
@@ -62,7 +74,8 @@ class Idea:
                               idea_maker_model = self.idea_maker_model,
                               idea_hater_model = self.idea_hater_model,
                               plan_instructions=self.planner_append_instructions,
-                              work_dir = self.idea_dir
+                              work_dir = self.idea_dir,
+                              config = self.config
                              )
 
         chat_history = results['chat_history']
