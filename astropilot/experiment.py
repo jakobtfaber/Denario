@@ -3,20 +3,37 @@ import os
 import re
 import cmbagent
 
+from .key_manager import KeyManager
+from .utils import get_model_config_from_env
+
 class Experiment:
     """
     This class is used to perform the experiment.
     TODO: improve docstring
     """
 
-    def __init__(self, research_idea: str, methodology: str, involved_agents: List[str] = ['engineer', 'researcher'], work_dir = None):
+    def __init__(self,
+                 research_idea: str,
+                 methodology: str,
+                 keys: KeyManager,
+                 involved_agents: List[str] = ['engineer', 'researcher'],
+                 engineer_model: str = "claude-3-7-sonnet-20250219",
+                 researcher_model: str = "o3-mini-2025-01-31",
+                 work_dir = None):
+        
+        self.engineer_model = engineer_model
+        self.researcher_model = researcher_model
+        
         if work_dir is None:
             raise ValueError("workdir must be provided")
+        
+        self.config = {}
+        self.config["engineer"] = get_model_config_from_env(self.engineer_model, keys)
+        self.config["researcher"] = get_model_config_from_env(self.researcher_model, keys)
 
         self.experiment_dir = os.path.join(work_dir, "experiment_generation_output")
         # Create directory if it doesn't exist
         os.makedirs(self.experiment_dir, exist_ok=True)
-
 
         involved_agents_str = ', '.join(involved_agents)
 
@@ -76,27 +93,27 @@ class Experiment:
 
         """
 
-    def run_experiment(self, data_description: str, engineer_model: str = "claude-3-7-sonnet-20250219", researcher_model: str = "o3-mini-2025-01-31", **kwargs):
+    def run_experiment(self, data_description: str, **kwargs):
         """
         Run the experiment.
         TODO: improve docstring
         """
 
-        print(f"Engineer model: {engineer_model.name}")
-        print(f"Researcher model: {researcher_model.name}")
-        # import sys
-        # sys.exit()
+        print(f"Engineer model: {self.engineer_model}")
+        print(f"Researcher model: {self.researcher_model}")
+        
         results = cmbagent.planning_and_control_context_carryover(data_description,
                             n_plan_reviews = 1,
                             max_n_attempts = 10,
                             max_plan_steps = 6,
                             max_rounds_control = 500,
-                            engineer_model = engineer_model.name,
-                            researcher_model = researcher_model.name,
+                            engineer_model = self.engineer_model,
+                            researcher_model = self.researcher_model,
                             plan_instructions=self.planner_append_instructions,
                             researcher_instructions=self.researcher_append_instructions,
                             engineer_instructions=self.engineer_append_instructions,
-                            work_dir = self.experiment_dir
+                            work_dir = self.experiment_dir,
+                            config=self.config
                             )
         chat_history = results['chat_history']
         final_context = results['final_context']

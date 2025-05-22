@@ -25,7 +25,6 @@ from .utils import llm_parser, input_check
 from .langgraph_agents.agents_graph import build_lg_graph
 
 
-# TODO: clean params and kwargs if not used
 # TODO: unify display and print by new method
 class AstroPilot:
     """
@@ -68,8 +67,10 @@ class AstroPilot:
         os.makedirs(self.plots_folder, exist_ok=True)
 
         self._setup_input_files()
+
+        # Get keys from environment if they exist
         self.keys = KeyManager()
-        self.keys.get_keys_from_dotenv()
+        self.keys.get_keys_from_env()
 
     def _setup_input_files(self) -> None:
         input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
@@ -81,7 +82,7 @@ class AstroPilot:
         # Create fresh input_files directory
         os.makedirs(input_files_dir, exist_ok=True)
 
-    def set_data_description(self, data_description: str | None = None, **kwargs) -> None:
+    def set_data_description(self, data_description: str | None = None) -> None:
         """
         Set the description of the data and tools to be used by the agents.
 
@@ -120,13 +121,14 @@ class AstroPilot:
         print(self.research.data_description)
 
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
-    def get_idea(self, idea_maker_model: LLM=models["gpt-4o"],
-                 idea_hater_model: LLM=models["claude-3.7-sonnet"], **kwargs) -> None:
+    def get_idea(self,
+                 idea_maker_model: LLM=models["gpt-4o"],
+                 idea_hater_model: LLM=models["claude-3.7-sonnet"],
+                ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
            idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
            idea_hater_model: the LLM to be used for the idea hater agent. Default is claude-3.7-sonnet
-           **kwargs: additional keywords arguments.
         """
         
         if self.research.data_description == "":
@@ -135,8 +137,10 @@ class AstroPilot:
 
         idea = Idea(work_dir = self.project_dir,
                     idea_maker_model = idea_maker_model.name,
-                    idea_hater_model = idea_hater_model.name)
-        idea = idea.develop_idea(self.research.data_description, **kwargs)
+                    idea_hater_model = idea_hater_model.name,
+                    keys=self.keys)
+        
+        idea = idea.develop_idea(self.research.data_description)
         self.research.idea = idea
         # Write idea to file
         idea_path = os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE)
@@ -183,7 +187,6 @@ class AstroPilot:
         seconds = int(elapsed_time % 60)
         print(f"Idea generated in {minutes} min {seconds} sec.")  
         
-    
     def set_idea(self, idea: str = None) -> None:
         """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
 
@@ -200,7 +203,7 @@ class AstroPilot:
         # display(Markdown(self.research.idea))
         print(self.research.idea)
     
-    def get_method(self, **kwargs) -> None:
+    def get_method(self) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`."""
 
         if self.research.data_description == "":
@@ -212,7 +215,7 @@ class AstroPilot:
                 self.research.idea = f.read()
 
         method = Method(self.research.idea, work_dir = self.project_dir)
-        methododology = method.develop_method(self.research.data_description, **kwargs)
+        methododology = method.develop_method(self.research.data_description)
         self.research.methodology = methododology
 
         # Write idea to file
@@ -276,7 +279,7 @@ class AstroPilot:
         # display(Markdown(self.research.methodology))
         print(self.research.methodology)
 
-    def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], engineer_model: str = "claude-3-7-sonnet-20250219", researcher_model: str = "o3-mini-2025-01-31", **kwargs) -> None:
+    def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], engineer_model: str = "claude-3-7-sonnet-20250219", researcher_model: str = "o3-mini-2025-01-31") -> None:
         """
         Compute the results making use of the methods, idea and data description.
 
@@ -296,8 +299,14 @@ class AstroPilot:
             with open(os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE), 'r') as f:
                 self.research.methodology = f.read()
 
-        experiment = Experiment(self.research.idea, self.research.methodology, involved_agents=involved_agents, work_dir = self.project_dir)
-        experiment.run_experiment(self.research.data_description, engineer_model=engineer_model, researcher_model=researcher_model, **kwargs)
+        experiment = Experiment(research_idea=self.research.idea,
+                                methodology=self.research.methodology,
+                                involved_agents=involved_agents,
+                                engineer_model=engineer_model,
+                                researcher_model=researcher_model,
+                                work_dir = self.project_dir,
+                                keys=self.keys)
+        experiment.run_experiment(self.research.data_description)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
 
@@ -348,14 +357,13 @@ class AstroPilot:
         # display(Markdown(self.research.results))
         print(self.research.results)
     
-    def get_keywords(self, input_text: str, n_keywords: int = 5, **kwargs) -> None:
+    def get_keywords(self, input_text: str, n_keywords: int = 5) -> None:
         """
         Get AAS keywords from input text using astropilot.
 
         Args:
             input_text (str): Text to extract keywords from
             n_keywords (int, optional): Number of keywords to extract. Defaults to 5.
-            **kwargs: Additional keyword arguments
 
         Returns:
             dict: Dictionary mapping AAS keywords to their URLs
