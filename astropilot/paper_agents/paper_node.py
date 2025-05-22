@@ -15,7 +15,6 @@ from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_bloc
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex
 from ..config import INPUT_FILES
-from ..key_manager import KeyManager
 
 
 def keywords_node(state: GraphState, config: RunnableConfig):
