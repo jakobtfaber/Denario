@@ -214,7 +214,7 @@ class AstroPilot:
             with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
                 self.research.idea = f.read()
 
-        method = Method(self.research.idea, work_dir = self.project_dir)
+        method = Method(self.research.idea, keys=self.keys,  work_dir = self.project_dir)
         methododology = method.develop_method(self.research.data_description)
         self.research.methodology = methododology
 
@@ -417,9 +417,6 @@ class AstroPilot:
 
         # Get LLM instance
         llm = llm_parser(llm)
-
-        # Get keys
-        self.keys.get_keys_from_env()
 
         # Build graph
         graph = build_graph(mermaid_diagram=False)
