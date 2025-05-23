@@ -5,6 +5,7 @@ import cmbagent
 
 from .key_manager import KeyManager
 from .utils import get_model_config_from_env
+from .prompts.experiment import experiment_planner_prompt, experiment_engineer_prompt, experiment_researcher_prompt
 
 class Experiment:
     """
@@ -26,10 +27,8 @@ class Experiment:
         
         if work_dir is None:
             raise ValueError("workdir must be provided")
-        
-        self.config = {}
-        self.config["engineer"] = get_model_config_from_env(self.engineer_model, keys)
-        self.config["researcher"] = get_model_config_from_env(self.researcher_model, keys)
+
+        self.api_keys = keys
 
         self.experiment_dir = os.path.join(work_dir, "experiment_generation_output")
         # Create directory if it doesn't exist
@@ -37,61 +36,20 @@ class Experiment:
 
         involved_agents_str = ', '.join(involved_agents)
 
-        self.planner_append_instructions = rf"""
-
-        {research_idea}
-
-        {methodology}
-
-
-        Given these datasets, project idea and methodology, we want to perform the project analysis and generate the results, plots and insights.
-        
-        The goal is to perform the in-depth research and analysis. 
-
-        The plan must strictly involve only the following agents: {involved_agents_str}.
-        
-        The goal here is to do the in-depth research and analysis, not an exploratory data analysis.
-
-        The final step of the plan, carried out by the researcher agent, must be entirely dedicated to writting the full Results section of the paper or report. If this research project involves code implementation, this final step should report on all the qualitative and quantitative results, interpretations of the plots and key statistics, and references to the plots generated in the previous steps.
-        The final result report will be what will be passed on to the paper writer agents, so all relevant information must be included in the final report (everything else will be discarded).
-        
-        """
-
-        self.engineer_append_instructions = rf"""
-        {research_idea}
-
-        {methodology}
-
-
-        Given these datasets, and information on the features and project idea and methodology, we want to perform the project analysis and generate the results, plots and key statistics.
-        The goal is to perform the in-depth research and analysis. This means that you must generate the results, plots and key statistics.
-
-        Warnings for computing and plotting: 
-        - make sure dynamical ranges are well captured (carefully adjust the limits, binning, and log or linear axes scales, for each feature).
-
-        For histograms (if needed):
-        -Use log-scale for features with values spanning several orders of magnitudes.
-
-
-        **GENERAL IMPORTANT INSTRUCTIONS**: You must print out in the console ALL the quantitative information that you think the researcher will need to interpret the results. (The researcher does not have access to saved data files, only to what you print out!)
-        Remember that the researcher agent can not load information from files, so you must print ALL necessary info in the console (without truncation). For this, it may be necessary to change pandas (if using it) display options.
-
-        """
-
-
-        self.researcher_append_instructions =  rf"""
-        {research_idea}
-
-        {methodology}
-
-
-        At the end of the session, your task is to generate a detailed/extensive **discussion** and **interpretation** of the results. 
-        If quantitative results were derived you should provide interpretations of the plots and interpretations of the key statistics, including reporting meaningful quantitative results, tables and references to matarial previously generated in the session.
-        The results should be reported in full (not a summary) and in academic style. The results report/section should be around 2000 words.
-
-        The final result report will be what will be passed on to the paper writer agents, so all relevant information must be included in the final report (everything else will be discarded).
-
-        """
+        # Set prompts
+        self.planner_append_instructions = experiment_planner_prompt.format(
+            research_idea = research_idea,
+            methodology = methodology,
+            involved_agents_str = involved_agents_str
+        )
+        self.engineer_append_instructions = experiment_engineer_prompt.format(
+            research_idea = research_idea,
+            methodology = methodology,
+        )
+        self.engineer_append_instructions = experiment_researcher_prompt.format(
+            research_idea = research_idea,
+            methodology = methodology,
+        )
 
     def run_experiment(self, data_description: str, **kwargs):
         """
@@ -113,7 +71,7 @@ class Experiment:
                             researcher_instructions=self.researcher_append_instructions,
                             engineer_instructions=self.engineer_append_instructions,
                             work_dir = self.experiment_dir,
-                            config=self.config
+                            api_keys = self.api_keys
                             )
         chat_history = results['chat_history']
         final_context = results['final_context']

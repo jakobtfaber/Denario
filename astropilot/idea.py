@@ -4,6 +4,7 @@ import cmbagent
 
 from .key_manager import KeyManager
 from .utils import get_model_config_from_env
+from .prompts.idea import idea_planner_prompt
 
 class Idea:
     """
@@ -39,26 +40,13 @@ class Idea:
         self.idea_maker_model = idea_maker_model
         self.idea_hater_model = idea_hater_model
 
-        self.config = {}
-        self.config["idea_maker"] = get_model_config_from_env(self.idea_maker_model, keys)
-        self.config["idea_hater"] = get_model_config_from_env(self.idea_hater_model, keys)
+        self.api_keys = keys
 
         # Create directory if it doesn't exist
         os.makedirs(self.idea_dir, exist_ok=True)
 
-        self.planner_append_instructions = r"""
-        Given these datasets, and information, make a plan according to the following instructions: 
-
-        - Ask idea_maker to generate 5 new research project ideas related to the datasets.
-        - Ask idea_hater to critique these ideas.
-        - Ask idea_maker to select and improve 2 out of the 5 research project ideas given the output of the idea_hater.
-        - Ask idea_hater to critique the 2 improved ideas. 
-        - Ask idea_maker to select the best idea out of the 2. 
-        - Ask idea_maker to report the best idea in the form of a scientific paper title with a 5-sentence description. 
-
-        The goal of this task is to generate a research project idea based on the data of interest. 
-        Don't suggest to perform any calculations or analyses here. The only goal of this task is to obtain the best possible project idea.
-        """
+        # Set prompt
+        self.planner_append_instructions = idea_planner_prompt
         
     def develop_idea(self, data_description: str):
         """
@@ -75,7 +63,7 @@ class Idea:
                               idea_hater_model = self.idea_hater_model,
                               plan_instructions=self.planner_append_instructions,
                               work_dir = self.idea_dir,
-                              config = self.config
+                              api_keys = self.api_keys
                              )
 
         chat_history = results['chat_history']

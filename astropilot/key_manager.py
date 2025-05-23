@@ -13,6 +13,7 @@ class KeyManager(BaseModel):
         load_dotenv()
 
         self.ANTHROPIC      = os.getenv("ANTHROPIC_API_KEY")
+        # self.GEMINI         = os.getenv("GEMINI_API_KEY")
         self.GEMINI         = os.getenv("GOOGLE_API_KEY")
         self.PERPLEXITY     = os.getenv("PERPLEXITY_API_KEY")
         self.OPENAI         = os.getenv("OPENAI_API_KEY")
