@@ -369,7 +369,7 @@ class AstroPilot:
             dict: Dictionary mapping AAS keywords to their URLs
         """
         
-        aas_keywords = cmbagent.get_keywords(input_text, n_keywords = n_keywords)
+        aas_keywords = cmbagent.get_keywords(input_text, n_keywords = n_keywords, api_keys = self.keys)
         self.research.keywords = aas_keywords
     
     def show_keywords(self) -> None:

@@ -3,7 +3,6 @@ import re
 import cmbagent
 
 from .key_manager import KeyManager
-from .utils import get_model_config_from_env
 from .prompts.method import method_planner_prompt, method_researcher_prompt
 
 class Method:
