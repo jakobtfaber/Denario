@@ -4,7 +4,6 @@ import re
 import cmbagent
 
 from .key_manager import KeyManager
-from .utils import get_model_config_from_env
 from .prompts.experiment import experiment_planner_prompt, experiment_engineer_prompt, experiment_researcher_prompt
 
 class Experiment:
@@ -46,7 +45,7 @@ class Experiment:
             research_idea = research_idea,
             methodology = methodology,
         )
-        self.engineer_append_instructions = experiment_researcher_prompt.format(
+        self.researcher_append_instructions = experiment_researcher_prompt.format(
             research_idea = research_idea,
             methodology = methodology,
         )

@@ -3,7 +3,6 @@ import os
 import cmbagent
 
 from .key_manager import KeyManager
-from .utils import get_model_config_from_env
 from .prompts.idea import idea_planner_prompt
 
 class Idea:
