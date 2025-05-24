@@ -174,3 +174,16 @@ def clean_section(text, section):
 
     return text
 
+
+def check_images_in_text(state, images):
+    """
+    This function checks whether the LLM has put the images in the text or not
+    """
+
+    # Check that the images are in the text
+    for key, value in images.items():
+        if value["name"] not in state['paper']['Results']:
+            return False
+    return True
+
+            

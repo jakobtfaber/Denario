@@ -11,7 +11,7 @@ import cmbagent
 
 from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
-from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file
+from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex
 from ..config import INPUT_FILES
@@ -279,15 +279,28 @@ def plots_node(state: GraphState, config: RunnableConfig):
             state['paper']['Results'] = temp_file(f_temp, 'read')
             
         else:
-            PROMPT = plot_prompt(state, images)
-            state, result = LLM_call(PROMPT, state)
-            results = extract_latex_block(state, result, "Section")
 
-            # Check LaTeX
-            results = LaTeX_checker(state, results)
+            # sometimes it may not include the images. Give it three chances
+            for attempt in range(3):
+                
+                PROMPT = plot_prompt(state, images)
+                state, result = LLM_call(PROMPT, state)
+                results = extract_latex_block(state, result, "Section")
 
-            # --- Remove unwanted LaTeX wrappers ---
-            state['paper']['Results'] = clean_section(results, 'Results')
+                # Check LaTeX
+                results = LaTeX_checker(state, results)
+
+                # --- Remove unwanted LaTeX wrappers ---
+                state['paper']['Results'] = clean_section(results, 'Results')
+
+                # check if the names of the images are the correct ones
+                images_in_text = check_images_in_text(state, images)
+
+                if images_in_text:
+                    break
+            else:
+                raise RuntimeError("Unable to put the images in the text. Failed after three attemps")
+                
             
             # save temporary file
             temp_file(f_temp, 'write', state['paper']['Results'])
