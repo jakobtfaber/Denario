@@ -1,10 +1,10 @@
 import re
-import os
 import requests
 from typing import List, Tuple
 
+from ..key_manager import KeyManager
 
-def _execute_query(payload):
+def _execute_query(payload, keys: KeyManager):
     """
     Executes a query by sending a POST request to the Perplexity API.
 
@@ -14,14 +14,14 @@ def _execute_query(payload):
     Returns:
         PerplexityChatCompletionResponse: Parsed response from the Perplexity API.
     """
-    api_key = os.getenv("PERPLEXITY_API_KEY")
+    api_key = keys.PERPLEXITY
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
     response = requests.post("https://api.perplexity.ai/chat/completions", headers=headers, json=payload).json()
 
     return response
 
 
-def perplexity(para):
+def perplexity(para, keys: KeyManager):
     perplexity_message = rf"""
 You perform scientific literature search on the arXiv. The domain of interest is astrophyics.
     
@@ -60,7 +60,7 @@ Your answear should not have the formating marks <TEXT> and </TEXT>, just the te
     "messages": [{"role": "system", "content": "Be precise and concise. Follow the instructions."}, {"role": "user", "content": perplexity_message}],
     "search_domain_filter": ["arxiv.org"],
     }
-    perplexity_response = _execute_query(payload)
+    perplexity_response = _execute_query(payload, keys)
     content = perplexity_response["choices"][0]["message"]["content"]
     citations = perplexity_response["citations"]
     cleaned_response = re.sub(r'<think>.*?</think>\s*', '', content, flags=re.DOTALL)
@@ -80,7 +80,7 @@ Your answear should not have the formating marks <TEXT> and </TEXT>, just the te
 
 
 
-def process_tex_file_with_references(text, nparagraphs=None):
+def process_tex_file_with_references(text, keys: KeyManager, nparagraphs=None):
     """
     Processes a LaTeX file by inserting `\\citep{}` references and generating a corresponding .bib file.
     
@@ -120,7 +120,7 @@ def process_tex_file_with_references(text, nparagraphs=None):
         for attempt in range(2):
             # Replace the following line with your actual perplexity call if needed.
             # new_para, citations = para, []  # e.g., new_para, citations = perplexity(para)
-            new_para, citations = perplexity(para)
+            new_para, citations = perplexity(para, keys)
             if new_para is not None:
                 break  # exit the retry loop if successful
             else:

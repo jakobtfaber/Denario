@@ -420,7 +420,7 @@ async def add_citations_async(state, text, section_name):
     else:
         
         loop = asyncio.get_event_loop()
-        func = partial(process_tex_file_with_references, text)
+        func = partial(process_tex_file_with_references, text, state["keys"])
         new_text, references = await loop.run_in_executor(None, func)
         new_text = clean_section(new_text, section_name)
 
