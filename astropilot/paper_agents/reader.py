@@ -39,6 +39,9 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
 
     # set time
     state['time'] = {'start': time.time()}
+
+    # set value of the parameters
+    state['params'] = {'num_keywords': 5}
     
     # get Paper folder
     state['files'] = {**state['files'],
@@ -150,6 +153,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     return {**state,
             "llm": state['llm'],
             "tokens": state['tokens'],
+            "params": state['params'],
             "files": state['files'],
             "latex": state['latex'],
             "idea": idea,

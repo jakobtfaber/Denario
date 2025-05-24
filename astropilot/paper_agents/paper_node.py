@@ -23,6 +23,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
     """
 
     # temporary file with the selected keywords
+    print("Finding keywords".ljust(28, '.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/Keywords.tex")
 
     if f_temp.exists():
@@ -42,18 +43,34 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         else:
 
             ################ Langgraph keywords ###############
-            # Extract keywords
-            PROMPT, keywords_list = keyword_prompt(state)
-            state, result = LLM_call(PROMPT, state)
-            keywords = extract_latex_block(state, result, "Keywords")
-
-            # get the keywords and make a list with them
-            input_keywords = [kw.strip() for kw in keywords.split(',') if kw.strip()]
+            for attempts in range(5):  #try 5 times in case it fails
+                
+                # Extract keywords
+                PROMPT, keywords_list = keyword_prompt(state)
+                state, result = LLM_call(PROMPT, state)
+                keywords = extract_latex_block(state, result, "Keywords")
+                
+                # get the keywords and make a list with them
+                input_keywords = [kw.strip() for kw in keywords.split(',') if kw.strip()]
             
-            # Check which choosen keywords are actually AAS keywords
-            matched_keywords = [kw for kw in input_keywords if kw in keywords_list]
-            matched_keywords = ', '.join(matched_keywords)
-            keywords = matched_keywords
+                # Check which choosen keywords are actually AAS keywords
+                matched_keywords = [kw for kw in input_keywords if kw in keywords_list]
+                matched_keywords = ', '.join(matched_keywords)
+                keywords = matched_keywords
+
+                # get the number of keywords
+                keywords = [item.strip() for item in keywords.split(',') if item.strip()]
+                
+                if len(keywords)>=state['params']['num_keywords']:
+                    break
+            else:
+                raise RuntimeError("LLM failed to get the keywords after 5 attemps")
+
+            # take a random subset
+            keywords = random.sample(keywords, state['params']['num_keywords'])
+
+            # join all keywords into a string with comma separated
+            keywords = ", ".join(keywords)
             ###################################################
 
         # write results to temporary file
@@ -61,7 +78,8 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         compile_tex_document(state, f_temp, state['files']['Temp'])
 
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+    print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+    #print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
     return {'paper': {**state['paper'], 'Keywords': keywords},
             'tokens': state['tokens']}

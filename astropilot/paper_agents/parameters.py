@@ -68,6 +68,11 @@ class LLM(TypedDict):
 # TIME class
 class TIME(TypedDict):
     start: float
+
+# parameters class
+class PARAMS(TypedDict):
+    num_keywords: int
+    
     
 # Graph state class
 class GraphState(TypedDict):
@@ -81,3 +86,4 @@ class GraphState(TypedDict):
     keys: KeyManager
     time: TIME
     writer: str  #determines who is writing the paper. E.g. astrophysicists, biologist
+    params: PARAMS #parameters of model
