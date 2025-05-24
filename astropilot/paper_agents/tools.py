@@ -4,6 +4,8 @@ from pathlib import Path
 
 from .prompts import fixer_prompt, LaTeX_prompt
 from .parameters import GraphState
+from .journal import LatexPresets
+from .latex_presets import journal_dict
 
 
 def LLM_call(prompt, state):
@@ -26,7 +28,7 @@ def LLM_call(prompt, state):
     return state, message.content
 
 
-def temp_file(fin, action, text=None, json_file=False):
+def temp_file(state, fin, action, text=None, json_file=False):
     """
     This function reads or writes the content of a temporary file
     fin:  the name of the file
@@ -34,6 +36,8 @@ def temp_file(fin, action, text=None, json_file=False):
     text: when action is 'write', the text to write
     json: whether the file is json or not
     """
+    
+    journaldict: LatexPresets = journal_dict[state['paper']['journal']]
 
     if action=='read':
         with open(fin, 'r', encoding='utf-8') as f:
@@ -57,10 +61,14 @@ def temp_file(fin, action, text=None, json_file=False):
             if json_file:
                 json.dump(text, f, indent=2)
             else:
-                latex_text = rf"""\documentclass[twocolumn]{{aastex631}}
+                latex_text = rf"""\documentclass[{journaldict.layout}]{{{journaldict.article}}}
 
 \usepackage{{amsmath}}
 \usepackage{{multirow}}
+\usepackage{{natbib}}
+\usepackage{{graphicx}} 
+{journaldict.usepackage}
+
 \begin{{document}}
 
 {text}

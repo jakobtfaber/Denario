@@ -26,7 +26,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
     f_temp = Path(f"{state['files']['Temp']}/Keywords.tex")
 
     if f_temp.exists():
-        keywords = temp_file(f_temp, 'read')
+        keywords = temp_file(state, f_temp, 'read')
 
     else:
 
@@ -57,7 +57,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
             ###################################################
 
         # write results to temporary file
-        temp_file(f_temp, 'write', keywords)
+        temp_file(state, f_temp, 'write', keywords)
         compile_tex_document(state, f_temp, state['files']['Temp'])
 
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
@@ -79,8 +79,8 @@ def abstract_node(state: GraphState, config: RunnableConfig):
 
     # check if abstract already exists
     if f_temp1.exists():
-        state['paper']['Abstract'] = temp_file(f_temp1, 'read')
-        state['paper']['Title']    = temp_file(f_temp2, 'read')
+        state['paper']['Abstract'] = temp_file(state, f_temp1, 'read')
+        state['paper']['Title']    = temp_file(state, f_temp2, 'read')
 
     else:
         # In case it fails, it has up to three attempts
@@ -107,8 +107,8 @@ def abstract_node(state: GraphState, config: RunnableConfig):
             state['paper']['Abstract'] = extract_latex_block(state, result, "Abstract")
 
         # save temporary file
-        temp_file(f_temp2, 'write', state['paper']['Title'])
-        temp_file(f_temp1, 'write', state['paper']['Abstract'])
+        temp_file(state, f_temp2, 'write', state['paper']['Title'])
+        temp_file(state, f_temp1, 'write', state['paper']['Abstract'])
 
         # compile title and abstract. If there are errors, try to fix them
         compile_tex_document(state, f_temp2, state['files']['Temp'])           #title
@@ -148,7 +148,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
 
     # check if abstract already exists
     if f_temp.exists():
-        state['paper'][section_name] = temp_file(f_temp, 'read')
+        state['paper'][section_name] = temp_file(state, f_temp, 'read')
 
     else:
         
@@ -171,7 +171,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
         state['paper'][section_name] = clean_section(section_text, section_name)
 
         # --- Step 5: save file to file ---
-        temp_file(f_temp, 'write', state['paper'][section_name])
+        temp_file(state, f_temp, 'write', state['paper'][section_name])
 
         # --- Step 6: Compile and try to fix LaTeX errors ---
         success = compile_tex_document(state, f_temp, state['files']['Temp'])
@@ -254,7 +254,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
         f_temp = Path(f"{state['files']['Temp']}/plots_{start+1}_{min(start+batch_size, num_images)}.json")
 
         if f_temp.exists():
-            images = temp_file(f_temp, 'read', json_file=True)
+            images = temp_file(state, f_temp, 'read', json_file=True)
 
         else:
 
@@ -269,14 +269,14 @@ def plots_node(state: GraphState, config: RunnableConfig):
                 images[f"image{i}"] = {'name': file.name, 'caption': caption}
 
             # save temporary file
-            temp_file(f_temp, 'write', images, json_file=True)
+            temp_file(state, f_temp, 'write', images, json_file=True)
 
         # temporary file with the images
         print(f'   Inserting figures {start+1}-{min(start+batch_size, num_images)}'.ljust(28,'.'), end="", flush=True)
         f_temp = Path(f"{state['files']['Temp']}/Results_{start+1}_{min(start+batch_size, num_images)}.tex")
         
         if f_temp.exists():
-            state['paper']['Results'] = temp_file(f_temp, 'read')
+            state['paper']['Results'] = temp_file(state, f_temp, 'read')
             
         else:
 
@@ -303,7 +303,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
                 
             
             # save temporary file
-            temp_file(f_temp, 'write', state['paper']['Results'])
+            temp_file(state, f_temp, 'write', state['paper']['Results'])
 
             # save paper
             save_paper(state, state['files']['Paper_v1'])
@@ -353,7 +353,7 @@ def refine_results(state: GraphState, config: RunnableConfig):
 
     # check if this has already been done
     if f_temp.exists():
-        state['paper']['Results'] = temp_file(f_temp, 'read')
+        state['paper']['Results'] = temp_file(state, f_temp, 'read')
 
     else:
 
@@ -372,7 +372,7 @@ def refine_results(state: GraphState, config: RunnableConfig):
         state['paper']['Results'] = check_references(state, section_text)
 
         # save temporary file
-        temp_file(f_temp, 'write', state['paper']['Results'])
+        temp_file(state, f_temp, 'write', state['paper']['Results'])
 
         # try to compile the paper
         success = compile_tex_document(state, f_temp, state['files']['Temp'])
@@ -414,8 +414,8 @@ async def add_citations_async(state, text, section_name):
 
     # check if this has already been done
     if f_temp1.exists():
-        new_text   = temp_file(f_temp1, 'read')
-        references = temp_file(f_temp2, 'read')
+        new_text   = temp_file(state, f_temp1, 'read')
+        references = temp_file(state, f_temp2, 'read')
 
     else:
         
@@ -425,8 +425,8 @@ async def add_citations_async(state, text, section_name):
         new_text = clean_section(new_text, section_name)
 
         # save temporary file
-        temp_file(f_temp2, 'write', references)
-        temp_file(f_temp1, 'write', new_text)
+        temp_file(state, f_temp2, 'write', references)
+        temp_file(state, f_temp1, 'write', new_text)
         
     print(f'    {section_name} done')
     return section_name, new_text, references
@@ -481,14 +481,14 @@ async def citations_node(state: GraphState, config: RunnableConfig):
 
         # check if this has already been done
         if f_temp.exists():
-            section_text = temp_file(f_temp, 'read')
+            section_text = temp_file(state, f_temp, 'read')
         else:
             PROMPT = clean_section_prompt(state, state['paper'][section_name])
             state, result = LLM_call(PROMPT, state)
             section_text = extract_latex_block(state, result, "Text")
             section_text = LaTeX_checker(state, section_text)          #check LaTeX
             section_text = clean_section(section_text, section_name)   #remove unwanted LaTeX text
-            temp_file(f_temp, 'write', section_text)
+            temp_file(state, f_temp, 'write', section_text)
             
         state['paper'][section_name] = section_text
     save_paper(state, state['files']['Paper_v4'])

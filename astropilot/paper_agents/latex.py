@@ -202,93 +202,6 @@ def compile_latex(state: GraphState, paper_name: str) -> None:
 
 
 
-#def compile_latex(state: GraphState, paper_name: str, verbose=True):
-#    """
-#    Function used to compile the paper
-#    Args:
-#       state: the state of the graph
-#       paper: the name of file to compile
-#    """
-    
-#    # get the current directory
-#    original_dir = os.getcwd()
-
-#    # go to the folder containing the paper
-#    os.chdir(state['files']['Folder'])
-
-#    # get the stem of the paper paper name
-#    paper_stem = Path(paper_name).stem
-    
-#    # try to compile twice for citations and links
-#    for i in range(4):  #compile three times to add citations
-#        if i==1:
-#            if os.path.exists('bibliography.bib'):
-#                result = subprocess.run(["bibtex", paper_stem],
-#                                        capture_output=True,
-#                                        text=True, check=True)
-#            continue
-            
-#        try:
-#            result = subprocess.run(["xelatex", paper_name],
-#                                    input="\n",
-#                                    capture_output=True,
-#                                    text=True, check=True)
-#            if verbose:
-#                print(f"    LaTeX compiled successfully: iteration {i+1}")
-
-#            # Write stdout to log
-#            with open(state['files']['LaTeX_log'], 'a') as f:
-#                f.write(f"\n==== LaTeX Compilation Pass {i + 1} ====\n")
-#                f.write(result.stdout)
-            
-#        except subprocess.CalledProcessError as e:
-#            print(f"    LaTeX compilation failed: iteration {i+1}")
-#            with open(state['files']['LaTeX_log'], 'a') as f:
-#                f.write(f"\n==== ERROR on Pass {i + 1} ====\n")
-#                f.write("---- STDOUT ----\n")
-#                f.write(e.stdout or "")
-#                f.write("---- STDERR ----\n")
-#                f.write(e.stderr or "")
-
-#            # section to fix
-#            section = state['latex']['section']
-
-#            # Filter actual errors from stdout/stderr
-#            error_lines = []
-#            lines = (e.stdout or "") .splitlines() + (e.stderr or "").splitlines()
-#            show_context = 0
-#            for line in lines:
-#                if line.lstrip().startswith("!"):
-#                    error_lines.append("\n" + line)
-#                    show_context = 3  # show 3 lines after the error
-#                elif show_context > 0:
-#                    error_lines.append(line)
-#                    show_context -= 1
-#            error_msg = ' '.join(line.strip() for line in error_lines if line.strip())
-
-#            print(error_lines)
-#            latex_lines = []
-#            for line in lines:
-#                match = re.search(r'l\.(\d+)', line)
-#                if match:
-#                    latex_lines.append(match.group(1))
-#                    print(f"Found line number: {match.group(1)}")
-#            latex_lines = set(latex_lines)
-
-#            fixed_text = fix_latex_bug(state, state['paper'][section], error_msg)
-#            state['paper'][section] = fixed_text
-#            sys.exit()
-
-#    # remove auxiliary files
-#    for fin in [f'{paper_stem}.aux', f'{paper_stem}.log', f'{paper_stem}.out',
-#                f'{paper_stem}.bbl', f'{paper_stem}.blg', f'{paper_stem}.synctex.gz',
-#                f'{paper_stem}.synctex(busy)']:
-#        if os.path.exists(fin):  os.remove(fin)
-                        
-#    os.chdir(original_dir)
-
-
-
 def save_paper(state: GraphState, paper_name: str):
     """
     This function just saves the current state of the paper
@@ -305,9 +218,6 @@ def save_paper(state: GraphState, paper_name: str):
 
     paper = rf"""\documentclass[{journaldict.layout}]{{{journaldict.article}}}
 
-\newcommand{{\vdag}}{{(v)^\dagger}}
-\newcommand\aastex{{AAS\TeX}}
-\newcommand\latex{{La\TeX}}
 \usepackage{{amsmath}}
 \usepackage{{multirow}}
 \usepackage{{natbib}}
@@ -424,7 +334,7 @@ def fix_latex(state, f_temp):
 
         # save text to file
         f_name = f"{f_stem}_v{i+1}{suffix}"
-        temp_file(f_name, 'write', fixed_text)
+        temp_file(state, f_name, 'write', fixed_text)
 
         # compile again; if successful change file names and exit
         if compile_tex_document(state, f_name, state['files']['Temp']):
