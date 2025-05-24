@@ -285,7 +285,7 @@ class AstroPilot:
 
     def get_results(self,
                     involved_agents: List[str] = ['engineer', 'researcher'],
-                    engineer_model: LLM | str = models["claude-3-7-sonnet"],
+                    engineer_model: LLM | str = models["claude-3.7-sonnet"],
                     researcher_model: LLM | str = models["o3-mini"]
                     ) -> None:
         """
