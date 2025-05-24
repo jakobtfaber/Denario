@@ -122,14 +122,18 @@ class AstroPilot:
 
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
     def get_idea(self,
-                 idea_maker_model: LLM=models["gpt-4o"],
-                 idea_hater_model: LLM=models["claude-3.7-sonnet"],
+                 idea_maker_model: LLM | str = models["gpt-4o"],
+                 idea_hater_model: LLM | str = models["claude-3.7-sonnet"],
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
            idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
            idea_hater_model: the LLM to be used for the idea hater agent. Default is claude-3.7-sonnet
         """
+
+        # Get LLM instances
+        idea_maker_model = llm_parser(idea_maker_model)
+        idea_hater_model = llm_parser(idea_hater_model)
         
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
@@ -279,13 +283,21 @@ class AstroPilot:
         # display(Markdown(self.research.methodology))
         print(self.research.methodology)
 
-    def get_results(self, involved_agents: List[str] = ['engineer', 'researcher'], engineer_model: str = "claude-3-7-sonnet-20250219", researcher_model: str = "o3-mini-2025-01-31") -> None:
+    def get_results(self,
+                    involved_agents: List[str] = ['engineer', 'researcher'],
+                    engineer_model: LLM | str = models["claude-3-7-sonnet"],
+                    researcher_model: LLM | str = models["o3-mini"]
+                    ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
 
         Args:
             involved_agents: List of agents employed to compute the results.
         """
+
+        # Get LLM instances
+        engineer_model = llm_parser(engineer_model)
+        researcher_model = llm_parser(researcher_model)
 
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
@@ -302,8 +314,8 @@ class AstroPilot:
         experiment = Experiment(research_idea=self.research.idea,
                                 methodology=self.research.methodology,
                                 involved_agents=involved_agents,
-                                engineer_model=engineer_model,
-                                researcher_model=researcher_model,
+                                engineer_model=engineer_model.name,
+                                researcher_model=researcher_model.name,
                                 work_dir = self.project_dir,
                                 keys=self.keys)
         experiment.run_experiment(self.research.data_description)
