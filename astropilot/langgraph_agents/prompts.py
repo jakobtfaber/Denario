@@ -3,7 +3,7 @@ from langchain_core.messages import HumanMessage
 
 def idea_maker_prompt(state):
 
-    return [HumanMessage(content=rf"""Your goal is to generate a groundbreaking idea for a scientific paper. Generate a original idea given the data description. If available, take into account the criticism provided by another agent about the idea. 
+    return [HumanMessage(content=rf"""Your goal is to generate a groundbreaking idea for a scientific paper. Generate a original idea given the data description. If available, take into account the criticism provided by another agent about the idea. Please stick to the guidelines mentioned in the data description.
 
 Iteration {state['idea']['iteration']}
     
@@ -28,7 +28,7 @@ In <IDEA>, put the idea together with its description. Try to be brief in the de
 
 def idea_hater_prompt(state):
 
-    return [HumanMessage(content=rf"""Your goal is to critic an idea. You will be provided with the idea together with the initial data description used to make the idea. Be a harsh critic of the idea. Take into account feasibility, impact and any other factor you think. The goal of your criticisms is to improve the idea. If the idea is not feasible, suggest to generate a new idea.
+    return [HumanMessage(content=rf"""Your goal is to critic an idea. You will be provided with the idea together with the initial data description used to make the idea. Be a harsh critic of the idea. Take into account feasibility, impact and any other factor you think. The goal of your criticisms is to improve the idea. If the idea is not feasible, suggest to generate a new idea. When providing your feedback, take into account the guidelines in the data description. For instance, if a detailed idea is provided there, try to stick with it.
 
 Data description:
 {state['data_description']}
