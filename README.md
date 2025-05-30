@@ -19,26 +19,36 @@ Initialize an `AstroPilot` instance and describe the data and tools to be employ
 ```python
 from astropilot import AstroPilot, Journal
 
-# Initiate AstroPilot by setting the working directory
 astro_pilot = AstroPilot(project_dir="project_dir")
 
-# Set the input text
-input_text = """
-Analyze the experimental data stored in /path/to/data.csv using sklearn and pandas.
-This data includes time-series measurements from a particle detector.
-"""
-astro_pilot.set_data_description(input_text)
+prompt = "Analyze the experimental data stored in /path/to/data.csv using sklearn and pandas. This data includes time-series measurements from a particle detector."
 
-# Generate a research idea from the input text
+astro_pilot.set_data_description(prompt)
+```
+
+Generate a research idea from that data specification.
+
+```python
 astro_pilot.get_idea()
+```
 
-# Generate a research plan to carry out the idea
+Generate the methodology required for working on that idea.
+
+```python
 astro_pilot.get_method()
+```
 
-# Follow the research plan, write and execute code, make plots, and summarize the results
+With the methodology setup, perform the required computations and get the plots and results.
+
+```python
 astro_pilot.get_results()
+```
 
-# Write a paper with [APS (Physical Review Journals)](https://journals.aps.org/) style
+Finally, generate a latex article with the results. You can specify the journal style, in this example we choose the [APS (Physical Review Journals)](https://journals.aps.org/) style.
+
+```python
+from astropilot import Journal
+
 astro_pilot.get_paper(journal=Journal.APS)
 ```
 
@@ -47,6 +57,12 @@ You can also manually provide any info as a string or markdown file in an interm
 ```python
 astro_pilot.set_method(path_to_the_method_file.md)
 ```
+
+## App
+
+You can run Astropilot using a GUI through the [AstropilotApp](https://github.com/AstroPilot-AI/AstroPilotApp).
+
+Test the deployed app in [HugginFace Spaces](nope).
 
 ## Build from source
 
@@ -84,3 +100,15 @@ which will create the virtual environment and install the dependencies and proje
 ```bash
 source .venv/bin/activate
 ```
+
+## Contributing
+
+Pull requests are welcome! Feel free to open an issue for bugs, comments, questions and suggestions.
+
+## Citation
+
+If you use this library please link this repository and cite [arXiv:2505.xxxxx](arXiv:x2506.xxxxx).
+
+## License
+
+To be chosen.
