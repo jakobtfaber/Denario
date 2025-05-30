@@ -401,10 +401,21 @@ class AstroPilot:
                   add_citations=True) -> None:
         """
         Generate a full paper based on the files in input_files:
-           - idea.md
-           - methods.md
-           - results.md
-           - plots
+
+            - idea.md
+            - methods.md
+            - results.md
+            - plots
+
+        Different journals considered
+
+            - NONE = None : No journal, use standard latex presets with unsrt for bibliography style.
+            - AAS  = "AAS" : American Astronomical Society journals, including the Astrophysical Journal.
+            - APS = "APS" : Physical Review Journals from the American Physical Society, including Physical Review Letters, PRA, etc.
+            - ICML = "ICML" : ICML - International Conference on Machine Learning.
+            - JHEP = "JHEP" : Journal of High Energy Physics, including JHEP, JCAP, etc.
+            - NeurIPS = "NeurIPS" : NeurIPS - Conference on Neural Information Processing Systems.
+            - PASJ = "PASJ" : Publications of the Astronomical Society of Japan.
 
         Args:
             journal: Journal style. The paper generation will use the presets of the journal considered for the latex writing. Default is no journal (no specific presets).
@@ -412,15 +423,6 @@ class AstroPilot:
             writer: set the style and tone to write. E.g. astrophysicist, biologist, chemist
             cmbagent_keywords: whether to use CMBAgent to select the keywords
             add_citations: whether to add citations to the paper or not
-
-        Different journals considered
-        NONE = None : No journal, use standard latex presets with unsrt for bibliography style.
-        AAS  = "AAS" : American Astronomical Society journals, including the Astrophysical Journal.
-        APS = "APS" : Physical Review Journals from the American Physical Society, including Physical Review Letters, PRA, etc.
-        ICML = "ICML" : ICML - International Conference on Machine Learning.
-        JHEP = "JHEP" : Journal of High Energy Physics, including JHEP, JCAP, etc.
-        NeurIPS = "NeurIPS" : NeurIPS - Conference on Neural Information Processing Systems.
-        PASJ = "PASJ" : Publications of the Astronomical Society of Japan.
         """
         
         # Start timer
