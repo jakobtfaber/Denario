@@ -64,7 +64,9 @@ def keywords_node(state: GraphState, config: RunnableConfig):
                 if len(keywords)>=state['params']['num_keywords']:
                     break
             else:
-                raise RuntimeError("LLM failed to get the keywords after 5 attemps")
+                print("\nLLM failed to get the keywords after 5 attemps")
+                keywords = [""]
+                state['params']['num_keywords'] = 0
 
             # take a random subset
             keywords = random.sample(keywords, state['params']['num_keywords'])
