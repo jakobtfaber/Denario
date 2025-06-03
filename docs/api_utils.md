@@ -1,3 +1,3 @@
 Some helpers and utils functions.
 
-::: astropilot.utils
+::: denario.utils
