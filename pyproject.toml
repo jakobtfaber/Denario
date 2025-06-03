@@ -57,5 +57,5 @@ where = ["."]
 
 [tool.uv.workspace]
 members = [
-    "AstroPilotApp",
+    "DenarioApp",
 ]
