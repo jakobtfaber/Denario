@@ -7,7 +7,7 @@ NOT AVAILABLE YET
 To install Astropilot, just run
 
 ```bash
-pip install astropilot
+pip install denario
 ```
 
 ## Build from source

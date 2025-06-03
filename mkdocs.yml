@@ -1,6 +1,6 @@
-site_name: AstroPilot
+site_name: Denario
 
-repo_url: https://github.com/AstroPilot-AI/AstroPilot
+repo_url: https://github.com/AstroPilot-AI/Denario
 
 nav:
   - Home: index.md
@@ -9,9 +9,9 @@ nav:
   - App: app.md
   - Prompts: prompts.md
   - Examples:
-      - Full run: astropilot_oscillator_full_run.ipynb
+      - Full run: denario_oscillator_full_run.ipynb
   - API Reference:
-    - AstroPilot: api_astropilot.md
+    - Denario: api_denario.md
     - Classes: api_classes.md
     - LLMs: api_llms.md
     - Paper: api_paper.md
@@ -64,7 +64,7 @@ plugins:
       execute: False
       ignore_h1_titles: True
   # - git-committers:
-  #     repository: AstroPilot-AI/AstroPilot
+  #     repository: AstroPilot-AI/Denario
   #     branch: master
 
 extra_css:
