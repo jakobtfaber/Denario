@@ -199,14 +199,14 @@ input_files/plots/*
 input_files/*
 Project*
 
-astrop_env/
-
-AstroPilotApp/
+.venv/
 
 uv.lock
 
 project*
 
 cmbagent_output/*
+quicktests/
 
-AstroPilotPaperPage/
+DenarioApp/
+DenarioPaperPage/
