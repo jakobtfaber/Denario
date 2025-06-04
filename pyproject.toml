@@ -1,5 +1,5 @@
 [project]
-name = "astropilot"
+name = "denario"
 version = "0.1.0"
 description = "A set of AI agents to automatize scientific research in Astrophysics and Cosmology"
 authors = [
@@ -57,5 +57,5 @@ where = ["."]
 
 [tool.uv.workspace]
 members = [
-    "AstroPilotApp",
+    "DenarioApp",
 ]

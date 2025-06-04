@@ -2,11 +2,11 @@
 
 Functions related to the paper writing.
 
-::: astropilot.paper_agents.agents_graph
-::: astropilot.paper_agents.latex
-::: astropilot.paper_agents.literature
-::: astropilot.paper_agents.paper_node
-::: astropilot.paper_agents.parameters
-::: astropilot.paper_agents.prompts
-::: astropilot.paper_agents.reader
-::: astropilot.paper_agents.tools
+::: denario.paper_agents.agents_graph
+::: denario.paper_agents.latex
+::: denario.paper_agents.literature
+::: denario.paper_agents.paper_node
+::: denario.paper_agents.parameters
+::: denario.paper_agents.prompts
+::: denario.paper_agents.reader
+::: denario.paper_agents.tools

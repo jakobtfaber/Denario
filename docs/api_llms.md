@@ -1,6 +1,6 @@
-Large Language Models (LLMs) supported in AstroPilot.
+Large Language Models (LLMs) supported in Denario.
 
-::: astropilot.llm
+::: denario.llm
     options:
         filters:
               - "!LLM"

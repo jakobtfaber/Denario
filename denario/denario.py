@@ -8,7 +8,6 @@ from pathlib import Path
 from PIL import Image 
 
 os.environ["CMBAGENT_DEBUG"] = "false"
-os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "true"
 
 import cmbagent
 
@@ -26,9 +25,9 @@ from .langgraph_agents.agents_graph import build_lg_graph
 
 
 # TODO: unify display and print by new method
-class AstroPilot:
+class Denario:
     """
-    AstroPilot main class. Allows to set the data and tools description, generate a research idea, generate methodology and compute the results. The it can generate the latex draft of a scientific article with a given journal style from the computed results.
+    Denario main class. Allows to set the data and tools description, generate a research idea, generate methodology and compute the results. The it can generate the latex draft of a scientific article with a given journal style from the computed results.
     
     It uses two main backends:
 
@@ -371,7 +370,7 @@ class AstroPilot:
     
     def get_keywords(self, input_text: str, n_keywords: int = 5) -> None:
         """
-        Get AAS keywords from input text using astropilot.
+        Get AAS keywords from input text using cmbagent.
 
         Args:
             input_text (str): Text to extract keywords from
@@ -458,7 +457,7 @@ class AstroPilot:
         print(f"Paper written in {minutes} min {seconds} sec.")    
 
     def research_pilot(self, data_description: str = None) -> None:
-        """Full run of AstroPilot. It calls the following methods sequentially:
+        """Full run of Denario. It calls the following methods sequentially:
         ```
         set_data_description(data_description)
         get_idea()
