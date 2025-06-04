@@ -4,8 +4,6 @@ Denario is a multiagent system designed to automatize scientific research
 
 ## Installation
 
-NOT AVAILABLE YET
-
 To install denario, just run
 
 ```bash
@@ -60,7 +58,7 @@ den.set_method(path_to_the_method_file.md)
 
 ## App
 
-You can run Astropilot using a GUI through the [AstropilotApp](https://github.com/AstroPilot-AI/AstroPilotApp).
+You can run Denario using a GUI through the [DenarioApp](https://github.com/AstroPilot-AI/DenarioApp).
 
 Test the deployed app in [HugginFace Spaces](nope).
 
