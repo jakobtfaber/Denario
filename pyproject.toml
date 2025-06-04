@@ -1,6 +1,6 @@
 [project]
 name = "denario"
-version = "0.1.0"
+version = "0.1.1"
 description = "A set of AI agents to automatize scientific research in Astrophysics and Cosmology"
 authors = [
   { name = "Boris Bolliet", email = "boris.bolliet@gmail.com" },

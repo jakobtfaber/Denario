@@ -2,9 +2,7 @@
 
 ## Install from PyPI
 
-NOT AVAILABLE YET
-
-To install Astropilot, just run
+To install Denario, just run
 
 ```bash
 pip install denario
