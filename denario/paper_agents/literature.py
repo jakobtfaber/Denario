@@ -23,7 +23,7 @@ def _execute_query(payload, keys: KeyManager):
 
 def perplexity(para, keys: KeyManager):
     perplexity_message = rf"""
-You perform scientific literature search on the arXiv. The domain of interest is astrophyics.
+You perform scientific literature search on the arXiv. 
     
 Your goal is to populate the following text with references from the arXiv only:
     
