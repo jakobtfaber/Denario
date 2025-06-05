@@ -1,6 +1,6 @@
 site_name: Denario
-
 repo_url: https://github.com/AstroPilot-AI/Denario
+site_url: site_url: !ENV READTHEDOCS_CANONICAL_URL
 
 nav:
   - Home: index.md
