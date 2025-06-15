@@ -394,7 +394,7 @@ class Denario:
 
     def get_paper(self,
                   journal: Journal = Journal.NONE,
-                  llm: LLM | str = models["gemini-2.0-flash"],
+                  llm: LLM | str = models["gemini-2.5-flash"],
                   writer: str = 'scientist',
                   cmbagent_keywords: bool = False,
                   add_citations=True) -> None:
