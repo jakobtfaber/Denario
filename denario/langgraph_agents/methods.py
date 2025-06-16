@@ -1,6 +1,6 @@
 from langchain_core.runnables import RunnableConfig
 
-from ..paper_agents.tools import extract_latex_block, LLM_call, clean_section
+from ..paper_agents.tools import extract_latex_block, LLM_call_stream, clean_section
 from .prompts import methods_fast_prompt
 from .parameters import GraphState
 
@@ -8,9 +8,9 @@ from .parameters import GraphState
 def methods_fast(state: GraphState, config: RunnableConfig):
 
     print('Generating methods...', end="", flush=True)
-    
+
     PROMPT = methods_fast_prompt(state)
-    state, result = LLM_call(PROMPT, state)
+    state, result = LLM_call_stream(PROMPT, state)
     text = extract_latex_block(state, result, "METHODS")
 
     # remove LLM added lines

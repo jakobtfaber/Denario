@@ -150,9 +150,14 @@ class Denario:
         with open(idea_path, 'w') as f:
             f.write(idea)
 
-    def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"]) -> None:
+    def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
+                      verbose=False) -> None:
         """
         Generate an idea using the idea maker - idea hater method.
+        
+        Args:
+           - llm: the LLM model to be used
+           - verbose: whether to stream the LLM response
         """
 
         # Start timer
@@ -175,7 +180,8 @@ class Denario:
                      "data_description": f_data_description}, #name of project folder
             "llm": {"model": llm.name,                #name of the LLM model to use
                     "temperature": llm.temperature,
-                    "max_output_tokens": llm.max_output_tokens},
+                    "max_output_tokens": llm.max_output_tokens,
+                    "stream_verbose": verbose},
             "keys": self.keys,
             "idea": {"total_iterations": 4},
         }
@@ -226,8 +232,13 @@ class Denario:
         with open(method_path, 'w') as f:
             f.write(methododology)
 
-    def get_method_fast(self, llm: LLM | str = models["gemini-2.0-flash"]) -> None:
-        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method."""
+    def get_method_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
+                        verbose=False) -> None:
+        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method.
+        Args:
+           - llm: the LLM model to be used
+           - verbose: whether to stream the LLM response
+        """
 
         # Start timer
         start_time = time.time()
@@ -251,7 +262,8 @@ class Denario:
                      "idea": f_idea}, 
             "llm": {"model": llm.name,                #name of the LLM model to use
                     "temperature": llm.temperature,
-                    "max_output_tokens": llm.max_output_tokens},
+                    "max_output_tokens": llm.max_output_tokens,
+                    "stream_verbose": verbose},
             "keys": self.keys,
             "idea": {"total_iterations": 4},
         }
