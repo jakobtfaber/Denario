@@ -16,6 +16,8 @@ class FILES(TypedDict):
     methods: str          #name of the file to write the methods
     idea_log: str         #name of the file to write generated ideas and critics
     Error: str            #name of the error file
+    module_folder: str    #name of the folder containing the results from the considered module
+    f_stream: str         #name of the file to stream the results
 
 # Token class
 class TOKENS(TypedDict):
@@ -30,6 +32,7 @@ class LLM(TypedDict):
     max_output_tokens: int
     llm: Any
     temperature: float
+    stream_verbose: bool
 
 # Idea class
 class IDEA(TypedDict):
