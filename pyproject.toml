@@ -31,6 +31,10 @@ dependencies = [
   "jsonschema",
 ]
 
+[project.urls]
+homepage = "https://github.com/AstroPilot-AI/Denario"
+documentation = "https://denario.readthedocs.io/en/latest/"
+
 [dependency-groups]
 dev = [
   {include-group = "docs"},
