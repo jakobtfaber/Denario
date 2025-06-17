@@ -2,7 +2,9 @@
 
 [![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dd/denario)](https://pypi.python.org/pypi/denario) [![arXiv](https://img.shields.io/badge/arXiv-2506.xxxxx-B31B1B.svg)](http://arxiv.org/abs/2506.xxxxx) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Denario is a multiagent system designed to automatize scientific research
+Denario is a multiagent system designed to automatize scientific research.
+
+[See end-to-end research papers generated with Denario here.](https://github.com/AstroPilot-AI/DenarioExamplePapers)
 
 ## Installation
 
