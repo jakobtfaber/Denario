@@ -297,7 +297,8 @@ class Denario:
     def get_results(self,
                     involved_agents: List[str] = ['engineer', 'researcher'],
                     engineer_model: LLM | str = models["claude-3.7-sonnet"],
-                    researcher_model: LLM | str = models["o3-mini"]
+                    researcher_model: LLM | str = models["o3-mini"],
+                    restart_at_step: int = -1
                     ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
@@ -328,7 +329,8 @@ class Denario:
                                 engineer_model=engineer_model.name,
                                 researcher_model=researcher_model.name,
                                 work_dir = self.project_dir,
-                                keys=self.keys)
+                                keys=self.keys,
+                                restart_at_step = restart_at_step)
         experiment.run_experiment(self.research.data_description)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
