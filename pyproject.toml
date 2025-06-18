@@ -29,6 +29,7 @@ dependencies = [
   "pymupdf",
   "pillow",
   "jsonschema",
+  "futurehouse-client"
 ]
 
 [project.urls]

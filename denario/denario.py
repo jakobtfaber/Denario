@@ -71,6 +71,7 @@ class Denario:
         self.keys = KeyManager()
         self.keys.get_keys_from_env()
 
+
     def _setup_input_files(self) -> None:
         input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
         
@@ -150,6 +151,8 @@ class Denario:
         with open(idea_path, 'w') as f:
             f.write(idea)
 
+        self.idea = idea
+
     def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
                       verbose=False) -> None:
         """
@@ -199,18 +202,58 @@ class Denario:
     def set_idea(self, idea: str = None) -> None:
         """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
 
+        if idea is None:
+            with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
+                idea = f.read()
+
         idea = input_check(idea)
         
         self.research.idea = idea
         
         with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'w') as f:
             f.write(idea)
+
+        self.research.idea = idea
     
     def show_idea(self) -> None:
         """Show the provided or generated idea by the `set_idea` or `get_idea` methods."""
 
         # display(Markdown(self.research.idea))
         print(self.research.idea)
+
+    def check_idea(self) -> str:
+        """use futurehouse to check the idea against previous literature"""
+        from futurehouse_client import FutureHouseClient, JobNames
+        from futurehouse_client.models import (
+            TaskRequest,
+        )
+        import os
+        fhkey = os.getenv("FUTURE_HOUSE_API_KEY")
+
+
+        fh_client = FutureHouseClient(
+            api_key=fhkey,
+        )
+
+        check_idea_prompt = rf"""
+        Has anyone worked on or explored the following idea?
+
+        {self.research.idea}
+        
+        <DESIRED_RESPONSE_FORMAT>
+        Answer: <yes or no>
+
+        Related previous work: <describe previous literature on the topic>
+        </DESIRED_RESPONSE_FORMAT>
+        """
+        task_data = TaskRequest(name=JobNames.from_string("owl"),
+                                query=check_idea_prompt)
+        
+        task_response = fh_client.run_tasks_until_done(task_data)
+
+        return task_response[0].formatted_answer
+
+
     
     def get_method(self) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`."""

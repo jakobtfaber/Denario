@@ -37,7 +37,6 @@ class Idea:
         if work_dir is None:
             raise ValueError("workdir must be provided")
         
-        print("ASTROPILOT_DISABLE_DISPLAY", os.environ["ASTROPILOT_DISABLE_DISPLAY"])
         
         self.idea_dir = os.path.join(work_dir, "idea_generation_output")
         self.idea_maker_model = idea_maker_model
