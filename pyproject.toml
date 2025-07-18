@@ -1,7 +1,7 @@
 [project]
 name = "denario"
-version = "0.1.1"
-description = "A set of AI agents to automatize scientific research in Astrophysics and Cosmology"
+version = "0.1.2"
+description = "Modular Automation of Scientific Research with Multi-Agent Systems"
 authors = [
   { name = "Boris Bolliet", email = "boris.bolliet@gmail.com" },
   { name = "Francisco Villaescusa-Navarro", email = "villaescusa.francisco@gmail.com" },
@@ -9,7 +9,7 @@ authors = [
 ]
 readme = "README.md"
 requires-python = ">=3.12"
-license = { text = "MIT" }
+license = { text = "GPLv3" }
 dependencies = [
   "langchain>=0.3.23",
   "langchain-chroma>=0.2.2",
@@ -32,7 +32,7 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/AstroPilot-AI/Denario"
+homepage = "https://astropilot-ai.github.io/DenarioPaperPage/"
 documentation = "https://denario.readthedocs.io/en/latest/"
 
 [dependency-groups]
