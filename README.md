@@ -2,15 +2,15 @@
 
 [![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/denario)](https://pypi.python.org/pypi/denario) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Denario is a multiagent system designed to automatize scientific research.
+Denario is a multiagent system designed to automatize scientific research. Denario implements AI agents with [AG2](https://ag2.ai/) and [LangGraph](https://www.langchain.com/langgraph). The research analysis backend is [cmbagent](https://github.com/CMBAgents/cmbagent). Project under construction.
 
-[See end-to-end research papers generated with Denario here.](https://github.com/AstroPilot-AI/DenarioExamplePapers)
+## Resources
 
-Denario implements AI agents with [AG2](https://ag2.ai/) and [LangGraph](https://www.langchain.com/langgraph). The research analysis backend is [cmbagent](https://github.com/CMBAgents/cmbagent).
+- [Project page](https://astropilot-ai.github.io/DenarioPaperPage/)
 
-[Read the documentation here](https://denario.readthedocs.io/en/latest/)
+- [Documentation](https://denario.readthedocs.io/en/latest/)
 
-[See the project page here](https://astropilot-ai.github.io/DenarioPaperPage/)
+- [End-to-end research papers generated with Denario](https://github.com/AstroPilot-AI/DenarioExamplePapers)
 
 ## Installation
 
@@ -114,9 +114,9 @@ source .venv/bin/activate
 
 Pull requests are welcome! Feel free to open an issue for bugs, comments, questions and suggestions.
 
-## Citation
+<!-- ## Citation
 
-If you use this library please link this repository and cite [arXiv:2506.xxxxx](arXiv:x2506.xxxxx).
+If you use this library please link this repository and cite [arXiv:2506.xxxxx](arXiv:x2506.xxxxx). -->
 
 ## License
 
