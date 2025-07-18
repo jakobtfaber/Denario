@@ -1,14 +1,12 @@
 # Denario
 
-[![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dd/denario)](https://pypi.python.org/pypi/denario) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-
+[![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/denario)](https://pypi.python.org/pypi/denario) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Denario is a multiagent system designed to automatize scientific research.
 
 [See end-to-end research papers generated with Denario here.](https://github.com/AstroPilot-AI/DenarioExamplePapers)
 
-Denario implements AI agents with [AG2](https://ag2.ai/) and [LangGraph](https://www.langchain.com/langgraph). 
-The research analysis backend is [cmbagent](https://github.com/CMBAgents/cmbagent).
+Denario implements AI agents with [AG2](https://ag2.ai/) and [LangGraph](https://www.langchain.com/langgraph). The research analysis backend is [cmbagent](https://github.com/CMBAgents/cmbagent).
 
 ## Installation
 
@@ -89,6 +87,7 @@ source .venv/bin/activate
 ```
 
 And install the project
+
 ```bash
 pip install -e .
 ```
