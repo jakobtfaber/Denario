@@ -3,11 +3,14 @@
 Initialize a `Denario` instance and describe the data and tools to be employed.
 
 ```python
-from denario import Denario, Journal
+from denario import Denario
 
 den = Denario(project_dir="project_dir")
 
-prompt = "Analyze the experimental data stored in /path/to/data.csv using sklearn and pandas. This data includes time-series measurements from a particle detector."
+prompt = """
+Analyze the experimental data stored in data.csv using sklearn and pandas.
+This data includes time-series measurements from a particle detector.
+"""
 
 den.set_data_description(prompt)
 ```
