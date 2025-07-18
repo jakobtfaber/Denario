@@ -63,9 +63,9 @@ plugins:
       include_source: True
       execute: False
       ignore_h1_titles: True
-  # - git-committers:
-  #     repository: AstroPilot-AI/Denario
-  #     branch: master
+  - git-committers:
+      repository: AstroPilot-AI/Denario
+      branch: master
 
 extra_css:
   - css/mkdocstrings.css
