@@ -116,4 +116,4 @@ If you use this library please link this repository and cite [arXiv:2506.xxxxx](
 
 ## License
 
-To be chosen.
+[GNU GENERAL PUBLIC LICENSE (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html)
