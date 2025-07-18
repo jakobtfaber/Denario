@@ -7,6 +7,9 @@ Denario is a multiagent system designed to automatize scientific research.
 
 [See end-to-end research papers generated with Denario here.](https://github.com/AstroPilot-AI/DenarioExamplePapers)
 
+Denerio implements AI agents with [AG2](https://ag2.ai/) and [LangGraph](https://www.langchain.com/langgraph). 
+The research analysis backend is [cmbagent](https://github.com/CMBAgents/cmbagent).
+
 ## Installation
 
 To install denario, just run
