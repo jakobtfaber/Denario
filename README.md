@@ -1,6 +1,7 @@
 # Denario
 
-[![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dd/denario)](https://pypi.python.org/pypi/denario) [![arXiv](https://img.shields.io/badge/arXiv-2506.xxxxx-B31B1B.svg)](http://arxiv.org/abs/2506.xxxxx) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dd/denario)](https://pypi.python.org/pypi/denario) [![arXiv](https://img.shields.io/badge/arXiv-2506.xxxxx-B31B1B.svg)](http://arxiv.org/abs/2506.xxxxx) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+
 
 Denario is a multiagent system designed to automatize scientific research.
 
