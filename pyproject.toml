@@ -6,7 +6,6 @@ authors = [
   { name = "Boris Bolliet", email = "boris.bolliet@gmail.com" },
   { name = "Francisco Villaescusa-Navarro", email = "villaescusa.francisco@gmail.com" },
   { name = "Pablo Villanueva-Domingo", email = "pablo.villanueva.domingo@gmail.com" }, 
-  { name = "Adrian Bayer", email = "abayer@flatironinstitute.org" },
 ]
 readme = "README.md"
 requires-python = ">=3.12"
