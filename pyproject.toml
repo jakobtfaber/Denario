@@ -24,7 +24,7 @@ dependencies = [
   "google-ai-generativelanguage>=0.6.17",
   "flatbuffers>=24.12.23",
   "filelock>=3.17.0",
-  "cmbagent>=0.0.1post51",
+  "cmbagent>=0.0.1post52",
   "pymupdf",
   "pillow",
   "jsonschema",
