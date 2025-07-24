@@ -10,6 +10,8 @@ Denario is a multiagent system designed to automatize scientific research. Denar
 
 - [Documentation](https://denario.readthedocs.io/en/latest/)
 
+- [Denario web app](https://github.com/AstroPilot-AI/DenarioApp)
+
 - [End-to-end research papers generated with Denario](https://github.com/AstroPilot-AI/DenarioExamplePapers)
 
 ## Installation
