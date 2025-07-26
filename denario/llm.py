@@ -15,12 +15,22 @@ gemini20flash = LLM(name="gemini-2.0-flash",
                     temperature=0.7)
 """`gemini-2.0-flash` model."""
 
-gemini25flash = LLM(name="gemini-2.5-flash-preview-04-17",
+#gemini25flash = LLM(name="gemini-2.5-flash-preview-04-17",
+#                    max_output_tokens=65536,
+#                    temperature=0.7)
+#"""`gemini-2.5-flash` model."""
+
+gemini25flash = LLM(name="gemini-2.5-flash",
                     max_output_tokens=65536,
                     temperature=0.7)
 """`gemini-2.5-flash` model."""
 
-gemini25pro = LLM(name="gemini-2.5-pro-preview-05-06",
+#gemini25pro = LLM(name="gemini-2.5-pro-preview-05-06",
+#                  max_output_tokens=65536,
+#                  temperature=0.7)
+"""`gemini-2.5-pro` model."""
+
+gemini25pro = LLM(name="gemini-2.5-pro",
                   max_output_tokens=65536,
                   temperature=0.7)
 """`gemini-2.5-pro` model."""
