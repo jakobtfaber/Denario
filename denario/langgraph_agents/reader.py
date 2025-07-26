@@ -52,13 +52,15 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     
     # set the name of the common files
     if state['task']=='idea_generation':
-        folder_name = 'idea_generation_output'    
+        state['files']['module_folder'] = 'idea_generation_output'
+        state['files']['f_stream'] = f"{state['files']['Folder']}/{state['files']['module_folder']}/idea.log"
     elif state['task']=='methods_generation':
-        folder_name = 'methods_generation_output'
+        state['files']['module_folder'] = 'methods_generation_output'
+        state['files']['f_stream'] = f"{state['files']['Folder']}/{state['files']['module_folder']}/methods.log"
     state['files'] = {**state['files'],
-                      "Temp":      f"{state['files']['Folder']}/{folder_name}",
-                      "LLM_calls": f"{state['files']['Folder']}/{folder_name}/LLM_calls.txt",
-                      "Error":     f"{state['files']['Folder']}/{folder_name}/Error.txt",
+                      "Temp":      f"{state['files']['Folder']}/{state['files']['module_folder']}",
+                      "LLM_calls": f"{state['files']['Folder']}/{state['files']['module_folder']}/LLM_calls.txt",
+                      "Error":     f"{state['files']['Folder']}/{state['files']['module_folder']}/Error.txt",
     }
 
     # set particulars for different tasks
@@ -67,7 +69,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                 'idea': "", 'criticism': ""}
         state['files'] = {**state['files'],
                           "idea":      f"{state['files']['Folder']}/{INPUT_FILES}/{IDEA_FILE}",
-                          "idea_log":  f"{state['files']['Folder']}/{folder_name}/idea.log",
+                          "idea_log":  f"{state['files']['Folder']}/{state['files']['module_folder']}/idea.log",
         }
     elif state['task']=='methods_generation':
         state['files'] = {**state['files'],
@@ -80,6 +82,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.makedirs(state['files']['Folder'],                    exist_ok=True)
     os.makedirs(state['files']['Temp'],                      exist_ok=True)
     os.makedirs(f"{state['files']['Folder']}/{INPUT_FILES}", exist_ok=True)
+    os.makedirs(f"{state['files']['module_folder']}",        exist_ok=True)
 
     # clean existing files
     for f in ["LLM_calls", "Error"]:

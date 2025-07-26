@@ -54,10 +54,10 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                       "Methods":   f"{METHOD_FILE}",  #name of file with methods description
                       "Results":   f"{RESULTS_FILE}", #name of file with results description
                       "Plots":     f"{PLOTS_FOLDER}", #name of folder containing plots
-                      "Paper_v1":  "paper_v1.tex",
-                      "Paper_v2":  "paper_v2.tex",
-                      "Paper_v3":  "paper_v3.tex",
-                      "Paper_v4":  "paper_v4.tex",
+                      "Paper_v1":  "paper_v1_preliminary.tex",
+                      "Paper_v2":  "paper_v2_no_citations.tex",
+                      "Paper_v3":  "paper_v3_citations.tex",
+                      "Paper_v4":  "paper_v4_final.tex",
                       "Error":     f"{state['files']['Paper_folder']}/Error.txt",
                       "LaTeX_log": f"{state['files']['Paper_folder']}/LaTeX_compilation.log",
                       "LaTeX_err": f"{state['files']['Paper_folder']}/LaTeX_err.log",                  

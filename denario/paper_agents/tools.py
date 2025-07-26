@@ -1,4 +1,4 @@
-import re
+import re, sys
 import json
 from pathlib import Path
 
@@ -26,6 +26,46 @@ def LLM_call(prompt, state):
         f.write(f"{state['tokens']['i']} {state['tokens']['o']} {state['tokens']['ti']} {state['tokens']['to']}\n")
     
     return state, message.content
+
+
+def LLM_call_stream(prompt, state):
+    """
+    Calls the LLM with streaming enabled and writes output to file in real-time.
+    Also updates token usage tracking.
+    """
+    output_file_path = state['files']['f_stream']
+    
+    # Start streaming and writing/printing immediately
+    full_content = ''
+    state['tokens']['i'] = 0
+    state['tokens']['o'] = 0
+    with open(output_file_path, 'a') as f:
+        for chunk in state['llm']['llm'].stream(prompt):
+            text = chunk.content
+            f.write(text)
+            f.flush()  # Immediate file write
+            if state['llm']['stream_verbose']:
+                print(text, end='', flush=True)  # Immediate terminal output
+            full_content += text
+
+            # After streaming, get token usage
+            usage = chunk.usage_metadata if hasattr(chunk, 'usage_metadata') else None
+            if usage:
+                input_tokens = usage.get('input_tokens', 0)
+                output_tokens = usage.get('output_tokens', 0)
+                if output_tokens > state['llm']['max_output_tokens']:
+                    print('WARNING!! Max output tokens reached!')
+
+                state['tokens']['ti'] += input_tokens
+                state['tokens']['to'] += output_tokens
+                state['tokens']['i'] += input_tokens
+                state['tokens']['o'] += output_tokens
+        f.write('\n\n')
+    with open(state['files']['LLM_calls'], 'a') as f:
+        f.write(f"{state['tokens']['i']} {state['tokens']['o']} {state['tokens']['ti']} {state['tokens']['to']}\n")
+
+    return state, full_content
+
 
 
 def temp_file(state, fin, action, text=None, json_file=False):

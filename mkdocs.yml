@@ -1,6 +1,6 @@
 site_name: Denario
 repo_url: https://github.com/AstroPilot-AI/Denario
-site_url: site_url: !ENV READTHEDOCS_CANONICAL_URL
+site_url: !ENV READTHEDOCS_CANONICAL_URL
 
 nav:
   - Home: index.md
@@ -11,12 +11,12 @@ nav:
   - Examples:
       - Full run: denario_oscillator_full_run.ipynb
   - API Reference:
-    - Denario: api_denario.md
-    - Classes: api_classes.md
-    - LLMs: api_llms.md
-    - Paper: api_paper.md
-    - Journals: api_journals.md
-    - Utils: api_utils.md
+      - Denario: api_denario.md
+      - Classes: api_classes.md
+      - LLMs: api_llms.md
+      - Paper: api_paper.md
+      - Journals: api_journals.md
+      - Utils: api_utils.md
 
 theme:
   name: material
@@ -29,7 +29,7 @@ theme:
     - media: "(prefers-color-scheme: light)"
       scheme: default
       toggle:
-        icon: material/brightness-7 
+        icon: material/brightness-7
         name: Switch to dark mode
       primary: deep purple
     # Palette toggle for dark mode
@@ -63,9 +63,9 @@ plugins:
       include_source: True
       execute: False
       ignore_h1_titles: True
-  # - git-committers:
-  #     repository: AstroPilot-AI/Denario
-  #     branch: master
+  - git-committers:
+      repository: AstroPilot-AI/Denario
+      branch: master
 
 extra_css:
   - css/mkdocstrings.css
@@ -82,4 +82,4 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences
   - pymdownx.snippets:
-      base_path: './'
+      base_path: "./"

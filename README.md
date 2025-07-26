@@ -1,8 +1,18 @@
 # Denario
 
-[![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dd/denario)](https://pypi.python.org/pypi/denario) [![arXiv](https://img.shields.io/badge/arXiv-2506.xxxxx-B31B1B.svg)](http://arxiv.org/abs/2506.xxxxx) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Version](https://img.shields.io/pypi/v/denario.svg)](https://pypi.python.org/pypi/denario) [![Python Version](https://img.shields.io/badge/python-%3E%3D3.12-blue.svg)](https://www.python.org/downloads/) [![PyPI - Downloads](https://img.shields.io/pypi/dm/denario)](https://pypi.python.org/pypi/denario) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
-Denario is a multiagent system designed to automatize scientific research
+Denario is a multiagent system designed to automatize scientific research. Denario implements AI agents with [AG2](https://ag2.ai/) and [LangGraph](https://www.langchain.com/langgraph). The research analysis backend is [cmbagent](https://github.com/CMBAgents/cmbagent). Project under construction.
+
+## Resources
+
+- [Project page](https://astropilot-ai.github.io/DenarioPaperPage/)
+
+- [Documentation](https://denario.readthedocs.io/en/latest/)
+
+- [Denario web app](https://github.com/AstroPilot-AI/DenarioApp)
+
+- [End-to-end research papers generated with Denario](https://github.com/AstroPilot-AI/DenarioExamplePapers)
 
 ## Installation
 
@@ -17,11 +27,14 @@ pip install denario
 Initialize a `Denario` instance and describe the data and tools to be employed.
 
 ```python
-from denario import Denario, Journal
+from denario import Denario
 
 den = Denario(project_dir="project_dir")
 
-prompt = "Analyze the experimental data stored in /path/to/data.csv using sklearn and pandas. This data includes time-series measurements from a particle detector."
+prompt = """
+Analyze the experimental data stored in data.csv using sklearn and pandas.
+This data includes time-series measurements from a particle detector.
+"""
 
 den.set_data_description(prompt)
 ```
@@ -83,6 +96,7 @@ source .venv/bin/activate
 ```
 
 And install the project
+
 ```bash
 pip install -e .
 ```
@@ -105,10 +119,10 @@ source .venv/bin/activate
 
 Pull requests are welcome! Feel free to open an issue for bugs, comments, questions and suggestions.
 
-## Citation
+<!-- ## Citation
 
-If you use this library please link this repository and cite [arXiv:2506.xxxxx](arXiv:x2506.xxxxx).
+If you use this library please link this repository and cite [arXiv:2506.xxxxx](arXiv:x2506.xxxxx). -->
 
 ## License
 
-To be chosen.
+[GNU GENERAL PUBLIC LICENSE (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html)
