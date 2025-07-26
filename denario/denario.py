@@ -71,6 +71,7 @@ class Denario:
         self.keys = KeyManager()
         self.keys.get_keys_from_env()
 
+
     def _setup_input_files(self) -> None:
         input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
         
@@ -150,9 +151,16 @@ class Denario:
         with open(idea_path, 'w') as f:
             f.write(idea)
 
-    def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"]) -> None:
+        self.idea = idea
+
+    def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
+                      verbose=False) -> None:
         """
         Generate an idea using the idea maker - idea hater method.
+        
+        Args:
+           - llm: the LLM model to be used
+           - verbose: whether to stream the LLM response
         """
 
         # Start timer
@@ -175,7 +183,8 @@ class Denario:
                      "data_description": f_data_description}, #name of project folder
             "llm": {"model": llm.name,                #name of the LLM model to use
                     "temperature": llm.temperature,
-                    "max_output_tokens": llm.max_output_tokens},
+                    "max_output_tokens": llm.max_output_tokens,
+                    "stream_verbose": verbose},
             "keys": self.keys,
             "idea": {"total_iterations": 4},
         }
@@ -193,18 +202,58 @@ class Denario:
     def set_idea(self, idea: str = None) -> None:
         """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
 
+        if idea is None:
+            with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
+                idea = f.read()
+
         idea = input_check(idea)
         
         self.research.idea = idea
         
         with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'w') as f:
             f.write(idea)
+
+        self.research.idea = idea
     
     def show_idea(self) -> None:
         """Show the provided or generated idea by the `set_idea` or `get_idea` methods."""
 
         # display(Markdown(self.research.idea))
         print(self.research.idea)
+
+    def check_idea(self) -> str:
+        """use futurehouse to check the idea against previous literature"""
+        from futurehouse_client import FutureHouseClient, JobNames
+        from futurehouse_client.models import (
+            TaskRequest,
+        )
+        import os
+        fhkey = os.getenv("FUTURE_HOUSE_API_KEY")
+
+
+        fh_client = FutureHouseClient(
+            api_key=fhkey,
+        )
+
+        check_idea_prompt = rf"""
+        Has anyone worked on or explored the following idea?
+
+        {self.research.idea}
+        
+        <DESIRED_RESPONSE_FORMAT>
+        Answer: <yes or no>
+
+        Related previous work: <describe previous literature on the topic>
+        </DESIRED_RESPONSE_FORMAT>
+        """
+        task_data = TaskRequest(name=JobNames.from_string("owl"),
+                                query=check_idea_prompt)
+        
+        task_response = fh_client.run_tasks_until_done(task_data)
+
+        return task_response[0].formatted_answer
+
+
     
     def get_method(self) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`."""
@@ -226,8 +275,13 @@ class Denario:
         with open(method_path, 'w') as f:
             f.write(methododology)
 
-    def get_method_fast(self, llm: LLM | str = models["gemini-2.0-flash"]) -> None:
-        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method."""
+    def get_method_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
+                        verbose=False) -> None:
+        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method.
+        Args:
+           - llm: the LLM model to be used
+           - verbose: whether to stream the LLM response
+        """
 
         # Start timer
         start_time = time.time()
@@ -251,7 +305,8 @@ class Denario:
                      "idea": f_idea}, 
             "llm": {"model": llm.name,                #name of the LLM model to use
                     "temperature": llm.temperature,
-                    "max_output_tokens": llm.max_output_tokens},
+                    "max_output_tokens": llm.max_output_tokens,
+                    "stream_verbose": verbose},
             "keys": self.keys,
             "idea": {"total_iterations": 4},
         }
@@ -285,7 +340,8 @@ class Denario:
     def get_results(self,
                     involved_agents: List[str] = ['engineer', 'researcher'],
                     engineer_model: LLM | str = models["claude-3.7-sonnet"],
-                    researcher_model: LLM | str = models["o3-mini"]
+                    researcher_model: LLM | str = models["o3-mini"],
+                    restart_at_step: int = -1
                     ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
@@ -316,7 +372,8 @@ class Denario:
                                 engineer_model=engineer_model.name,
                                 researcher_model=researcher_model.name,
                                 work_dir = self.project_dir,
-                                keys=self.keys)
+                                keys=self.keys,
+                                restart_at_step = restart_at_step)
         experiment.run_experiment(self.research.data_description)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
@@ -394,7 +451,7 @@ class Denario:
 
     def get_paper(self,
                   journal: Journal = Journal.NONE,
-                  llm: LLM | str = models["gemini-2.0-flash"],
+                  llm: LLM | str = models["gemini-2.5-flash"],
                   writer: str = 'scientist',
                   cmbagent_keywords: bool = False,
                   add_citations=True) -> None:

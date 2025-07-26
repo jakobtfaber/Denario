@@ -205,8 +205,10 @@ uv.lock
 
 project*
 
-cmbagent_output/*
+*cmbagent_output
 quicktests/
 
 DenarioApp/
 DenarioPaperPage/
+DenarioExamplePapers/
+HFDenario/
