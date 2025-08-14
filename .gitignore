@@ -10,6 +10,8 @@ graph_diagram.png
 Error.txt
 */LLM_calls.txt
 */Temp
+gemini.json
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -148,6 +150,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+AP_env
 
 # Spyder project settings
 .spyderproject
