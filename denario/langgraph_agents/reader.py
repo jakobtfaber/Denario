@@ -82,7 +82,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.makedirs(state['files']['Folder'],                    exist_ok=True)
     os.makedirs(state['files']['Temp'],                      exist_ok=True)
     os.makedirs(f"{state['files']['Folder']}/{INPUT_FILES}", exist_ok=True)
-    os.makedirs(f"{state['files']['module_folder']}",        exist_ok=True)
 
     # clean existing files
     for f in ["LLM_calls", "Error"]:
