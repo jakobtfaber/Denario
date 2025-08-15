@@ -13,7 +13,7 @@ from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
 from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
 from .literature import process_tex_file_with_references
-from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex
+from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex, fix_percent
 from ..config import INPUT_FILES
 
 
@@ -125,6 +125,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
             PROMPT = abstract_reflection(state)
             state, result = LLM_call(PROMPT, state)
             state['paper']['Abstract'] = extract_latex_block(state, result, "Abstract")
+            state['paper']['Abstract'] = fix_percent(state['paper']['Abstract']) #fix % by \%
 
         # save temporary file
         temp_file(state, f_temp2, 'write', state['paper']['Title'])
@@ -136,6 +137,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         if not(success):
             state['latex']['section_to_fix'] = 'Abstract'
             state = fix_latex(state, f_temp1)
+            state['paper']['Abstract'] = fix_percent(state['paper']['Abstract']) #fix % by \%
 
     # Save paper and temporary file
     save_paper(state, state['files']['Paper_v1'])
@@ -171,33 +173,37 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
         state['paper'][section_name] = temp_file(state, f_temp, 'read')
 
     else:
+
+        # Try for three times
+        for i in range(3):
         
-        # --- Step 1: Prompt and parse section ---
-        PROMPT = prompt_fn(state)
-        state, result = LLM_call(PROMPT, state)
-        section_text = extract_latex_block(state, result, section_name)
-        state['paper'][section_name] = section_text
+            # --- Step 1: Prompt and parse section ---
+            PROMPT = prompt_fn(state)
+            state, result = LLM_call(PROMPT, state)
+            section_text = extract_latex_block(state, result, section_name)
+            state['paper'][section_name] = section_text
             
-        # --- Step 2: Optional self-reflection ---
-        if reflection_fn:
-            for _ in range(2):
-                PROMPT = reflection_fn(state)
-                state, section_text = LLM_call(PROMPT, state)
+            # --- Step 2: Optional self-reflection ---
+            if reflection_fn:
+                for _ in range(2):
+                    PROMPT = reflection_fn(state)
+                    state, section_text = LLM_call(PROMPT, state)
 
-        # --- Step 3: Check LaTeX ---
-        section_text = LaTeX_checker(state, section_text)
+            # --- Step 3: Check LaTeX ---
+            section_text = LaTeX_checker(state, section_text)
 
-        # --- Step 4: Remove unwanted LaTeX wrappers ---
-        state['paper'][section_name] = clean_section(section_text, section_name)
+            # --- Step 4: Remove unwanted LaTeX wrappers ---
+            state['paper'][section_name] = clean_section(section_text, section_name)
 
-        # --- Step 5: save file to file ---
-        temp_file(state, f_temp, 'write', state['paper'][section_name])
+            # --- Step 5: save file to file ---
+            temp_file(state, f_temp, 'write', state['paper'][section_name])
 
-        # --- Step 6: Compile and try to fix LaTeX errors ---
-        success = compile_tex_document(state, f_temp, state['files']['Temp'])
-        if not(success):
-            state['latex']['section_to_fix'] = f"{section_name}"
-            state = fix_latex(state, f_temp)
+            # --- Step 6: Compile and try to fix LaTeX errors ---
+            success = compile_tex_document(state, f_temp, state['files']['Temp'])
+            if not(success):
+                state['latex']['section_to_fix'] = f"{section_name}"
+                state = fix_latex(state, f_temp)
+                break 
         
     # Save paper
     save_paper(state, state['files']['Paper_v1'])
