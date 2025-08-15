@@ -11,6 +11,7 @@ Error.txt
 */LLM_calls.txt
 */Temp
 gemini.json
+*_env/
 
 
 # Byte-compiled / optimized / DLL files
