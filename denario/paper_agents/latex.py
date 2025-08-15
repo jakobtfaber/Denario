@@ -344,3 +344,11 @@ def fix_latex(state, f_temp):
     
     return state
         
+
+def fix_percent(text):
+    """
+    This function replaces any % (that is not \%) by \%. This is useful as in the abstract many times percentiles are quoted and if not \%, LaTeX will interpret it as a comment.
+    """
+    
+    # Replace any % that is not preceded by a backslash
+    return re.sub(r'(?<!\\)%', r'\\%', text)

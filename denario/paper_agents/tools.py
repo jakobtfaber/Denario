@@ -234,4 +234,3 @@ def check_images_in_text(state, images):
             return False
     return True
 
-            
