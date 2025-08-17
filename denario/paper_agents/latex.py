@@ -168,7 +168,7 @@ def compile_latex(state: GraphState, paper_name: str) -> None:
             f.write(result_or_error.stderr or "")
 
     # Try to compile it the first time
-    print(f'Compiling {paper_stem}'.ljust(28,'.'), end="", flush=True)
+    print(f'Compiling {paper_stem}'.ljust(33,'.'), end="", flush=True)
     try:
         run_xelatex()
         print("✅", end="", flush=True)
@@ -316,6 +316,7 @@ def process_bib_file(input_file, output_file):
 def fix_latex(state, f_temp):
     """
     This function is designed to attemp to fix LaTeX errors
+    The function returns the state and whether it has fixed the problem or not
     """
 
     file_path = Path(f_temp)
@@ -340,9 +341,9 @@ def fix_latex(state, f_temp):
         if compile_tex_document(state, f_name, state['files']['Temp']):
             os.system(f'mv {f_temp} {f_stem}_orig{suffix}')
             os.system(f"mv {f_name} {f_temp}")
-            break
+            return state, True
     
-    return state
+    return state, False
         
 
 def fix_percent(text):
