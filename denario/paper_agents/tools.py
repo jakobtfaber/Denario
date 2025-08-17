@@ -186,7 +186,8 @@ def fixer(state: GraphState, section_name):
     else:
         with open(state['files']['Error'], 'w', encoding='utf-8') as f:
             f.write(result)
-        raise ValueError("Fixer failed as well")
+        print("Fixer failed to extract block")
+        sys.exit()
 
 
 

@@ -8,6 +8,7 @@ import asyncio
 from functools import partial
 import fitz  # PyMuPDF
 import cmbagent
+import sys
 
 from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
@@ -23,11 +24,12 @@ def keywords_node(state: GraphState, config: RunnableConfig):
     """
 
     # temporary file with the selected keywords
-    print("Finding keywords".ljust(28, '.'), end="", flush=True)
+    print("Finding keywords".ljust(33, '.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/Keywords.tex")
 
     if f_temp.exists():
         keywords = temp_file(state, f_temp, 'read')
+        print('Found on Keywords.tex', end="", flush=True)
 
     else:
 
@@ -43,7 +45,9 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         else:
 
             ################ Langgraph keywords ###############
-            for attempts in range(5):  #try 5 times in case it fails
+            for attempt in range(3):  #try 3 times in case it fails
+
+                print(f'{attempt} ', end="",flush=True)
                 
                 # Extract keywords
                 PROMPT, keywords_list = keyword_prompt(state)
@@ -64,7 +68,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
                 if len(keywords)>=state['params']['num_keywords']:
                     break
             else:
-                print("\nLLM failed to get the keywords after 5 attemps")
+                print("Failed to get the keywords ",end="",flush=True)
                 keywords = [""]
                 state['params']['num_keywords'] = 0
 
@@ -80,7 +84,8 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         compile_tex_document(state, f_temp, state['files']['Temp'])
 
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+    print(f" |  done ",end='')
+    print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
     #print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
     return {'paper': {**state['paper'], 'Keywords': keywords},
@@ -93,7 +98,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     """
 
     # temporary file with the selected keywords
-    print("Writing Abstract".ljust(28, '.'), end="", flush=True)
+    print("Writing Abstract".ljust(33, '.'), end="", flush=True)
     f_temp1 = Path(f"{state['files']['Temp']}/Abstract.tex")
     f_temp2 = Path(f"{state['files']['Temp']}/Title.tex")
 
@@ -101,10 +106,12 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     if f_temp1.exists():
         state['paper']['Abstract'] = temp_file(state, f_temp1, 'read')
         state['paper']['Title']    = temp_file(state, f_temp2, 'read')
+        print('Found on Abstract.tex', end="", flush=True)
 
     else:
         # In case it fails, it has up to three attempts
-        for attempt in range(3): 
+        for attempt in range(3):
+            print(f'{attempt} ', end="",flush=True)
             PROMPT = abstract_prompt(state, attempt)
             state, result = LLM_call(PROMPT, state)
 
@@ -116,7 +123,11 @@ def abstract_node(state: GraphState, config: RunnableConfig):
             except Exception:
                 time.sleep(2)
         else:
-            raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
+            print(f'''Tried 3 times but failed to extract the abstract. Recommendations:
+- Run the paper writing module again
+- If still fails, try using a more power LLM, e.g. gemini-2.5-pro''')
+            sys.exit()
+            #raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
     
         # perform self-reflections
         for i in range(1):
@@ -136,7 +147,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
         success = compile_tex_document(state, f_temp1, state['files']['Temp']) #abstract
         if not(success):
             state['latex']['section_to_fix'] = 'Abstract'
-            state = fix_latex(state, f_temp1)
+            state, fixed = fix_latex(state, f_temp1)
             state['paper']['Abstract'] = fix_percent(state['paper']['Abstract']) #fix % by \%
 
     # Save paper and temporary file
@@ -144,7 +155,8 @@ def abstract_node(state: GraphState, config: RunnableConfig):
 
     # print some information
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f"....done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+    print(f" |  done ",end='')
+    print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
     return {'paper':{**state['paper'],
                      'Title':    state['paper']['Title'],
@@ -165,18 +177,21 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     """
 
     # temporary file with the selected keywords
-    print(f'Writing {section_name}'.ljust(28, '.'), end="", flush=True)
+    print(f'Writing {section_name}'.ljust(33, '.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/{section_name}.tex")
 
     # check if abstract already exists
     if f_temp.exists():
         state['paper'][section_name] = temp_file(state, f_temp, 'read')
+        print(f'Found on {section_name}.tex', end="", flush=True)
 
     else:
 
         # Try for three times
-        for i in range(3):
-        
+        for attempt in range(3):
+
+            print(f'{attempt} ', end="",flush=True)
+            
             # --- Step 1: Prompt and parse section ---
             PROMPT = prompt_fn(state)
             state, result = LLM_call(PROMPT, state)
@@ -199,18 +214,21 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
             temp_file(state, f_temp, 'write', state['paper'][section_name])
 
             # --- Step 6: Compile and try to fix LaTeX errors ---
-            success = compile_tex_document(state, f_temp, state['files']['Temp'])
-            if not(success):
+            if compile_tex_document(state, f_temp, state['files']['Temp']): #returns True if compiled properly
+                break
+            else:
                 state['latex']['section_to_fix'] = f"{section_name}"
-                state = fix_latex(state, f_temp)
-                break 
+                state, fixed = fix_latex(state, f_temp)
+                if fixed: #if fixed=True it means it fixed the error and compiled properly
+                    break
         
     # Save paper
     save_paper(state, state['files']['Paper_v1'])
 
     # print some information
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+    print(f" |  done ",end='')
+    print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
     # return updated state
     return {"paper": {**state["paper"], section_name: state['paper'][section_name]},
@@ -265,13 +283,13 @@ def plots_node(state: GraphState, config: RunnableConfig):
          if f.is_file() and f.name != '.DS_Store']
     num_images = len(files)
 
-    # If more than 21, randomly select 21
-    if num_images > 21:
+    # If more than 25, randomly select 25
+    if num_images > 25:
         random.seed(1)  # for reproducibility
-        files = random.sample(files, 21)
-        num_images = 21
+        files = random.sample(files, 25)
+        num_images = 25
 
-    # Process in batches
+    # Process images in batches
     for start in range(0, num_images, batch_size):
 
         batch_files = files[start:start + batch_size]
@@ -282,8 +300,10 @@ def plots_node(state: GraphState, config: RunnableConfig):
         if f_temp.exists():
             images = temp_file(state, f_temp, 'read', json_file=True)
 
+        # get the caption for each image in the batch
         else:
 
+            # do a loop over all images in the batch
             images = {}
             for i, file in enumerate(tqdm(batch_files, desc=f"Processing figures {start+1}-{min(start+batch_size, num_images)}")):
                 image = image_to_base64(file)
@@ -294,11 +314,11 @@ def plots_node(state: GraphState, config: RunnableConfig):
                 caption = LaTeX_checker(state, caption)  #make sure is written in LaTeX
                 images[f"image{i}"] = {'name': file.name, 'caption': caption}
 
-            # save temporary file
+            # save temporary json file with image name + image caption
             temp_file(state, f_temp, 'write', images, json_file=True)
 
         # temporary file with the images
-        print(f'   Inserting figures {start+1}-{min(start+batch_size, num_images)}'.ljust(28,'.'), end="", flush=True)
+        print(f'   Inserting figures {start+1}-{min(start+batch_size, num_images)}'.ljust(33,'.'), end="", flush=True)
         f_temp = Path(f"{state['files']['Temp']}/Results_{start+1}_{min(start+batch_size, num_images)}.tex")
         
         if f_temp.exists():
@@ -308,6 +328,8 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
             # sometimes it may not include the images. Give it three chances
             for attempt in range(3):
+
+                print(f'{attempt} ', end="",flush=True)
                 
                 PROMPT = plot_prompt(state, images)
                 state, result = LLM_call(PROMPT, state)
@@ -333,23 +355,23 @@ def plots_node(state: GraphState, config: RunnableConfig):
 
             # save paper
             save_paper(state, state['files']['Paper_v1'])
-            compile_tex_document(state, f_temp, state['files']['Temp'])
+            compile_tex_document(state, f_temp, state['files']['Temp']) #compile, but dont try to fix errors
 
         # print some information
         minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-        print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+        print(f" |  done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
     # if the project has no images, no need to do this
     if num_images>0:
         
         # try to fix any errors in the Results in the last generated file
-        print('Compiling text+figures'.ljust(28,'.'), end="", flush=True)
+        print('Compiling text+figures'.ljust(33,'.'), end="", flush=True)
         success = compile_tex_document(state, f_temp, state['files']['Temp'])
         if not(success):
             state['latex']['section_to_fix'] = "Results"
-            state = fix_latex(state, f_temp)
+            state, fixed = fix_latex(state, f_temp)
         minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-        print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+        print(f" |  done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
     
     # compile paper
     compile_latex(state, state['files']['Paper_v1'])
@@ -374,7 +396,7 @@ def refine_results(state: GraphState, config: RunnableConfig):
         
     
     # temporary file with the selected keywords
-    print('Refining results'.ljust(28,'.'), end="", flush=True)
+    print('Refining results'.ljust(33,'.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/Results_refined.tex")
 
     # check if this has already been done
@@ -383,32 +405,40 @@ def refine_results(state: GraphState, config: RunnableConfig):
 
     else:
 
-        # Call the LLM to refine the results section
-        PROMPT = refine_results_prompt(state)
-        state, result = LLM_call(PROMPT, state)
-        results = extract_latex_block(state, result, "Results")
+        # try for 3 times in case its fails
+        for attempt in range(3):
+
+            print(f'{attempt} ', end="",flush=True)
         
-        # Check LaTeX
-        results = LaTeX_checker(state, results)
+            # Call the LLM to refine the results section
+            PROMPT = refine_results_prompt(state)
+            state, result = LLM_call(PROMPT, state)
+            results = extract_latex_block(state, result, "Results")
+        
+            # Check LaTeX
+            results = LaTeX_checker(state, results)
     
-        # Remove unwanted LaTeX wrappers
-        section_text = clean_section(results, 'Results')
+            # Remove unwanted LaTeX wrappers
+            section_text = clean_section(results, 'Results')
 
-        # Check that all references are done properly
-        state['paper']['Results'] = check_references(state, section_text)
+            # Check that all references are done properly
+            state['paper']['Results'] = check_references(state, section_text)
 
-        # save temporary file
-        temp_file(state, f_temp, 'write', state['paper']['Results'])
+            # save temporary file
+            temp_file(state, f_temp, 'write', state['paper']['Results'])
 
-        # try to compile the paper
-        success = compile_tex_document(state, f_temp, state['files']['Temp'])
-        if not(success):
-            state['latex']['section_to_fix'] = "Results"
-            state = fix_latex(state, f_temp)
+            # try to compile the paper
+            if compile_tex_document(state, f_temp, state['files']['Temp']):
+                break
+            else:
+                state['latex']['section_to_fix'] = "Results"
+                state, fixed = fix_latex(state, f_temp)
+                if fixed:
+                    break
 
     # print some information
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f"......done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
+    print(f" |  done {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
             
     # save paper and compile it
     save_paper(state, state['files']['Paper_v2'])
