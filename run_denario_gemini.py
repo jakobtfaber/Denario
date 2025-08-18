@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from denario import Denario, Journal
 
 # Load environment variables
-load_dotenv()
+load_dotenv("/workspaces/Denario/.env")
 
 project_dir = "project_gemini"
 
@@ -22,7 +22,7 @@ den.get_idea(idea_maker_model="gemini-2.5-pro", idea_hater_model="gemini-2.5-pro
 den.show_idea()
 
 print("\n--- Methodology ---\n")
-den.get_method()  # If you want to force model, update Method class or use get_method_fast
+den.get_method(llm="gemini-2.5-pro")  
 # den.get_method_fast(llm="gemini-2.5-pro")  # Uncomment if you want to use the fast method
 
 den.show_method()

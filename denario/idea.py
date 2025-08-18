@@ -29,8 +29,8 @@ class Idea:
     """
     def __init__(self, 
                  keys : KeyManager,
-                 idea_maker_model = "gpt-4o", 
-                 idea_hater_model = "claude-3-7-sonnet",
+                 idea_maker_model = "gemini-2.5-pro", 
+                 idea_hater_model = "gemini-2.5-pro",
                  work_dir = None, 
                 ):
         
@@ -58,15 +58,28 @@ class Idea:
             data_description: description of the data and tools to be used.
         """
         
+        # Debug: print models passed to cmbagent
+        print("[DEBUG] cmbagent.planning_and_control called with:")
+        print(f"  idea_maker_model={self.idea_maker_model}")
+        print(f"  idea_hater_model={self.idea_hater_model}")
+        print(f"  planner_model=gemini-2.5-pro")
+        print(f"  plan_reviewer_model=gemini-2.5-pro")
+        print(f"  engineer_model=gemini-2.5-pro")
+        print(f"  researcher_model=gemini-2.5-pro")
+
         results = cmbagent.planning_and_control(data_description,
-                              n_plan_reviews = 1,
-                              max_plan_steps = 6,
-                              idea_maker_model = self.idea_maker_model,
-                              idea_hater_model = self.idea_hater_model,
-                              plan_instructions=self.planner_append_instructions,
-                              work_dir = self.idea_dir,
-                              api_keys = self.api_keys
-                             )
+                    n_plan_reviews = 1,
+                    max_plan_steps = 6,
+                    idea_maker_model = self.idea_maker_model,
+                    idea_hater_model = self.idea_hater_model,
+                    planner_model = "gemini-2.5-pro",
+                    plan_reviewer_model = "gemini-2.5-pro",
+                    engineer_model = "gemini-2.5-pro",
+                    researcher_model = "gemini-2.5-pro",
+                    plan_instructions=self.planner_append_instructions,
+                    work_dir = self.idea_dir,
+                    api_keys = self.api_keys
+                    )
 
         chat_history = results['chat_history']
         

@@ -1,3 +1,9 @@
 [submodule "third_party/cmbagent"]
 	path = third_party/cmbagent
 	url = https://github.com/jakobtfaber/cmbagent.git
+[submodule "third_party/autogen"]
+	path = third_party/autogen
+	url = https://github.com/microsoft/autogen.git
+[submodule "third_party/ag2"]
+	path = third_party/ag2
+	url = https://github.com/ag2ai/ag2.git

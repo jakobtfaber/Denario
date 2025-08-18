@@ -43,7 +43,8 @@ class Denario:
     def __init__(self, input_data: Research | None = None,
                  params={}, 
                  project_dir: str | None = None, 
-                 clear_project_dir: bool = False):
+                 clear_project_dir: bool = False,
+                 llm_defaults: dict | None = None):
         
         if project_dir is None:
             project_dir = os.path.join( os.getcwd(), DEFAUL_PROJECT_NAME )
@@ -70,6 +71,21 @@ class Denario:
         # Get keys from environment if they exist
         self.keys = KeyManager()
         self.keys.get_keys_from_env()
+
+        # Central LLM defaults: can be overridden by passing `llm_defaults` dict
+        defaults = {
+            'idea_maker': models["gemini-2.5-pro"],
+            'idea_hater': models["gemini-2.5-pro"],
+            'planner': models["gemini-2.5-pro"],
+            'plan_reviewer': models["gemini-2.5-pro"],
+            'engineer': models["gemini-2.5-pro"],
+            'researcher': models["gemini-2.5-pro"],
+            'default_llm': models["gemini-2.5-pro"],
+        }
+        if llm_defaults is not None:
+            for k, v in llm_defaults.items():
+                defaults[k] = v
+        self.llm_defaults = defaults
 
 
     def _setup_input_files(self) -> None:
@@ -122,16 +138,20 @@ class Denario:
 
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
     def get_idea(self,
-                 idea_maker_model: LLM | str = models["gpt-4o"],
-                 idea_hater_model: LLM | str = models["claude-3.7-sonnet"],
+                 idea_maker_model: LLM | str | None = None,
+                 idea_hater_model: LLM | str | None = None,
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
-           idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
-           idea_hater_model: the LLM to be used for the idea hater agent. Default is claude-3.7-sonnet
+           idea_maker_model: the LLM to be used for the idea maker agent. Default is gemini-2.5-pro.
+           idea_hater_model: the LLM to be used for the idea hater agent. Default is gemini-2.5-pro.
         """
 
-        # Get LLM instances
+        # Resolve LLM instances (use central defaults when None)
+        if idea_maker_model is None:
+            idea_maker_model = self.llm_defaults['idea_maker']
+        if idea_hater_model is None:
+            idea_hater_model = self.llm_defaults['idea_hater']
         idea_maker_model = llm_parser(idea_maker_model)
         idea_hater_model = llm_parser(idea_hater_model)
         
@@ -153,7 +173,7 @@ class Denario:
 
         self.idea = idea
 
-    def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
+    def get_idea_fast(self, llm: LLM | str | None = None,
                       verbose=False) -> None:
         """
         Generate an idea using the idea maker - idea hater method.
@@ -167,7 +187,9 @@ class Denario:
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
-        # Get LLM instance
+        # Resolve LLM instance
+        if llm is None:
+            llm = self.llm_defaults['default_llm']
         llm = llm_parser(llm)
 
         # Build graph
@@ -255,8 +277,11 @@ class Denario:
 
 
     
-    def get_method(self) -> None:
-        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`."""
+    def get_method(self, llm: str | None = None) -> None:
+        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`.
+        Args:
+            llm: the LLM model to be used for method generation (default: "gpt-4.1-2025-04-14")
+        """
 
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
@@ -266,7 +291,10 @@ class Denario:
             with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
                 self.research.idea = f.read()
 
-        method = Method(self.research.idea, keys=self.keys,  work_dir = self.project_dir)
+        # Resolve researcher LLM
+        if llm is None:
+            llm = self.llm_defaults['researcher']
+        method = Method(self.research.idea, keys=self.keys, researcher_model=llm, work_dir=self.project_dir)
         methododology = method.develop_method(self.research.data_description)
         self.research.methodology = methododology
 
@@ -275,7 +303,7 @@ class Denario:
         with open(method_path, 'w') as f:
             f.write(methododology)
 
-    def get_method_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
+    def get_method_fast(self, llm: LLM | str | None = None,
                         verbose=False) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method.
         Args:
@@ -287,7 +315,9 @@ class Denario:
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
-        # Get LLM instance
+        # Resolve LLM instance
+        if llm is None:
+            llm = self.llm_defaults['default_llm']
         llm = llm_parser(llm)
 
         # Build graph
@@ -339,8 +369,8 @@ class Denario:
 
     def get_results(self,
                     involved_agents: List[str] = ['engineer', 'researcher'],
-                    engineer_model: LLM | str = models["claude-3.7-sonnet"],
-                    researcher_model: LLM | str = models["o3-mini"],
+                    engineer_model: LLM | str | None = None,
+                    researcher_model: LLM | str | None = None,
                     restart_at_step: int = -1
                     ) -> None:
         """
@@ -350,6 +380,11 @@ class Denario:
             involved_agents: List of agents employed to compute the results.
         """
 
+        # Resolve LLM instances (use central defaults when None)
+        if engineer_model is None:
+            engineer_model = self.llm_defaults['engineer']
+        if researcher_model is None:
+            researcher_model = self.llm_defaults['researcher']
         # Get LLM instances
         engineer_model = llm_parser(engineer_model)
         researcher_model = llm_parser(researcher_model)
@@ -451,7 +486,7 @@ class Denario:
 
     def get_paper(self,
                   journal: Journal = Journal.NONE,
-                  llm: LLM | str = models["gemini-2.5-flash"],
+                  llm: LLM | str | None = None,
                   writer: str = 'scientist',
                   cmbagent_keywords: bool = False,
                   add_citations=True) -> None:
@@ -485,6 +520,9 @@ class Denario:
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
 
+        # Resolve LLM instance
+        if llm is None:
+            llm = self.llm_defaults['default_llm']
         # Get LLM instance
         llm = llm_parser(llm)
 

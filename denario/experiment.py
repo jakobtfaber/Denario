@@ -1,10 +1,17 @@
-from typing import List
+from typing import List, Optional, Dict
 import os
 import re
-import cmbagent
+import importlib
+import sys
+from pathlib import Path
 
 from .key_manager import KeyManager
-from .prompts.experiment import experiment_planner_prompt, experiment_engineer_prompt, experiment_researcher_prompt
+from .prompts.experiment import (
+    experiment_planner_prompt,
+    experiment_engineer_prompt,
+    experiment_researcher_prompt,
+)
+
 
 class Experiment:
     """
@@ -12,20 +19,26 @@ class Experiment:
     TODO: improve docstring
     """
 
-    def __init__(self,
-                 research_idea: str,
-                 methodology: str,
-                 keys: KeyManager,
-                 involved_agents: List[str] = ['engineer', 'researcher'],
-                 engineer_model: str = "claude-3-7-sonnet-20250219",
-                 researcher_model: str = "o3-mini-2025-01-31",
-                 work_dir = None,
-                 restart_at_step: int = -1):
-        
+    def __init__(
+        self,
+        research_idea: str,
+        methodology: str,
+        keys: KeyManager,
+        involved_agents: List[str] = ["engineer", "researcher"],
+        engineer_model: str = "claude-3-7-sonnet-20250219",
+        researcher_model: str = "o3-mini-2025-01-31",
+        use_ag2: bool = True,
+        ag2_params: Optional[Dict] = None,
+        work_dir=None,
+        restart_at_step: int = -1,
+    ):
         self.engineer_model = engineer_model
         self.researcher_model = researcher_model
+        # AG2 support flags and params
+        self.use_ag2 = use_ag2
+        self.ag2_params = ag2_params or {}
         self.restart_at_step = restart_at_step
-        
+
         if work_dir is None:
             raise ValueError("workdir must be provided")
 
@@ -35,22 +48,26 @@ class Experiment:
         # Create directory if it doesn't exist
         os.makedirs(self.experiment_dir, exist_ok=True)
 
-        involved_agents_str = ', '.join(involved_agents)
+        involved_agents_str = ", ".join(involved_agents)
 
         # Set prompts
         self.planner_append_instructions = experiment_planner_prompt.format(
-            research_idea = research_idea,
-            methodology = methodology,
-            involved_agents_str = involved_agents_str
+            research_idea=research_idea,
+            methodology=methodology,
+            involved_agents_str=involved_agents_str,
         )
         self.engineer_append_instructions = experiment_engineer_prompt.format(
-            research_idea = research_idea,
-            methodology = methodology,
+            research_idea=research_idea,
+            methodology=methodology,
         )
         self.researcher_append_instructions = experiment_researcher_prompt.format(
-            research_idea = research_idea,
-            methodology = methodology,
+            research_idea=research_idea,
+            methodology=methodology,
         )
+
+        # Placeholders for results
+        self.results = None
+        self.plot_paths = []
 
     def run_experiment(self, data_description: str, **kwargs):
         """
@@ -58,40 +75,92 @@ class Experiment:
         TODO: improve docstring
         """
 
+        # If AG2 mode requested, set up AG2 path before importing cmbagent
+        if getattr(self, "use_ag2", False):
+            try:
+                from .ag2_integration import setup_ag2_path, is_ag2_available
+
+                if is_ag2_available():
+                    setup_ag2_path()
+                    print("✅ AG2 support enabled for this experiment")
+                else:
+                    print(
+                        "⚠️ AG2 requested but not available, falling back to default autogen/cmbagent"
+                    )
+            except Exception as e:
+                print(f"⚠️ Failed to initialize AG2 support: {e}")
+
+        # Ensure local third_party/cmbagent is used if present
+        project_root = Path(__file__).parent.parent
+        local_cmbagent = project_root / "third_party" / "cmbagent"
+        if local_cmbagent.exists():
+            sys.path.insert(0, str(local_cmbagent))
+
+        # Lazy import cmbagent to ensure AG2 path (if any) is active before autogen is imported
+        try:
+            cmbagent = importlib.import_module("cmbagent")
+        except Exception as e:
+            raise ImportError(f"Failed to import cmbagent: {e}")
+
         print(f"Engineer model: {self.engineer_model}")
         print(f"Researcher model: {self.researcher_model}")
-        
-        results = cmbagent.planning_and_control_context_carryover(data_description,
-                            n_plan_reviews = 1,
-                            max_n_attempts = 10,
-                            max_plan_steps = 6,
-                            max_rounds_control = 500,
-                            engineer_model = self.engineer_model,
-                            researcher_model = self.researcher_model,
-                            plan_instructions=self.planner_append_instructions,
-                            researcher_instructions=self.researcher_append_instructions,
-                            engineer_instructions=self.engineer_append_instructions,
-                            work_dir = self.experiment_dir,
-                            api_keys = self.api_keys,
-                            restart_at_step = self.restart_at_step
-                            )
-        chat_history = results['chat_history']
-        final_context = results['final_context']
-        
-        try:
-            for obj in chat_history[::-1]:
-                if obj['name'] == 'researcher_response_formatter':
-                    result = obj['content']
+
+        # Debug: print models passed to cmbagent
+        print("[DEBUG] cmbagent.planning_and_control_context_carryover called with:")
+        print(f"  engineer_model={self.engineer_model}")
+        print(f"  researcher_model={self.researcher_model}")
+
+        results = cmbagent.planning_and_control_context_carryover(
+            data_description,
+            n_plan_reviews=1,
+            max_n_attempts=10,
+            max_plan_steps=6,
+            max_rounds_control=500,
+            engineer_model=self.engineer_model,
+            researcher_model=self.researcher_model,
+            planner_model="gemini-2.5-pro",
+            plan_reviewer_model="gemini-2.5-pro",
+            idea_maker_model="gemini-2.5-pro",
+            idea_hater_model="gemini-2.5-pro",
+            camb_context_model="gemini-2.5-pro",
+            default_llm_model="gemini-2.5-pro",
+            plan_instructions=self.planner_append_instructions,
+            researcher_instructions=self.researcher_append_instructions,
+            engineer_instructions=self.engineer_append_instructions,
+            work_dir=self.experiment_dir,
+            api_keys=self.api_keys,
+            restart_at_step=self.restart_at_step,
+        )
+
+        chat_history = results.get("chat_history", [])
+        final_context = results.get("final_context", {})
+
+        # Safely extract the last researcher response formatter output
+        task_result = None
+        for obj in reversed(chat_history):
+            try:
+                if obj.get("name") == "researcher_response_formatter":
+                    task_result = obj.get("content")
                     break
-            task_result = result
-        except:
-            task_result = None
-            
+            except Exception:
+                continue
+
+        if not task_result:
+            self.results = None
+            self.plot_paths = final_context.get("displayed_images", [])
+            return None
+
         MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"
-        extracted_results = re.findall(MD_CODE_BLOCK_PATTERN, task_result, flags=re.DOTALL)[0]
-        clean_results = re.sub(r'^<!--.*?-->\s*\n', '', extracted_results)
-        self.results = clean_results
-        self.plot_paths = final_context['displayed_images']
+        match = re.search(MD_CODE_BLOCK_PATTERN, task_result, flags=re.DOTALL)
+        if match:
+            extracted_results = match.group(1)
+            clean_results = re.sub(r"^<!--.*?-->\s*\n", "", extracted_results)
+            self.results = clean_results
+        else:
+            # Fallback to raw content
+            self.results = task_result
+
+        self.plot_paths = final_context.get("displayed_images", [])
 
         return None
 

@@ -2,48 +2,39 @@
     "sub_tasks": [
         {
             "bullet_points": [
-                "Define the scientific motivation for phase-connected timing and the need for sub-population-specific cadence strategies.",
-                "Clarify the hypotheses regarding how cadence optimization can maximize timing completeness and telescope efficiency.",
-                "List the key assumptions about pulsar populations, noise sources, and telescope/instrumental constraints, explicitly referencing the provided parameter tables.",
-                "Establish clear links between pulsar population characteristics and their expected impacts on timing efficiency.",
-                "Identify the main questions to be addressed in the methodology (e.g., how to adapt cadence per sub-population, how to quantify timing success, how to validate analytic vs. simulation results)."
+                "Explain the primary limitations of using pre-determined, fixed-cadence strategies for a diverse population of newly discovered pulsars, where the object's class (and thus its timing behavior) is initially uncertain.",
+                "Introduce the concept of a Bayesian adaptive scheduling framework. Describe, at a high level, how it uses information from each new observation to update its knowledge of the pulsar's properties and intelligently schedule the *next* observation to maximize scientific return.",
+                "State the central hypothesis of this project. For example: \"An adaptive, Bayesian scheduling algorithm can achieve phase-connected timing solutions for a diverse population of newly discovered pulsars using significantly less total telescope time than the optimal set of fixed-cadence strategies designed for each pulsar sub-class.\"",
+                "Clarify the key assumptions underpinning this methodology and explicitly state how the validity of the project's central hypothesis depends on them. For instance, discuss how a mismatch between the simulated noise models (e.g., for red noise or DM variations) and reality could cause the adaptive algorithm to make sub-optimal scheduling decisions, thereby affecting the claimed efficiency gains."
             ],
-            "sub_task": "Articulate the key scientific reasoning, hypotheses, and assumptions underlying the adaptive cadence framework for phase-connecting newly discovered pulsars, explicitly integrating telescope, backend, and noise parameter tables.",
+            "sub_task": "Establish the Rationale and Hypotheses for an Adaptive Cadence Framework",
             "sub_task_agent": "researcher"
         },
         {
             "bullet_points": [
-                "Describe how to analytically estimate the number and spacing of follow-up epochs needed for phase connection, accounting for period, Pdot, and noise properties.",
-                "Provide a detailed breakdown of each noise contributor (radiometer, jitter, ISM, red noise, glitches, etc.) and show how these are incorporated into the analytic models.",
-                "Specify the parameter ranges (with units) taken from the telescope and search parameters to ensure consistency.",
-                "Explain how population synthesis fractions and discovery S/N will inform initial cadence settings.",
-                "Incorporate telescope and backend constraints (e.g., dwell time, S/N, memory limits) into the analytic framework."
+                "Define the standard timing model that will be used to describe the pulsar's rotation. Specify all parameters to be fit (e.g., sky position α, δ; spin frequency ν and its derivative ν̇; dispersion measure DM).",
+                "For each of the six specified sub-populations, detail the specific, dominant noise components and define the parameterization that will be used in the simulation. For instance: For MSPs, specify the range of power-law amplitudes and spectral indices for red noise. For Young Pulsars, define the statistical model for glitches, including the distribution of glitch sizes (Δν/ν) and the mean time between glitches. For Intermittent Sources, specify the parameters for the state-switching model, such as the mean duration of 'on' and 'off' states.",
+                "Explain how the initial discovery data will be used to form the prior probability distributions for the timing model parameters. Contrast the quality of the priors derived from a high S/N, 1260-second targeted search detection versus a low S/N, 60-second blind search detection."
             ],
-            "sub_task": "Outline the analytic modeling approach for determining initial and adaptive cadence recommendations per pulsar sub-population, with a detailed breakdown of noise contributors and parameter ranges.",
+            "sub_task": "Define the Models for Pulsar Timing, Noise, and Initial State Estimation",
             "sub_task_agent": "researcher"
         },
         {
             "bullet_points": [
-                "Specify the simulation inputs: pulsar population parameters, noise models, telescope/instrumental parameters, and survey strategy (targeted/blind).",
-                "Describe how to simulate timing campaigns for each sub-population, including adaptive cadence adjustments based on evolving timing solutions.",
-                "Outline the metrics for evaluating success rates, timing uncertainties, and telescope time efficiency.",
-                "Detail the process for validating simulation outputs against analytic predictions.",
-                "Include steps for sensitivity tests, such as varying noise levels and telescope constraints, to verify that adaptive cadence adjustments consistently improve success rates."
+                "Describe the core decision-making logic of the adaptive algorithm. Specify the utility function that the scheduler will seek to maximize when choosing the time for the next observation and discuss the trade-offs between different possible utility functions. For example, contrast a utility function focused purely on minimizing `ν̇` uncertainty with one that prioritizes confirming a potential glitch, and justify the choice made for this study.",
+                "Outline the step-by-step workflow for the simulation. This must include: (1) Generating a mixed population of pulsars with `psrpoppy`; (2) Simulating their discovery to establish initial priors; (3) For each pulsar, initiating the adaptive scheduler loop which proposes an observation time, simulates a new TOA with appropriate noise, and updates the parameter posteriors; (4) Defining the stopping condition, which must include explicit criteria for both success and failure. For example, a success condition could be when the fractional uncertainty in `ν̇` falls below 10% (`σ(ν̇)/|ν̇| < 0.1`), while a failure condition could be the inability to unambiguously resolve the integer rotation count between epochs or exceeding a pre-defined maximum budget of telescope time.",
+                "Describe the \"control group\" of fixed-cadence strategies that the adaptive method will be benchmarked against. Explain how these will be designed. For example, for each pulsar class, design an \"expert\" fixed cadence (e.g., for a canonical pulsar: observations at 1, 3, 7, 15, 30, 90 days) that is expected to be highly efficient for that specific class. The adaptive strategy's performance will be compared to running these fixed strategies on the same simulated pulsars."
             ],
-            "sub_task": "Design the simulation workflow for validating and refining the analytic cadence strategy for each sub-population, including validation and sensitivity testing.",
+            "sub_task": "Detail the Adaptive Algorithm and Comparative Simulation Workflow",
             "sub_task_agent": "researcher"
         },
         {
             "bullet_points": [
-                "Integrate the analytic and simulation components into a unified workflow.",
-                "Clearly document all variables, parameter definitions, and units used.",
-                "Provide explicit instructions for each stage: initial characterization, adaptive cadence adjustment, noise modeling, simulation validation, and output analysis.",
-                "Include a final review checklist detailing variable definitions, units, and all validation steps taken.",
-                "Clearly document the integration process between the analytic approach and the simulation results.",
-                "Ensure the methodology is logically structured and ready for direct use in the research project.",
-                "Save this as \"full_methodology.md\"."
+                "Synthesize the details from the previous steps into a single, comprehensive methodology document. This document should be written as a formal \"Methodology\" section of a research paper, providing enough detail for another researcher to replicate the study.",
+                "Structure the document with the following clear sub-sections:",
+                "Ensure all variables, parameters, and units are explicitly defined throughout the text. The final output should be a self-contained document titled \"full_methodology.md\"."
             ],
-            "sub_task": "Synthesize the full methodology into a detailed, step-by-step description suitable for implementation, with a final review checklist and clear documentation.",
+            "sub_task": "Write the Full Methodology Description",
             "sub_task_agent": "researcher"
         }
     ]

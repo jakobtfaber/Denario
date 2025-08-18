@@ -50,6 +50,21 @@ gpt45 = LLM(name="gpt-4.5-preview-2025-02-27",
             temperature=0.5)
 """`gpt-4.5-preview` model."""
 
+gpt5 = LLM(name="gpt-5",
+           max_output_tokens=32768,
+           temperature=0.5)
+"""`gpt-5` model."""
+
+gpt5mini = LLM(name="gpt-5-mini",
+               max_output_tokens=16384,
+               temperature=0.5)
+"""`gpt-5-mini` model."""
+
+gpt5nano = LLM(name="gpt-5-nano",
+               max_output_tokens=8192,
+               temperature=0.5)
+"""`gpt-5-nano` model."""
+
 claude37sonnet = LLM(name="claude-3-7-sonnet-20250219",
                      max_output_tokens=64000,
                      temperature=0)
@@ -64,6 +79,9 @@ models : Dict[str, LLM] = {
                             "gpt-4.1" : gpt41,
                             "gpt-4o-mini" : gpt4omini,
                             "gpt-4.5" : gpt45,
+                            "gpt-5" : gpt5,
+                            "gpt-5-mini" : gpt5mini,
+                            "gpt-5-nano" : gpt5nano,
                             "claude-3.7-sonnet" : claude37sonnet,
                            }
 """Dictionary with the available models."""

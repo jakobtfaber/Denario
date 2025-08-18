@@ -1,5 +1,5 @@
 # Objective
-Design an optimal observational cadence strategy for achieving phase-connected timing solutions of newly discovered radio pulsars using a steerable, interferometric radio telescope array. The objective is to maximize timing completeness per source population and optimize telescope time use across a diverse pulsar census in the Milky Way, using analytic reasoning and supporting simulations. Consider two survey strategies: (1) A targeted search in (nominally) 4000 beams steered towards continuum sources; (2) A blind search in (nominally) 1000000 beams that tile the central part of the primary beam. Assume that search-mode data will not be stored, and that searching will need to be done in quasi-real time, on the timescale of the dwell (pointing) time. The telescope backend will run on two NVIDIA Vera Rubin NVL144 GPU racks designed for high-performance computing. Consequently, the dwell time is bounded strongly by memory requirements, but less strongly but the compute requirements.
+Design an optimal observational cadence strategy for achieving phase-connected timing solutions of newly discovered radio pulsars using a steerable, interferometric radio telescope array. The objective is to maximize timing completeness per source population and optimize telescope time use across a diverse pulsar census in the Milky Way, using analytic reasoning and supporting simulations. Consider two survey strategies: (1) A targeted search in (nominally) 4000 beams steered towards continuum sources; (2) A blind search in (nominally) 1000000 beams that tile the central part of the primary beam. Assume that search-mode data will not be stored, and that searching will need to be done in quasi-real time, on the timescale of the dwell (pointing) time. The telescope backend will run on two NVIDIA Vera Rubin NVL144 GPU racks designed for high-performance computing. Consequently, the dwell time is bounded strongly by memory requirements, but less strongly by the compute requirements.
 
 # Instructions
 - Specify the number and spacing of follow-up observations (epochs) needed to ensure phase-connected timing per source, per sub-population.
@@ -9,7 +9,7 @@ Design an optimal observational cadence strategy for achieving phase-connected t
 - Validate the outputs of each major simulation or calculation.
 
 ## Sub-categories
-- Cadence recommendations should cover:
+Cadence recommendations should cover:
   1. Young, canonical disk pulsars
   2. Recycled millisecond pulsars (field + globular cluster)
   3. Magnetars
@@ -25,7 +25,7 @@ Scope: Only newly discovered radio pulsars detected by the specified telescope.
 In-scope: Sub-population differentiation, cadence scheduling, noise accounting, simulated and analytic prediction.
 Out-of-scope: Broader survey planning, instrument commissioning, non-radio sources.
 
-Key telescope/reference parameters:
+## Key telescope/reference parameters
 | Parameter                     | Value                                          |
 |-------------------------------|------------------------------------------------|
 | Number of antennas            | 1650                                           |
@@ -40,7 +40,7 @@ Key telescope/reference parameters:
 | Channelization                | 10⁴ × 130.2 kHz                                |
 | Survey tiling                 | 6×5 21-min pointings, ≈2.6 deg² unique FoV per pointing|
 
-Fiducial parameters for pulsar searches in both targeted and blind search modes:
+## Fiducial parameters for pulsar searches in both targeted and blind search modes
 | Parameter              | Targeted Search       | Blind Search             |
 |------------------------|-----------------------|--------------------------|
 | Number of beams        | 4000                  | 2e5                      |
@@ -54,7 +54,7 @@ Fiducial parameters for pulsar searches in both targeted and blind search modes:
 | Polarizations          | 1                     | 1                        |
 | Number of bits         | 4                     | 4                        |
 
-NVIDIA Vera Rubin NVL144 features/specifications (for one rack):
+## NVIDIA Vera Rubin NVL144 features/specifications (for one rack)
 | Feature                |  Specification                  |
 |------------------------|---------------------------------|
 | Compute performance    | 50 PFLOPs dense FP4 compute     |

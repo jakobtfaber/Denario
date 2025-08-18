@@ -16,7 +16,7 @@ class Method:
     def __init__(self,
                  research_idea: str,
                  keys: KeyManager,
-                 researcher_model = "gpt-4.1-2025-04-14",
+                 researcher_model = "gemini-2.5-pro",
                  work_dir = None):
         
         self.researcher_model = researcher_model
@@ -42,19 +42,38 @@ class Method:
             data_description: description of the data and tools to be used.
         """
 
+        # Debug: print models passed to cmbagent
+        print("[DEBUG] cmbagent.planning_and_control_context_carryover called with:")
+        print(f"  researcher_model={self.researcher_model}")
+        print(f"  planner_model=gemini-2.5-pro")
+        print(f"  plan_reviewer_model=gemini-2.5-pro")
+        print(f"  engineer_model=gemini-2.5-pro")
+        print(f"  idea_maker_model=gemini-2.5-pro")
+        print(f"  idea_hater_model=gemini-2.5-pro")
+        print(f"  camb_context_model=gemini-2.5-pro")
+        print(f"  default_llm_model=gemini-2.5-pro")
+
         results = cmbagent.planning_and_control_context_carryover(data_description,
-                              n_plan_reviews = 1,
-                              max_n_attempts = 4,
-                              max_plan_steps = 4,
-                              researcher_model = self.researcher_model,
-                              plan_instructions = self.planner_append_instructions,
-                              researcher_instructions = self.researcher_append_instructions,
-                              work_dir = self.method_dir,
-                              api_keys = self.api_keys
-                             )
-        
+                                                    n_plan_reviews = 1,
+                                                    max_n_attempts = 4,
+                                                    max_plan_steps = 4,
+                                                    researcher_model = self.researcher_model,
+                                                    planner_model = "gemini-2.5-pro",
+                                                    plan_reviewer_model = "gemini-2.5-pro",
+                                                    engineer_model = "gemini-2.5-pro",
+                                                    idea_maker_model = "gemini-2.5-pro",
+                                                    idea_hater_model = "gemini-2.5-pro",
+                                                    camb_context_model = "gemini-2.5-pro",
+                                                    default_llm_model = "gemini-2.5-pro",
+                                                    plan_instructions = self.planner_append_instructions,
+                                                    researcher_instructions = self.researcher_append_instructions,
+                                                    work_dir = self.method_dir,
+                                                    api_keys = self.api_keys,
+                                                    researcher_filename = "full_methodology.md"
+                                                )
+
         chat_history = results['chat_history']
-        
+
         try:
             for obj in chat_history[::-1]:
                 if obj['name'] == 'researcher_response_formatter':
