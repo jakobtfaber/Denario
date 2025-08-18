@@ -14,9 +14,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Add project root to path
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
+# Use installed packages; no path mangling required
 
 # Verify AG2 (autogen) availability via installed package
 def _check_ag2_available() -> bool:

@@ -74,8 +74,7 @@ class Experiment:
         Run the experiment.
         TODO: improve docstring
         """
-
-    # AG2 is now provided via installed dependency; keep imports lazy only
+        # AG2 is now provided via installed dependency; keep imports lazy only
 
         # Lazy import cmbagent to ensure AG2 path (if any) is active before autogen is imported
         try:
@@ -83,8 +82,8 @@ class Experiment:
         except Exception as e:
             raise ImportError(f"Failed to import cmbagent: {e}")
 
-    print(f"Engineer model: {self.engineer_model}")
-    print(f"Researcher model: {self.researcher_model}")
+        print(f"Engineer model: {self.engineer_model}")
+        print(f"Researcher model: {self.researcher_model}")
 
         # Debug: print models passed to cmbagent
         print("[DEBUG] cmbagent.planning_and_control_context_carryover called with:")

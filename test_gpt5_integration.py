@@ -7,8 +7,6 @@ This tests the integration layer without running a full Denario workflow.
 
 import os
 import sys
-sys.path.insert(0, '/workspaces/Denario')
-sys.path.insert(0, '/workspaces/Denario/third_party/cmbagent')
 
 # Import the integration layer (this auto-installs the monkey patch)
 from denario.gpt5_integration import install_gpt5_reasoning_support, is_gpt5_with_reasoning

@@ -13,13 +13,11 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-# Add paths for Denario and cmbagent
-sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('./third_party/cmbagent'))
+# Use installed packages; no path mangling required
 
 # Import GPT-5 integration (auto-installs monkey patch)
 from denario.gpt5_integration import install_gpt5_reasoning_support
-from denario import Denario
+from denario import Denario, Journal
 from denario.utils import llm_parser
 
 def main():
@@ -47,6 +45,18 @@ def main():
     # Initialize Denario with project directory
     denario = Denario(project_dir=project_dir)
     denario.set_data_description(data_description)
+
+    # Ensure prerequisite files from Gemini exist
+    input_dir = os.path.join(project_dir, "input_files")
+    idea_md = os.path.join(input_dir, "idea.md")
+    method_md = os.path.join(input_dir, "methods.md")
+    missing = [p for p in (idea_md, method_md) if not os.path.exists(p)]
+    if missing:
+        print("❌ Missing prerequisite files to resume results generation:")
+        for p in missing:
+            print(f"   - {p}")
+        print("Please run the Gemini idea/method stages first or provide these files.")
+        sys.exit(1)
     
     print("🚀 Starting Denario results generation with GPT-5 reasoning...")
     print("   This will leverage advanced reasoning for scientific analysis")
@@ -61,8 +71,13 @@ def main():
         )
         print("✅ Results generation completed successfully!")
         
-        # Show results
+        # Print results to stdout for confirmation
         denario.show_results()
+
+        # Proceed to paper generation using default writer LLM (Gemini)
+        print("\n📝 Generating paper draft from computed results…")
+        denario.get_paper(journal=Journal.AAS)
+        print("✅ Paper draft generated (see project input_files and output).")
         
     except Exception as e:
         print(f"❌ Error during results generation: {e}")
