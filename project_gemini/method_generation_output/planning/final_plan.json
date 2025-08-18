@@ -1,0 +1,50 @@
+{
+    "sub_tasks": [
+        {
+            "bullet_points": [
+                "Define the scientific motivation for phase-connected timing and the need for sub-population-specific cadence strategies.",
+                "Clarify the hypotheses regarding how cadence optimization can maximize timing completeness and telescope efficiency.",
+                "List the key assumptions about pulsar populations, noise sources, and telescope/instrumental constraints, explicitly referencing the provided parameter tables.",
+                "Establish clear links between pulsar population characteristics and their expected impacts on timing efficiency.",
+                "Identify the main questions to be addressed in the methodology (e.g., how to adapt cadence per sub-population, how to quantify timing success, how to validate analytic vs. simulation results)."
+            ],
+            "sub_task": "Articulate the key scientific reasoning, hypotheses, and assumptions underlying the adaptive cadence framework for phase-connecting newly discovered pulsars, explicitly integrating telescope, backend, and noise parameter tables.",
+            "sub_task_agent": "researcher"
+        },
+        {
+            "bullet_points": [
+                "Describe how to analytically estimate the number and spacing of follow-up epochs needed for phase connection, accounting for period, Pdot, and noise properties.",
+                "Provide a detailed breakdown of each noise contributor (radiometer, jitter, ISM, red noise, glitches, etc.) and show how these are incorporated into the analytic models.",
+                "Specify the parameter ranges (with units) taken from the telescope and search parameters to ensure consistency.",
+                "Explain how population synthesis fractions and discovery S/N will inform initial cadence settings.",
+                "Incorporate telescope and backend constraints (e.g., dwell time, S/N, memory limits) into the analytic framework."
+            ],
+            "sub_task": "Outline the analytic modeling approach for determining initial and adaptive cadence recommendations per pulsar sub-population, with a detailed breakdown of noise contributors and parameter ranges.",
+            "sub_task_agent": "researcher"
+        },
+        {
+            "bullet_points": [
+                "Specify the simulation inputs: pulsar population parameters, noise models, telescope/instrumental parameters, and survey strategy (targeted/blind).",
+                "Describe how to simulate timing campaigns for each sub-population, including adaptive cadence adjustments based on evolving timing solutions.",
+                "Outline the metrics for evaluating success rates, timing uncertainties, and telescope time efficiency.",
+                "Detail the process for validating simulation outputs against analytic predictions.",
+                "Include steps for sensitivity tests, such as varying noise levels and telescope constraints, to verify that adaptive cadence adjustments consistently improve success rates."
+            ],
+            "sub_task": "Design the simulation workflow for validating and refining the analytic cadence strategy for each sub-population, including validation and sensitivity testing.",
+            "sub_task_agent": "researcher"
+        },
+        {
+            "bullet_points": [
+                "Integrate the analytic and simulation components into a unified workflow.",
+                "Clearly document all variables, parameter definitions, and units used.",
+                "Provide explicit instructions for each stage: initial characterization, adaptive cadence adjustment, noise modeling, simulation validation, and output analysis.",
+                "Include a final review checklist detailing variable definitions, units, and all validation steps taken.",
+                "Clearly document the integration process between the analytic approach and the simulation results.",
+                "Ensure the methodology is logically structured and ready for direct use in the research project.",
+                "Save this as \"full_methodology.md\"."
+            ],
+            "sub_task": "Synthesize the full methodology into a detailed, step-by-step description suitable for implementation, with a final review checklist and clear documentation.",
+            "sub_task_agent": "researcher"
+        }
+    ]
+}

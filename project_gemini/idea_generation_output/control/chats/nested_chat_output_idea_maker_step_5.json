@@ -1,0 +1,113 @@
+[
+  {
+    "name": "idea_maker_response_formatter",
+    "content": "\n**Ideas**\n\n- Idea 1:\n\t* A Unified Adaptive Cadence Framework for New Pulsar Discoveries\n\t\t- Direct Alignment with the Primary Objective: The framework is designed to handle all specified sub-populations of pulsars, from stable MSPs to noisy young pulsars and magnetars, providing a complete, end-to-end solution for the diverse pulsar census.\n\t\t- Superior Telescope Time Optimization: The adaptive nature of the framework allows for continuous updating of the observing strategy based on improving measurements, efficiently allocating telescope time to sources that are more challenging and avoiding unnecessary observations of well-constrained sources.\n\t\t- Robust Integration of Simulation and Analytic Reasoning: The framework leverages `psrpoppy` to simulate realistic pulsar populations and follow-up processes, incorporating composite noise models for each pulsar. It also uses analytic models (e.g., phase ambiguity conditions as a function of P and P-dot uncertainties) to define observation spacing and cadence transitions.\n\t\t- Feasibility and Practicality: The framework specifies a testable initial characterization phase, a dynamic trigger for transitioning between observation stages, and a composite strategy for handling multiple noise sources. It builds upon established pulsar timing techniques while innovating in their systematic application, making it both ambitious and feasible for the observatory's timing program.\n\n        ",
+    "timestamp": "2025-08-18 03:15:55",
+    "cost": {
+      "Agent": [
+        "idea_maker_response_formatter",
+        "idea_maker_response_formatter",
+        "idea_maker_response_formatter"
+      ],
+      "Model": [
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-2025-04-14"
+      ],
+      "Cost": [
+        0.009634,
+        0.011888000000000001,
+        0.0037060000000000005
+      ],
+      "Prompt Tokens": [
+        1573,
+        1392,
+        825
+      ],
+      "Completion Tokens": [
+        811,
+        1138,
+        257
+      ],
+      "Total Tokens": [
+        2384,
+        2530,
+        1082
+      ]
+    }
+  },
+  {
+    "name": "idea_saver",
+    "content": null,
+    "timestamp": "2025-08-18 03:15:57",
+    "cost": {
+      "Agent": [
+        "idea_saver",
+        "idea_saver",
+        "idea_saver"
+      ],
+      "Model": [
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-2025-04-14"
+      ],
+      "Cost": [
+        0.011116,
+        0.013848000000000001,
+        0.004104
+      ],
+      "Prompt Tokens": [
+        2382,
+        2508,
+        1016
+      ],
+      "Completion Tokens": [
+        794,
+        1104,
+        259
+      ],
+      "Total Tokens": [
+        3176,
+        3612,
+        1275
+      ]
+    }
+  },
+  {
+    "name": "idea_saver",
+    "content": "\nIdeas saved in /workspaces/Denario/project_gemini/idea_generation_output/control/ideas_20250818_031557.json\n",
+    "timestamp": "2025-08-18 03:15:57",
+    "cost": {
+      "Agent": [
+        "idea_saver",
+        "idea_saver",
+        "idea_saver"
+      ],
+      "Model": [
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-2025-04-14",
+        "gpt-4.1-2025-04-14"
+      ],
+      "Cost": [
+        0.011116,
+        0.013848000000000001,
+        0.004104
+      ],
+      "Prompt Tokens": [
+        2382,
+        2508,
+        1016
+      ],
+      "Completion Tokens": [
+        794,
+        1104,
+        259
+      ],
+      "Total Tokens": [
+        3176,
+        3612,
+        1275
+      ]
+    }
+  }
+]

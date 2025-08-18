@@ -1,0 +1,58 @@
+[
+  {
+    "Agent": "control",
+    "Cost ($)": 0.112052,
+    "Prompt Tokens": 54558.0,
+    "Completion Tokens": 367.0,
+    "Total Tokens": 54925.0,
+    "Model": "gpt-4.1-2025-04-14"
+  },
+  {
+    "Agent": "terminator",
+    "Cost ($)": 0.016646,
+    "Prompt Tokens": 8319.0,
+    "Completion Tokens": 1.0,
+    "Total Tokens": 8320.0,
+    "Model": "gpt-4.1-2025-04-14"
+  },
+  {
+    "Agent": "control starter",
+    "Cost ($)": 0.005364,
+    "Prompt Tokens": 2678.0,
+    "Completion Tokens": 1.0,
+    "Total Tokens": 2679.0,
+    "Model": "gpt-4.1-2025-04-14"
+  },
+  {
+    "Agent": "executor response formatter",
+    "Cost ($)": 0.004433,
+    "Prompt Tokens": 3626.0,
+    "Completion Tokens": 101.0,
+    "Total Tokens": 3727.0,
+    "Model": "o3-mini-2025-01-31"
+  },
+  {
+    "Agent": "engineer",
+    "Cost ($)": 0.0719,
+    "Prompt Tokens": 29888.0,
+    "Completion Tokens": 3454.0,
+    "Total Tokens": 33342.0,
+    "Model": "gemini-2.5-pro"
+  },
+  {
+    "Agent": "engineer response formatter",
+    "Cost ($)": 0.0198979,
+    "Prompt Tokens": 3613.0,
+    "Completion Tokens": 3619.0,
+    "Total Tokens": 7232.0,
+    "Model": "o3-mini-2025-01-31"
+  },
+  {
+    "Agent": "Total",
+    "Cost ($)": 0.2302929,
+    "Prompt Tokens": 102682.0,
+    "Completion Tokens": 7543.0,
+    "Total Tokens": 110225.0,
+    "Model": NaN
+  }
+]
