@@ -18,8 +18,15 @@ load_dotenv()
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-# Import AG2 integration first
-from denario.ag2_integration import is_ag2_available, setup_ag2_path
+# Verify AG2 (autogen) availability via installed package
+def _check_ag2_available() -> bool:
+    try:
+        import autogen  # provided by ag2
+        # Light sanity check: presence of oai.client
+        from autogen.oai import client as _client  # noqa: F401
+        return True
+    except Exception:
+        return False
 
 def main():
     """Main execution function."""
@@ -27,50 +34,39 @@ def main():
     print("🚀 Starting Denario with AG2 native GPT-5 reasoning support...")
     
     # Check AG2 availability
-    if not is_ag2_available():
+    if not _check_ag2_available():
         print("❌ AG2 is not available. Please check the submodule installation.")
         return False
     
     print("✅ AG2 with GPT-5 reasoning support detected")
     
-    # Set up AG2 path
-    setup_ag2_path()
+    # AG2 provided via installed dependency; no path setup needed
     
-    # Import denario components
-    from denario import get_results
-    from denario.utils import load_project
-    
-    # Load project context
-    project_path = "/workspaces/Denario/project_gemini"
-    project = load_project(project_path)
-    
-    if not project:
-        print(f"❌ Failed to load project from {project_path}")
-        return False
-    
-    print(f"✅ Loaded project from {project_path}")
-    
-    # Configure for AG2 GPT-5 reasoning
-    print("🧠 Configuring AG2 GPT-5 reasoning workflow...")
-    
+    # Import Denario and run results with GPT-5
     try:
-        # Use AG2's native GPT-5 reasoning instead of monkey-patching
-        results = get_results(
-            project=project,
-            engineer_model="gpt-5",      # AG2 will auto-configure reasoning
-            researcher_model="gpt-5",    # AG2 will auto-configure reasoning  
-            restart_at_step=-1,          # Resume from results generation
-            use_ag2=True                 # Enable AG2 native mode
-        )
-        
-        if results:
-            print("✅ AG2 GPT-5 reasoning workflow completed successfully!")
-            print(f"📊 Results generated with enhanced reasoning capabilities")
-            return True
+        from denario import Denario
+        from denario.utils import input_check
+
+        project_dir = "project_gemini"
+        # Load a default prompt file if present; otherwise use a minimal prompt
+        prompt_path = Path("myprompts/dsa2000psr_prompt.md")
+        if prompt_path.exists():
+            data_description = prompt_path.read_text()
         else:
-            print("❌ Workflow failed")
-            return False
-            
+            data_description = "Analyze the provided dataset and generate results using standard scientific methods."
+
+        den = Denario(project_dir=project_dir)
+        den.set_data_description(data_description)
+
+        print("🧠 Running results generation with GPT-5 via AG2…")
+        den.get_results(
+            engineer_model="gpt-5",
+            researcher_model="gpt-5",
+            restart_at_step=-1,
+        )
+        den.show_results()
+        print("✅ AG2 GPT-5 reasoning workflow completed successfully!")
+        return True
     except Exception as e:
         print(f"❌ Error in AG2 GPT-5 workflow: {e}")
         import traceback

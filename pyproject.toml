@@ -31,6 +31,7 @@ dependencies = [
   "google-ai-generativelanguage>=0.6.17",
   "flatbuffers>=24.12.23",
   "filelock>=3.17.0",
+  "cmbagent_autogen==0.0.91.post6",
   "cmbagent>=0.0.1post53",
   "pymupdf",
   "pillow",

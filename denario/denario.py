@@ -9,7 +9,7 @@ from PIL import Image
 
 os.environ["CMBAGENT_DEBUG"] = "false"
 
-import cmbagent
+# import cmbagent
 
 from .config import DEFAUL_PROJECT_NAME, INPUT_FILES, PLOTS_FOLDER, DESCRIPTION_FILE, IDEA_FILE, METHOD_FILE, RESULTS_FILE
 from .research import Research
@@ -471,6 +471,7 @@ class Denario:
         Returns:
             dict: Dictionary mapping AAS keywords to their URLs
         """
+        import cmbagent
         
         aas_keywords = cmbagent.get_keywords(input_text, n_keywords = n_keywords, api_keys = self.keys)
         self.research.keywords = aas_keywords

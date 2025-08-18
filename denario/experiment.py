@@ -75,26 +75,7 @@ class Experiment:
         TODO: improve docstring
         """
 
-        # If AG2 mode requested, set up AG2 path before importing cmbagent
-        if getattr(self, "use_ag2", False):
-            try:
-                from .ag2_integration import setup_ag2_path, is_ag2_available
-
-                if is_ag2_available():
-                    setup_ag2_path()
-                    print("✅ AG2 support enabled for this experiment")
-                else:
-                    print(
-                        "⚠️ AG2 requested but not available, falling back to default autogen/cmbagent"
-                    )
-            except Exception as e:
-                print(f"⚠️ Failed to initialize AG2 support: {e}")
-
-        # Ensure local third_party/cmbagent is used if present
-        project_root = Path(__file__).parent.parent
-        local_cmbagent = project_root / "third_party" / "cmbagent"
-        if local_cmbagent.exists():
-            sys.path.insert(0, str(local_cmbagent))
+    # AG2 is now provided via installed dependency; keep imports lazy only
 
         # Lazy import cmbagent to ensure AG2 path (if any) is active before autogen is imported
         try:
@@ -102,8 +83,8 @@ class Experiment:
         except Exception as e:
             raise ImportError(f"Failed to import cmbagent: {e}")
 
-        print(f"Engineer model: {self.engineer_model}")
-        print(f"Researcher model: {self.researcher_model}")
+    print(f"Engineer model: {self.engineer_model}")
+    print(f"Researcher model: {self.researcher_model}")
 
         # Debug: print models passed to cmbagent
         print("[DEBUG] cmbagent.planning_and_control_context_carryover called with:")

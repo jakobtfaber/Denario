@@ -1,6 +1,5 @@
 import os
 import re
-import cmbagent
 
 from .key_manager import KeyManager
 from .prompts.method import method_planner_prompt, method_researcher_prompt
@@ -35,6 +34,7 @@ class Method:
         self.researcher_append_instructions = method_researcher_prompt.format(research_idea=research_idea)
 
     def develop_method(self, data_description: str):
+        import cmbagent
         """
         Develops the methods based on the data description.
 

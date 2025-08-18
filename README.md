@@ -113,6 +113,8 @@ which will create the virtual environment and install the dependencies and proje
 
 ```bash
 source .venv/bin/activate
+
+Note: AG2 (autogen) is now provided via a pinned dependency through `cmbagent_autogen==0.0.91.post6` in `pyproject.toml`. The previously vendored `third_party/ag2` folder is no longer required.
 ```
 
 ## Contributing

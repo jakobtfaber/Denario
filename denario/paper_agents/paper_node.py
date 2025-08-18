@@ -7,7 +7,6 @@ from tqdm import tqdm
 import asyncio
 from functools import partial
 import fitz  # PyMuPDF
-import cmbagent
 import sys
 
 from .parameters import GraphState
@@ -37,6 +36,8 @@ def keywords_node(state: GraphState, config: RunnableConfig):
             ################ CMB Agent keywords ###############
             # Extract keywords
             PROMPT = cmbagent_keywords_prompt(state)
+            # Defer heavy import to avoid pulling autogen before AG2 path setup
+            import cmbagent
             keywords = cmbagent.get_keywords(PROMPT, n_keywords = 8)
         
             # Extract keys and join them with a comma.
