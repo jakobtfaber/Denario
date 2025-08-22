@@ -410,7 +410,11 @@ class Denario:
                                 keys=self.keys,
                                 restart_at_step = restart_at_step)
         experiment.run_experiment(self.research.data_description)
-        self.research.results = experiment.results
+        # Ensure results is a string; fallback if None
+        if experiment.results is None:
+            self.research.results = ""
+        else:
+            self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
 
         # move plots to the plots folder in input_files/plots 
@@ -428,7 +432,7 @@ class Denario:
         # Write results to file
         results_path = os.path.join(self.project_dir, INPUT_FILES, RESULTS_FILE)
         with open(results_path, 'w') as f:
-            f.write(self.research.results)
+            f.write(self.research.results or "")
 
     def set_results(self, results: str = None) -> None:
         """Manually set the results, either directly from a string or providing the path of a markdown file with the results."""

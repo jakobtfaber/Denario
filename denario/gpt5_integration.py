@@ -15,20 +15,37 @@ from denario.gpt5_responses_adapter import gpt5_responses_chat_completion
 logger = logging.getLogger(__name__)
 
 
-def is_gpt5_with_reasoning(config: Dict[str, Any]) -> bool:
+def _extract_model_from_llm_config(config: Any) -> str:
+    """Best-effort extraction of model name from autogen llm_config."""
+    try:
+        # Common dict shape
+        if isinstance(config, dict):
+            config_list = (
+                config.get("config_list")
+                or config.get("config")
+                or []
+            )
+            if isinstance(config_list, list) and config_list:
+                first = config_list[0]
+                if isinstance(first, dict):
+                    return first.get("model", "") or first.get("name", "")
+                return getattr(first, "model", "") or getattr(first, "name", "")
+        # Object with attributes (e.g., pydantic model)
+        config_list = getattr(config, "config_list", None) or getattr(config, "config", None)
+        if isinstance(config_list, list) and config_list:
+            first = config_list[0]
+            if isinstance(first, dict):
+                return first.get("model", "") or first.get("name", "")
+            return getattr(first, "model", "") or getattr(first, "name", "")
+    except Exception:
+        pass
+    return ""
+
+
+def is_gpt5_with_reasoning(config: Any) -> bool:
     """Check if this config should use GPT-5 Responses API."""
-    if not isinstance(config, dict):
-        return False
-
-    config_list = config.get("config_list", [])
-    if not config_list:
-        return False
-
-    first_config = config_list[0]
-    model = first_config.get("model", "")
-
-    # GPT-5 family models should always use Responses API if available
-    return model.startswith("gpt-5")
+    model = _extract_model_from_llm_config(config)
+    return isinstance(model, str) and model.startswith("gpt-5")
 
 
 def create_gpt5_interceptor(original_method):
@@ -52,50 +69,43 @@ def create_gpt5_interceptor(original_method):
     return interceptor
 
 
-def is_gpt5_model(config: Dict[str, Any]) -> bool:
+def is_gpt5_model(config: Any) -> bool:
     """Check if this config uses a GPT-5 model."""
-    if not isinstance(config, dict):
-        return False
-
-    config_list = config.get("config_list", [])
-    if not config_list:
-        return False
-
-    first_config = config_list[0]
-    model = first_config.get("model", "")
-
-    return model.startswith("gpt-5")
+    model = _extract_model_from_llm_config(config)
+    return isinstance(model, str) and model.startswith("gpt-5")
 
 
-def has_reasoning_config(config: Dict[str, Any]) -> bool:
-    """Check if reasoning configuration is already present."""
-    config_list = config.get("config_list", [])
-    if not config_list:
-        return False
-
-    first_config = config_list[0]
-    model = first_config.get("model", "")
-
-    # GPT-5 models always get reasoning config
-    return model.startswith("gpt-5")
+def has_reasoning_config(config: Any) -> bool:
+    """Consider GPT-5 models as requiring reasoning routing regardless of prior config."""
+    return is_gpt5_model(config)
 
 
-def inject_gpt5_reasoning_config(config: Dict[str, Any]) -> None:
+def inject_gpt5_reasoning_config(config: Any) -> None:
     """Inject default GPT-5 reasoning configuration."""
-    config_list = config.get("config_list", [])
-    if config_list:
-        # Remove unsupported parameters for GPT-5
-        first_config = config_list[0]
-        if "temperature" in first_config:
-            del first_config["temperature"]
-
-        # Also remove from the outer config if present
-        if "temperature" in config:
-            del config["temperature"]
-        if "top_p" in config:
-            del config["top_p"]
-
+    try:
+        # Remove unsupported parameters for GPT-5 if present in common shapes
+        if isinstance(config, dict):
+            cfg = config
+            first = None
+            cl = cfg.get("config_list") or cfg.get("config")
+            if isinstance(cl, list) and cl:
+                first = cl[0]
+            for key in ("temperature", "top_p"):
+                if key in cfg:
+                    cfg.pop(key, None)
+                if isinstance(first, dict) and key in first:
+                    first.pop(key, None)
+        else:
+            # Object-like; attempt attribute cleanup on top-level only
+            for key in ("temperature", "top_p"):
+                if hasattr(config, key):
+                    try:
+                        setattr(config, key, None)
+                    except Exception:
+                        pass
         logger.info("Auto-configured GPT-5: removed temperature/top_p")
+    except Exception:
+        pass
 
 
 def handle_gpt5_reasoning_call(agent_instance, messages=None, sender=None, config=None):

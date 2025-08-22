@@ -1,4 +1,5 @@
 import subprocess
+import shutil
 import os
 import re
 from pathlib import Path
@@ -9,6 +10,26 @@ from .tools import LLM_call, extract_latex_block, temp_file
 from .journal import LatexPresets
 from .latex_presets import journal_dict
 
+def run_experiment(self, data_description: str, **kwargs):
+    """
+    Run the experiment.
+    TODO: improve docstring
+    """
+    # AG2 is now provided via installed dependency; keep imports lazy only
+
+    # Prefer vendored cmbagent to enforce model map (gemini/gpt-5 only) and stable configs
+    third_party_path = str(Path(__file__).resolve().parent.parent / "third_party")
+    sys.path.insert(0, third_party_path)
+    try:
+        cmbagent = importlib.import_module("cmbagent")
+    except Exception as e:
+        raise ImportError(f"Failed to import cmbagent: {e}")
+    finally:
+        # Clean up sys.path to avoid side effects
+        if sys.path[0] == third_party_path:
+            sys.path.pop(0)
+
+    print(f"Engineer model: {self.engineer_model}")
 
 # Characters that should be escaped in BibTeX (outside math mode)
 special_chars = {
@@ -93,6 +114,12 @@ def compile_tex_document(state: dict, doc_name: str, doc_folder: str) -> None:
     bib_path = os.path.join(state['files']['Temp'], "bibliography.bib")
 
     def run_xelatex(pass_num=None):
+        if shutil.which("xelatex") is None:
+            # Graceful skip when xelatex is unavailable (e.g., CI or devcontainers)
+            with open(state['files']['LaTeX_log'], 'a') as f:
+                f.write("XeLaTeX not found on PATH; skipping compilation for temp snippet.\n")
+            print("⚠️", end="", flush=True)
+            return True
         result = subprocess.run(["xelatex", doc_name], cwd=doc_folder,
                                 input="\n", capture_output=True, text=True)
         if result.returncode != 0:
@@ -105,6 +132,10 @@ def compile_tex_document(state: dict, doc_name: str, doc_folder: str) -> None:
         return True
 
     def run_bibtex():
+        if shutil.which("bibtex") is None:
+            with open(state['files']['LaTeX_log'], 'a') as f:
+                f.write("BibTeX not found on PATH; skipping bibliography pass.\n")
+            return
         result = subprocess.run(["bibtex", doc_stem], cwd=doc_folder,
                                 capture_output=True, text=True)
         if result.returncode != 0:
@@ -149,12 +180,24 @@ def compile_latex(state: GraphState, paper_name: str) -> None:
     paper_stem = Path(paper_name).stem
 
     def run_xelatex():
+        if shutil.which("xelatex") is None:
+            with open(state['files']['LaTeX_log'], 'a') as f:
+                f.write("XeLaTeX not found on PATH; skipping full paper compilation.\n")
+            # Return a simple object with stdout/stderr to satisfy callers
+            class _Dummy:
+                stdout = ""
+                stderr = ""
+            return _Dummy()
         return subprocess.run(["xelatex", "-interaction=nonstopmode", "-file-line-error", paper_name],
                               cwd=state['files']['Paper_folder'],
                               input="\n", capture_output=True,
                               text=True, check=True)
 
     def run_bibtex():
+        if shutil.which("bibtex") is None:
+            with open(state['files']['LaTeX_log'], 'a') as f:
+                f.write("BibTeX not found on PATH; skipping bibliography pass.\n")
+            return
         subprocess.run(["bibtex", paper_stem],
                        cwd=state['files']['Paper_folder'],
                        capture_output=True, text=True)

@@ -72,6 +72,8 @@ def main():
         print("✅ Results generation completed successfully!")
         
         # Print results to stdout for confirmation
+        if not denario.research.results:
+            print("⚠️ No textual results produced; continuing to paper generation with available plots/context.")
         denario.show_results()
 
         # Proceed to paper generation using default writer LLM (Gemini)

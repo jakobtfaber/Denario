@@ -74,13 +74,19 @@ class Experiment:
         Run the experiment.
         TODO: improve docstring
         """
-        # AG2 is now provided via installed dependency; keep imports lazy only
-
-        # Lazy import cmbagent to ensure AG2 path (if any) is active before autogen is imported
+        # Prioritize vendored cmbagent to avoid model configuration conflicts
+        third_party_path = str(Path(__file__).resolve().parent.parent / "third_party")
+        original_path = sys.path.copy()
+        
         try:
+            # Insert vendored path at the beginning to take priority
+            sys.path.insert(0, third_party_path)
             cmbagent = importlib.import_module("cmbagent")
         except Exception as e:
             raise ImportError(f"Failed to import cmbagent: {e}")
+        finally:
+            # Restore original sys.path to avoid side effects
+            sys.path[:] = original_path
 
         print(f"Engineer model: {self.engineer_model}")
         print(f"Researcher model: {self.researcher_model}")
