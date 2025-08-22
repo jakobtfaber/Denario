@@ -5,13 +5,17 @@ from langchain_openai import ChatOpenAI
 from langchain_anthropic import ChatAnthropic
 
 from .parameters import GraphState
-from ..config import INPUT_FILES, IDEA_FILE, METHOD_FILE
+from ..config import INPUT_FILES, IDEA_FILE, METHOD_FILE, LITERATURE_FILE
 
 def preprocess_node(state: GraphState, config: RunnableConfig):
     """
     This agent reads the input files, clean up files, and set the name of some files
     """
-    
+
+    # set the tokens usage
+    state['tokens'] = {'ti': 0, 'to': 0, 'i': 0, 'o': 0}
+
+    #########################################
     # set the LLM
     if 'gemini' in state['llm']['model']:
         state['llm']['llm'] = ChatGoogleGenerativeAI(model=state['llm']['model'],
@@ -27,10 +31,9 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         state['llm']['llm'] = ChatAnthropic(model=state['llm']['model'],
                                             temperature=state['llm']['temperature'],
                                             anthropic_api_key=state["keys"].ANTHROPIC)
-    
-    # set the tokens usage
-    state['tokens'] = {'ti': 0, 'to': 0, 'i': 0, 'o': 0}
+    #########################################
 
+    #########################################
     # read data description
     try:
         with open(state['files']['data_description'], 'r', encoding='utf-8') as f:
@@ -39,9 +42,11 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         raise Exception("Data description file not found!")
     except Exception:
         raise Exception("Error reading the data description file!")
+    #########################################
 
+    #########################################
     # read idea description
-    if state['task']=='methods_generation':
+    if state['task'] in ['methods_generation', 'literature']:
         try:
             with open(state['files']['idea'], 'r', encoding='utf-8') as f:
                 idea = f.read()
@@ -49,7 +54,9 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
             raise Exception("Data description file not found!")
         except Exception:
             raise Exception("Error reading the data description file!")
-    
+    #########################################
+
+    #########################################
     # set the name of the common files
     if state['task']=='idea_generation':
         state['files']['module_folder'] = 'idea_generation_output'
@@ -57,11 +64,16 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     elif state['task']=='methods_generation':
         state['files']['module_folder'] = 'methods_generation_output'
         state['files']['f_stream'] = f"{state['files']['Folder']}/{state['files']['module_folder']}/methods.log"
+    elif state['task']=='literature':
+        state['files']['module_folder'] = 'literature_output'
+        state['files']['f_stream'] = f"{state['files']['Folder']}/{state['files']['module_folder']}/literature.log"
+        
     state['files'] = {**state['files'],
                       "Temp":      f"{state['files']['Folder']}/{state['files']['module_folder']}",
                       "LLM_calls": f"{state['files']['Folder']}/{state['files']['module_folder']}/LLM_calls.txt",
                       "Error":     f"{state['files']['Folder']}/{state['files']['module_folder']}/Error.txt",
     }
+    #########################################
 
     # set particulars for different tasks
     if state['task']=='idea_generation':
@@ -75,6 +87,15 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         state['files'] = {**state['files'],
                           "methods": f"{state['files']['Folder']}/{INPUT_FILES}/{METHOD_FILE}",
         }
+    elif state['task']=='literature':
+        state['literature'] = {**state['literature'], 'iteration':0, "query":"", "decision":"",
+                               "papers":"", "next_agent":"", "messages":"", "num_papers": 0}
+        state['files'] = {**state['files'],
+                          "literature": f"{state['files']['Folder']}/{INPUT_FILES}/{LITERATURE_FILE}",
+                          "literature_log": f"{state['files']['Folder']}/{state['files']['module_folder']}/literature.log",
+                          "papers": f"{state['files']['Folder']}/{state['files']['module_folder']}/papers_processed.log",
+        }
+        
         idea = {**state['idea'], 'idea': idea}
         
 
@@ -83,23 +104,35 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     os.makedirs(state['files']['Temp'],                      exist_ok=True)
     os.makedirs(f"{state['files']['Folder']}/{INPUT_FILES}", exist_ok=True)
 
+    #########################################
     # clean existing files
     for f in ["LLM_calls", "Error"]:
         file_path = state['files'][f]
         if os.path.exists(file_path):
             os.remove(file_path)
 
-    if state['task']=='idea_generation':
+    # remove idea.md and idea.log if they exist
+    if state['task']=='idea_generation': 
         for f in ["idea", "idea_log"]:
             file_path = state['files'][f]
             if os.path.exists(file_path):
                 os.remove(file_path)
-                
+
+    # remove methods.md if it exists
     if state['task']=='methods_generation':
         for f in ["methods"]:
             file_path = state['files'][f]
             if os.path.exists(file_path):
                 os.remove(file_path)
+
+    # remove literature.md if it exists
+    if state['task']=="literature":
+        for f in ['literature', 'literature_log', 'papers']:
+            file_path = state['files'][f]
+            if os.path.exists(file_path):
+                os.remove(file_path)
+    #########################################
+            
 
     return {**state,
             "files":            state['files'],

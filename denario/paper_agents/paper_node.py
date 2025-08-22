@@ -126,8 +126,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
             print(f'''Tried 3 times but failed to extract the abstract. Recommendations:
 - Run the paper writing module again
 - If still fails, try using a more power LLM, e.g. gemini-2.5-pro''')
-            sys.exit()
-            #raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
+            raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
     
         # perform self-reflections
         for i in range(1):
