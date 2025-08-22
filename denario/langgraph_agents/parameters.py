@@ -15,6 +15,9 @@ class FILES(TypedDict):
     idea: str             #name of the file to write the final idea
     methods: str          #name of the file to write the methods
     idea_log: str         #name of the file to write generated ideas and critics
+    literature: str       #name of the file to write literature results
+    literature_log: str   #name of the file to write literature search logs
+    papers: str           #name of the file with the papers found and processed
     Error: str            #name of the error file
     module_folder: str    #name of the folder containing the results from the considered module
     f_stream: str         #name of the file to stream the results
@@ -42,6 +45,17 @@ class IDEA(TypedDict):
     criticism: str
     total_iterations: int
 
+# Literature class
+class LITERATURE(TypedDict):
+    iteration: int
+    query: str
+    decision: str
+    papers: str
+    next_agent: str
+    messages: str #this keeps tracks of all previous messages
+    max_iterations: 7 #maximum number of iterations to perform when searching for papers
+    num_papers: int #controls the number of papers found by semantic scholar
+    
 # Graph state class
 class GraphState(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
@@ -52,3 +66,4 @@ class GraphState(TypedDict):
     keys: KeyManager
     data_description: str
     task: str
+    literature: LITERATURE

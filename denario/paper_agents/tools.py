@@ -1,5 +1,5 @@
 import re, sys
-import json
+import json,json5
 from pathlib import Path
 
 from .prompts import fixer_prompt, LaTeX_prompt
@@ -138,6 +138,46 @@ def json_parser(text):
         except Exception as e:
             raise ValueError(f"Failed to parse JSON: {e}")
     return parsed_json
+
+
+
+def json_parser2(text: str):
+    """
+    Extract the first ```json … ``` fenced block and parse it.
+    """
+    m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL | re.IGNORECASE)
+    if not m:
+        # fallback: any fenced block
+        m = re.search(r"```\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if not m:
+        raise ValueError("No JSON fenced block found.")
+
+    json_string = m.group(1)
+    try:
+        return json.loads(json_string)
+    except json.JSONDecodeError as e:
+        # Helpful error to see exactly where it failed
+        snippet = json_string[max(0, e.pos-40):e.pos+40]
+        raise ValueError(f"JSON parse error at pos {e.pos}: {e.msg}\n…{snippet}…")
+
+    
+def json_parser3(text: str):
+    """
+    This function extracts a json data from a text
+    """
+    
+    m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL | re.IGNORECASE)
+    if not m:
+        # fallback: any fenced block
+        m = re.search(r"```\s*(\{.*?\})\s*```", text, re.DOTALL)
+    if not m:
+        new_text = f"```json\n{text}\n```"
+        m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL | re.IGNORECASE)
+        if not m:
+            raise ValueError("No JSON fenced block found.")
+    json_string = m.group(1)
+    data = json5.loads(json_string)
+    return data
 
 
 def extract_latex_block(state: GraphState, text: str, block: str) -> str:
