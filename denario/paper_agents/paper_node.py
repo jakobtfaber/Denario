@@ -12,7 +12,7 @@ import sys
 
 from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
-from .tools import json_parser, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
+from .tools import json_parser, json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex, fix_percent
 from ..config import INPUT_FILES
@@ -110,13 +110,13 @@ def abstract_node(state: GraphState, config: RunnableConfig):
 
     else:
         # In case it fails, it has up to three attempts
-        for attempt in range(3):
+        for attempt in range(5):
             print(f'{attempt} ', end="",flush=True)
             PROMPT = abstract_prompt(state, attempt)
             state, result = LLM_call(PROMPT, state)
 
             try:
-                parsed_json = json_parser(result)
+                parsed_json = json_parser3(result)  #more stable than json_parser
                 state['paper']['Title']    = parsed_json["Title"]
                 state['paper']['Abstract'] = parsed_json["Abstract"]
                 break  # success
@@ -273,7 +273,7 @@ def image_to_base64(image_path):
 
 def plots_node(state: GraphState, config: RunnableConfig):
     """
-    This function deals with the plots generated, processing all files in batches of 10.
+    This function deals with the plots generated, processing all files in batches of 7
     """
 
     batch_size = 7 #number of images to process per LLM call
