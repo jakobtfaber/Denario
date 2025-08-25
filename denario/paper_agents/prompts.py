@@ -57,58 +57,6 @@ Respond in the following format:
 """)]
 
 
-# prompt to address whether an idea is novel or not
-def novelty_prompt(idea_round, idea, papers):
-
-    return [SystemMessage(content="You are a science professor and your task is to decide whether an idea is novel or not."),
-            HumanMessage(content=f"""Given the idea and associated papers, reason whether the idea is novel or not. Novel means that it doesnt strongly overlaps with existing literature or already explored. Be a harsh critic for novelty, ensure there is a sufficient contribution in the idea for a scientific publication. You will be given access to the Semantic Scholar API, which you may use to survey the literature and find relevant papers to help you make your decision. The top 10 results for any search query will be presented to you with their abstracts.
-
-Decide an idea is novel if, after sufficient searching, you have not found a paper that significantly overlaps with your idea.  Decide an idea is not novel if you have found a paper that significantly overlaps with your idea. Pay attention to the details and search for strong similarities in all angles to decide is not novel. An idea cant be novel in the first round.
-            
-Round {idea_round}/10. Here is the idea
-
-**Idea Title**: {idea['title']}
-**Idea Description**: {idea['description']}
-
-The papers our search have found are these (empty for Round 1):
-
-{papers}
-
-Respond in the following format:
-            
-```json
-{{
-   "Reason": "reason whether the idea is novel or not",
-   "Decision": "determine whether the idea is novel or not. Return novel, not novel, or query",
-   "Thought": "briefly reason over the idea and identify any query that could help you make your decision",
-   "Query": "An optimal search query to search the literature (e.g. cosmology with one galaxy). You must make a query if you have not decided this round",
-}}
-```
-""")]
-
-
-def novelty_reflection(round, reason, decision, previous_reasons):
-    return [HumanMessage(content="""An AI agent was asked to reason whether an idea was novel or not. Below, you can find its reason and its decision. You can also see previous reasonings. Given this, determine whether the idea is novel or not. There are only three possible decisions:
-1) novel: if there is enough justification in the reasoning to believe the idea is novel
-2) not novel: if there is enough justification for the idea being explored in a previous work
-3) query: if you need to search for more papers to make the decision
-Check if the decision taken made sense given the reason. If not, you can change it. Note that an idea cant be classified as novel in the first round
-
-**Round**: round
-**Previous reasons**: {previous_reasons}
-**Reason**: {reason}
-**Decision**: {decision}
-    
-Respond in the following format:
-    
-```json
-{{
-    "Decision": "The decision made; either novel, not novel, or query"
-}}
-```
-    """)]
-
-
 
 def abstract_prompt(state, attempt):
     
