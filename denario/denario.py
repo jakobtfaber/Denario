@@ -253,7 +253,55 @@ class Denario:
 
         return task_response[0].formatted_answer
 
+    def check_idea_fast(self, llm: LLM | str = models["gemini-2.5-flash"],
+                        max_iterations: int = 7, verbose=False) -> None:
+        """
+        Check with the literature if an idea is original or not.
 
+        Args:
+           - llm: the LLM model to be used
+           - verbose: whether to stream the LLM response 
+        """
+
+        # Start timer
+        start_time = time.time()
+        config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
+
+        # Get LLM instance
+        llm = llm_parser(llm)
+
+        # Build graph
+        graph = build_lg_graph(mermaid_diagram=False)
+
+        # get name of data description and idea files
+        f_data_description = os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE)
+        f_idea             = os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE)
+
+        # Initialize the state
+        input_state = {
+            "task": "literature",
+            "files":{"Folder": self.project_dir, #name of project folder
+                     "data_description": f_data_description,
+                     "idea": f_idea}, 
+            "llm": {"model": llm.name,                #name of the LLM model to use
+                    "temperature": llm.temperature,
+                    "max_output_tokens": llm.max_output_tokens,
+                    "stream_verbose": verbose},
+            "keys": self.keys,
+            "literature": {"max_iterations": 7}
+        }
+        
+        # Run the graph
+        graph.invoke(input_state, config)
+        
+        # End timer and report duration in minutes and seconds
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        minutes = int(elapsed_time // 60)
+        seconds = int(elapsed_time % 60)
+        print(f"Literature checked in {minutes} min {seconds} sec.")  
+
+        
     
     def get_method(self) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`."""
