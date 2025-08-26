@@ -103,7 +103,7 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
         papers_str.append("No papers found with the query.\n")
 
     total_papers_found = state['literature']['num_papers'] + min(len(papers), 10)
-    print('Total papers', total_papers_found)
+    print('Total papers analyzed', total_papers_found)
     
     return {"literature": {**state['literature'], 'papers': papers_str, "num_papers":total_papers_found}}
 
@@ -160,5 +160,8 @@ def literature_summary(state: GraphState, config: RunnableConfig):
     with open(f"{state['files']['literature']}", 'w') as f:
         f.write(f"Idea {state['literature']['decision']}\n\n")
         f.write(text)
+
+    # print out the summary
+    print(text)
 
     print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
