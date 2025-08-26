@@ -87,6 +87,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         state['files'] = {**state['files'],
                           "methods": f"{state['files']['Folder']}/{INPUT_FILES}/{METHOD_FILE}",
         }
+        idea = {**state['idea'], 'idea': idea}
     elif state['task']=='literature':
         state['literature'] = {**state['literature'], 'iteration':0, "query":"", "decision":"",
                                "papers":"", "next_agent":"", "messages":"", "num_papers": 0}
@@ -95,7 +96,6 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
                           "literature_log": f"{state['files']['Folder']}/{state['files']['module_folder']}/literature.log",
                           "papers": f"{state['files']['Folder']}/{state['files']['module_folder']}/papers_processed.log",
         }
-        
         idea = {**state['idea'], 'idea': idea}
         
 
