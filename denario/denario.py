@@ -43,7 +43,8 @@ class Denario:
     def __init__(self, input_data: Research | None = None,
                  params={}, 
                  project_dir: str | None = None, 
-                 clear_project_dir: bool = False):
+                 clear_project_dir: bool = False,
+                 ):
         
         if project_dir is None:
             project_dir = os.path.join( os.getcwd(), DEFAUL_PROJECT_NAME )
@@ -153,8 +154,10 @@ class Denario:
 
         self.idea = idea
 
-    def get_idea_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
-                      verbose=False) -> None:
+    def get_idea_fast(self,
+                      llm: LLM | str = models["gemini-2.0-flash"],
+                      verbose=False,
+                      ) -> None:
         """
         Generate an idea using the idea maker - idea hater method.
         
@@ -253,8 +256,11 @@ class Denario:
 
         return task_response[0].formatted_answer
 
-    def check_idea_fast(self, llm: LLM | str = models["gemini-2.5-flash"],
-                        max_iterations: int = 7, verbose=False) -> None:
+    def check_idea_fast(self,
+                        llm: LLM | str = models["gemini-2.5-flash"],
+                        max_iterations: int = 7,
+                        verbose=False,
+                        ) -> None:
         """
         Check with the literature if an idea is original or not.
 
@@ -288,7 +294,7 @@ class Denario:
                     "max_output_tokens": llm.max_output_tokens,
                     "stream_verbose": verbose},
             "keys": self.keys,
-            "literature": {"max_iterations": 7},
+            "literature": {"max_iterations": max_iterations},
             "idea": {"total_iterations": 4},
         }
         
@@ -324,8 +330,10 @@ class Denario:
         with open(method_path, 'w') as f:
             f.write(methododology)
 
-    def get_method_fast(self, llm: LLM | str = models["gemini-2.0-flash"],
-                        verbose=False) -> None:
+    def get_method_fast(self,
+                        llm: LLM | str = models["gemini-2.0-flash"],
+                        verbose=False,
+                        ) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method.
         Args:
            - llm: the LLM model to be used
@@ -390,7 +398,7 @@ class Denario:
                     involved_agents: List[str] = ['engineer', 'researcher'],
                     engineer_model: LLM | str = models["claude-3.7-sonnet"],
                     researcher_model: LLM | str = models["o3-mini"],
-                    restart_at_step: int = -1
+                    restart_at_step: int = -1,
                     ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
@@ -503,7 +511,8 @@ class Denario:
                   llm: LLM | str = models["gemini-2.5-flash"],
                   writer: str = 'scientist',
                   cmbagent_keywords: bool = False,
-                  add_citations=True) -> None:
+                  add_citations=True,
+                  ) -> None:
         """
         Generate a full paper based on the files in input_files:
 
