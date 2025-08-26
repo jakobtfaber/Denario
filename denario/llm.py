@@ -81,7 +81,7 @@ models : Dict[str, LLM] = {
                             "gpt-4.5" : gpt45,
                             "gpt-5" : gpt5,
                             "claude-3.7-sonnet" : claude37sonnet,
-                            "claude-4-sonnet" : claude4sonnet,
-                            "claude-4.1-sonnet" : claude41sonnet,
+                            "claude-4-opus" : claude4opus,
+                            "claude-4.1-opus" : claude41opus,
                            }
 """Dictionary with the available models."""
