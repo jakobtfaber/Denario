@@ -10,6 +10,7 @@ nav:
   - Prompts: prompts.md
   - Examples:
       - Full run: denario_oscillator_full_run.ipynb
+      - Write a paper: Write_paper.ipynb
   - API Reference:
       - Denario: api_denario.md
       - Classes: api_classes.md
