@@ -18,9 +18,9 @@ Critisms:
 
 Respond in the following format:
 
-\begin{{IDEA}}
+\\begin{{IDEA}}
 <IDEA>
-\end{{IDEA}}
+\\end{{IDEA}}
 
 In <IDEA>, put the idea together with its description. Try to be brief in the description. Do not explain how you have addressed any criticism.
 """)]
@@ -41,9 +41,9 @@ Current idea:
 
 Respond in the following format:
 
-\begin{{CRITIC}}
+\\begin{{CRITIC}}
 <CRITIC>
-\end{{CRITIC}}
+\\end{{CRITIC}}
 
 In <CRITIC>, put your criticism to the idea. Try to be brief in the description.
 """)]
@@ -70,9 +70,9 @@ Idea:
 
 Respond in this format:
 
-\begin{{METHODS}}
+\\begin{{METHODS}}
 <METHODS>
-\end{{METHODS}}
+\\end{{METHODS}}
 
 In <METHODS> put the methods you have generated.
 """)
@@ -165,9 +165,9 @@ def summary_literature_prompt(state):
 
 **Respond in exactly this format**:
 
-\begin{{SUMMARY}}
+\\begin{{SUMMARY}}
 <SUMMARY>
-\end{{SUMMARY}}
+\\end{{SUMMARY}}
 
 In <SUMMARY> place the summary you have generated.
 """)]
