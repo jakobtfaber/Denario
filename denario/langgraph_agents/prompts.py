@@ -102,6 +102,10 @@ Important rules:
 
 - Always return valid JSON exactly in the specified format, with no additional text.
 
+- If they query was too long or specific and didnt found papers, try to be a bit more generic
+
+- If the query was too generic and yields many papers, try to be more specific
+
 Context Provided
 
 Round: {state['literature']['iteration']}/{state['literature']['max_iterations']}
