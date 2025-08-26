@@ -288,7 +288,8 @@ class Denario:
                     "max_output_tokens": llm.max_output_tokens,
                     "stream_verbose": verbose},
             "keys": self.keys,
-            "literature": {"max_iterations": 7}
+            "literature": {"max_iterations": 7},
+            "idea": {"total_iterations": 4},
         }
         
         # Run the graph
