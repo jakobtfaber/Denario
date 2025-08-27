@@ -18,6 +18,9 @@ class KeyManager(BaseModel):
         self.PERPLEXITY     = os.getenv("PERPLEXITY_API_KEY")
         self.OPENAI         = os.getenv("OPENAI_API_KEY")
 
+    def get_keys(self) -> dict:
+        return self.model_dump()
+
     def __getitem__(self, key: str) -> str:
         return getattr(self, key)
 

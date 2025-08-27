@@ -74,19 +74,9 @@ class Experiment:
         Run the experiment.
         TODO: improve docstring
         """
-        # Prioritize vendored cmbagent to avoid model configuration conflicts
-        third_party_path = str(Path(__file__).resolve().parent.parent / "third_party")
-        original_path = sys.path.copy()
-        
-        try:
-            # Insert vendored path at the beginning to take priority
-            sys.path.insert(0, third_party_path)
-            cmbagent = importlib.import_module("cmbagent")
-        except Exception as e:
-            raise ImportError(f"Failed to import cmbagent: {e}")
-        finally:
-            # Restore original sys.path to avoid side effects
-            sys.path[:] = original_path
+        # The main script now handles the path modification.
+        # We can directly import and use cmbagent here.
+        import cmbagent
 
         print(f"Engineer model: {self.engineer_model}")
         print(f"Researcher model: {self.researcher_model}")
@@ -114,7 +104,7 @@ class Experiment:
             researcher_instructions=self.researcher_append_instructions,
             engineer_instructions=self.engineer_append_instructions,
             work_dir=self.experiment_dir,
-            api_keys=self.api_keys,
+            api_keys=self.api_keys.get_keys(),
             restart_at_step=self.restart_at_step,
         )
 
