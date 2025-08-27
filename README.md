@@ -16,9 +16,11 @@ Denario is a multiagent system designed to automatize scientific research. Denar
 
 ## Installation
 
-To install denario, just run
+To install denario create a virtual environment and pip install it. We recommend using python3.12:
 
 ```bash
+python -m venv Denario_env
+source Denario_env/bin/activate
 pip install denario
 ```
 
@@ -81,21 +83,26 @@ Test the deployed app in [HugginFace Spaces](nope).
 
 ### pip
 
-You will need python 3.12 installed.
+You will need python 3.12 installed. Download the package:
+
+```bash
+git clone https://github.com/AstroPilot-AI/Denario.git
+cd Denario
+```
 
 Create a virtual environment
 
 ```bash
-python3 -m venv .venv
+python3 -m venv Denario_venv
 ```
 
 Activate the virtual environment
 
 ```bash
-source .venv/bin/activate
+source Denario_venv/bin/activate
 ```
 
-And install the project
+Install the package
 
 ```bash
 pip install -e .
