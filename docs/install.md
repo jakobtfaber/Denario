@@ -2,9 +2,11 @@
 
 ## Install from PyPI
 
-To install Denario, just run
+To install Denario, just do (we recommend using python3.12)
 
 ```bash
+python3 -m venv Denario_env
+source Denario_env/bin/activate
 pip install denario
 ```
 
@@ -14,15 +16,17 @@ pip install denario
 
 You will need python 3.12 installed.
 
-Create a virtual environment
+Download Denario:
 
 ```bash
-python3 -m venv .venv
+git clone https://github.com/AstroPilot-AI/Denario.git
+cd Denario
 ```
 
-Activate the virtual environment
+Create and activate a virtual environment
 
 ```bash
+python3 -m venv Denario_env
 source .venv/bin/activate
 ```
 
@@ -39,7 +43,7 @@ You can also install the project using [uv](https://docs.astral.sh/uv/), just ru
 uv sync
 ```
 
-which will create the virtual environment and install the dependencies and project. Activate the virtual environment if needed with
+which will create the virtual environment and install the dependencies and project. Activate the virtual environment, if needed, with
 
 ```bash
 source .venv/bin/activate
