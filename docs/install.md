@@ -27,7 +27,7 @@ Create and activate a virtual environment
 
 ```bash
 python3 -m venv Denario_env
-source .venv/bin/activate
+source Denario_env/bin/activate
 ```
 
 And install the project
