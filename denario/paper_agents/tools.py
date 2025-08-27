@@ -172,7 +172,7 @@ def json_parser3(text: str):
         m = re.search(r"```\s*(\{.*?\})\s*```", text, re.DOTALL)
     if not m:
         new_text = f"```json\n{text}\n```"
-        m = re.search(r"```json\s*(\{.*?\})\s*```", text, re.DOTALL | re.IGNORECASE)
+        m = re.search(r"```json\s*(\{.*?\})\s*```", new_text, re.DOTALL | re.IGNORECASE)
         if not m:
             raise ValueError("No JSON fenced block found.")
     json_string = m.group(1)

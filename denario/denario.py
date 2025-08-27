@@ -299,14 +299,19 @@ class Denario:
         }
         
         # Run the graph
-        graph.invoke(input_state, config)
-        
-        # End timer and report duration in minutes and seconds
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        minutes = int(elapsed_time // 60)
-        seconds = int(elapsed_time % 60)
-        print(f"Literature checked in {minutes} min {seconds} sec.")  
+        try:
+            graph.invoke(input_state, config)
+            
+            # End timer and report duration in minutes and seconds
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            minutes = int(elapsed_time // 60)
+            seconds = int(elapsed_time % 60)
+            print(f"Literature checked in {minutes} min {seconds} sec.")
+            
+        except Exception as e:
+            print('Denario failed to check literature')
+            print(f'Error: {e}')
 
         
     
