@@ -1,5 +1,16 @@
 # Installation
 
+## Requirements
+
+- OpenAI API key
+- Gemini API key (optional)
+- Anthropic API key (optional)
+- gemini.json file (optional; needed if performing analysis with Gemini)
+- Perplexity API key (optional; needed to put citations in the papers)
+- LaTeX (needed for the write paper module)
+
+Click [here](apikeys.md) for more details on how to get the different API keys.
+
 ## Install from PyPI
 
 To install Denario, just do (we recommend using python3.12)
