@@ -44,6 +44,9 @@ documentation = "https://denario.readthedocs.io/en/latest/"
 [project.scripts]
 denario = "denario.cli:main"
 
+[project.optional-dependencies]
+app = ["denario_app"]
+
 [dependency-groups]
 dev = [
   {include-group = "docs"},
