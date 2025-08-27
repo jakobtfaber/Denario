@@ -13,6 +13,7 @@ nav:
       - Generate research ideas: research_idea.ipynb
       - Literature search: idea_check.ipynb
       - Write a paper: Write_paper.ipynb
+      - End-to-end Gemini+fast mode: EtE_Gemini_fast.ipynb
   - API Reference:
       - Denario: api_denario.md
       - Classes: api_classes.md
