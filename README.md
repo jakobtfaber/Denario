@@ -90,15 +90,10 @@ git clone https://github.com/AstroPilot-AI/Denario.git
 cd Denario
 ```
 
-Create a virtual environment
+Create and activate the virtual environment
 
 ```bash
 python3 -m venv Denario_venv
-```
-
-Activate the virtual environment
-
-```bash
 source Denario_venv/bin/activate
 ```
 
