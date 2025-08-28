@@ -42,7 +42,7 @@ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gemini.json
 Whenever you run Denario and need Vertex AI access, this environment variable should be correctly set. 
 
 
-To enable Vertex AI, you first need a Google account (if you don't yet have a Google account, visit this page and create one).
+To enable Vertex AI, you first need a Google account (if you don't yet have a Google account, visit [this page](https://www.google.com/intl/en-GB/account/about/) and create one).
 
 - Log into Google Cloud: https://console.cloud.google.com/
 - Create a project
