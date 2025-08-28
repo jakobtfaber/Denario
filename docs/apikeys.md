@@ -16,16 +16,33 @@ To get an Anthropic API key go to [this website](https://console.anthropic.com/s
 
 To get a perplexity API key go to [this wbsite](https://docs.perplexity.ai/getting-started/quickstart) and get your Perplexity API key there.
 
-## Gemini.json
+## Vertex AI
 
-In Denario, agents built with LangGraph can be run using a Gemini API key. However, agents built using AG2, require a different setup to run with Gemini models. If you plan to run the analysis module with gemini, e.g.:
+In Denario, agents built with LangGraph can be run using a Gemini API key (see above on how to create a Gemini API Key). However, agents built using [AG2](https://ag2.ai/), require a different setup to access Gemini models. 
+
+In this case, you need to access the Gemini models via the [Vertex AI](https://cloud.google.com/vertex-ai?hl=en) API. 
+
+If you plan to run the analysis module with Gemini models (necessarily accessed through Vertex AI), e.g.:
 
 ```python
 den.get_results(engineer_model='gemini-2.5-pro',
 	        researcher_model='gemini-2.5-pro')
 ```
 
-then you need to get a gemini.json file. In order to do that, follow these steps:
+you need to:
+- create Google service account key fil (a JSON file – see instructions below)
+- download it on the machine where you run Denario
+- rename it `gemini.json` 
+- set a `GOOGLE_APPLICATION_CREDENTIALS` environment variable with the path to that file, i.e., 
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=/path/to/gemini.json
+```
+
+Whenever you run Denario and need Vertex AI access, this environment variable should be correctly set. 
+
+
+To enable Vertex AI, you first need a Google account (if you don't yet have a Google account, visit this page and create one).
 
 - Log into Google Cloud: https://console.cloud.google.com/
 - Create a project
