@@ -44,6 +44,37 @@ Whenever you run Denario and need Vertex AI access, this environment variable sh
 
 To enable Vertex AI, you first need a Google account (if you don't yet have a Google account, visit [this page](https://www.google.com/intl/en-GB/account/about/) and create one).
 
+Vertex AI is part of Google Cloud, to activate the Vertex AI API, we first log into Google Cloud. Follow [this link](https://console.cloud.google.com/) and log in with you Google account. This opens the Google CLoud Console page.
+
+### Create a Googel Cloud Project
+
+Onn the top left of the Google Cloud Console page after you signed-in, click the "Select a project" button and select a project you would like to use if you have lalready got on, or click "New project" on the top right of the pop-up window. In this case, give a name to the new project – we will call the project "denario" herafter.
+
+Once the project is created, you should be able to select it by clicking the "Select a project" button on the Console page. 
+
+### Enable Vertex AI API
+
+Once you have selected the denario project, its name should appear next to the Google Cloud logo.Click the dropdown Navigation (three horizontal lines) menu on the left of the logo and look for Vertex AI. Hover over Vertex AI and select "Dashboard". Then click "Enable all recommended APIs". 
+
+
+### Create Service Account Key
+
+
+Now, in the Navigation menu, look for "IAM & Admin" and select "Service Accounts". Then:
+
+- In the top bar, click the "Create Service Account" button. 
+- Give a name, e.g., "denario". (You can skip the "Service Account Description".)
+- Click "Create and Continue"
+- Then in Select a Role, enter "Vertex AI User" and select it. Click "Continue". 
+- Skip the "Principals with access" field. Click "Done". 
+
+You should see a list bview of your account, with a name like: 
+
+- denario@denario-1234.iam.gserviceaccount.com
+
+On the right, next to the name, click the three dots under "Actions" and select "Manage Keys". 
+Then click the "Add key" dropdown and select "Create new key". Select type "JSON". This will download the JSON file to your machine.  
+
 - Log into Google Cloud: https://console.cloud.google.com/
 - Create a project
 - Go to IAM & Admin
