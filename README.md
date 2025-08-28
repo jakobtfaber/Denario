@@ -77,27 +77,35 @@ den.set_method(path_to_the_method_file.md)
 
 You can run Denario using a GUI through the [DenarioApp](https://github.com/AstroPilot-AI/DenarioApp).
 
-Test the deployed app in [HugginFace Spaces](nope).
+The app is already installed with `pip install denario[app]`, otherwise install it with `pip install denario_app`.
+
+Launch it with
+
+```bash
+denario run
+```
+
+Test the deployed app in [HugginFace Spaces](https://huggingface.co/spaces/astropilot-ai/Denario).
 
 ## Build from source
 
 ### pip
 
-You will need python 3.12 installed. Download the package:
+You will need python 3.12 or higher installed. Clone Denario:
 
 ```bash
 git clone https://github.com/AstroPilot-AI/Denario.git
 cd Denario
 ```
 
-Create and activate the virtual environment
+Create and activate a virtual environment
 
 ```bash
-python3 -m venv Denario_venv
-source Denario_venv/bin/activate
+python3 -m venv Denario_env
+source Denario_env/bin/activate
 ```
 
-Install the package
+And install the project
 
 ```bash
 pip install -e .
