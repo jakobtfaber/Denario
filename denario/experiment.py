@@ -81,11 +81,6 @@ class Experiment:
         print(f"Engineer model: {self.engineer_model}")
         print(f"Researcher model: {self.researcher_model}")
 
-        # Debug: print models passed to cmbagent
-        print("[DEBUG] cmbagent.planning_and_control_context_carryover called with:")
-        print(f"  engineer_model={self.engineer_model}")
-        print(f"  researcher_model={self.researcher_model}")
-
         results = cmbagent.planning_and_control_context_carryover(
             data_description,
             n_plan_reviews=1,

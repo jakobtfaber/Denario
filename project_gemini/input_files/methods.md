@@ -1,66 +1,36 @@
-# Methodology
+### Methodology
 
-### Framework Overview
+This study will evaluate the efficacy of a GPU-accelerated, adaptive observational cadence for achieving phase-connected timing solutions for newly discovered intermittent pulsars. The methodology is designed around a comparative analysis, pitting the proposed adaptive strategy against a traditional fixed-cadence approach within a high-fidelity simulation environment.
 
-The efficient follow-up of newly discovered pulsars is hampered by initial uncertainty in their physical characteristics. Fixed, pre-determined observational cadences are inherently sub-optimal, as a schedule ideal for a stable millisecond pulsar is wasteful for a glitch-prone young pulsar, and vice-versa. This research develops and evaluates a self-correcting, adaptive cadence strategy that dynamically optimizes the scheduling of follow-up observations based on incoming data.
+#### 1. Rationale, Hypotheses, and Feasibility
 
-The core of this methodology is a Bayesian adaptive scheduling framework. This approach treats the follow-up campaign as a sequential decision problem. After each observation yields a new pulse time-of-arrival (TOA), the system uses Bayes' theorem to update the probability distributions of the pulsar's timing model parameters (e.g., spin frequency `ν` and its derivative `ν̇`). It then uses these updated distributions to forecast the pulsar's future behavior and intelligently schedules the *next* observation at the time that maximizes the expected scientific return, subject to the constraint of maintaining phase connection.
+The primary challenge in timing intermittent pulsars (e.g., RRATs, nulling pulsars) is their unpredictable emission, which renders traditional, fixed-cadence observations highly inefficient and often unsuccessful. Large gaps between detections, caused by observations occurring during null states, prevent the unambiguous counting of pulsar rotations, a prerequisite for a phase-connected solution.
 
-The central hypothesis is that this adaptive framework can achieve phase-connected timing solutions for a diverse population of newly discovered pulsars using significantly less total telescope time than the best-performing set of fixed-cadence strategies tailored to each pulsar sub-class. The methodology is designed to test this hypothesis through detailed, end-to-end simulations.
+This research tests the hypothesis that an adaptive cadence, which uses quasi-real-time analysis to dynamically schedule follow-up observations based on the pulsar's emission state, will achieve significantly higher phase-connection completeness with greater telescope time efficiency than a fixed cadence.
 
-### Simulated Pulsar Population and Discovery
+The feasibility of this approach hinges on the ability to perform a full pulsar search analysis within the observation dwell time. Using the blind search parameters as a worst-case scenario (60 s dwell time), the required data ingestion rate is 2.5 TB/s (<code>2e5 beams * 2500 channels * 4 bits / 0.1 ms</code>). This is well within the **13 TB/s** memory bandwidth of the NVIDIA Vera Rubin NVL144 GPU rack. The computational load is estimated at ~480 TFLOPS, which is less than 1% of the rack's **50 PFLOPs** peak performance. This confirms that the analysis is memory-bound but computationally feasible, allowing for real-time feedback to a dynamic telescope scheduler.
 
-To provide a realistic testbed, a synthetic pulsar population is generated using the `psrpoppy` software package. The population is modeled to reflect the expected distribution of pulsar types in the Milky Way, including all specified sub-categories: young canonical pulsars, millisecond pulsars (MSPs), magnetars, high-B/transition objects, emission-intermittent classes (RRATs, nullers), and pulsars in the Galactic Center. Each simulated pulsar is endowed with intrinsic properties (`P`, `Ṗ`, luminosity, sky position) and the specific noise characteristics of its class.
+#### 2. Simulation Framework and Cadence Algorithms
 
-The simulation begins by modeling the initial discovery of each pulsar in one of two survey modes:
-1.  **Targeted Search:** A 1260-second, high-sensitivity pointing. This long dwell time yields a high signal-to-noise ratio (S/N) detection, a precise initial measurement of `ν`, and a weak but non-zero constraint on `ν̇`.
-2.  **Blind Search:** A 60-second, lower-sensitivity pointing. This short dwell time results in a lower S/N detection, a less precise `ν` measurement, and provides no meaningful initial constraint on `ν̇`.
+A synthetic population of 1,000 intermittent pulsars will be generated using <code>psrpoppy</code>, with distributions for period (P), period-derivative (Ṗ), nulling fraction (NF), and mean burst/null durations drawn from published statistics of the known RRAT and nuller populations. For each simulated pulsar, a set of "true" topocentric times-of-arrival (TOAs) will be generated over an 18-month campaign using <code>libstempo</code>.
 
-This discovery observation establishes the initial TOA and is used to construct the prior probability distributions for the timing model parameters, which form the starting point for the adaptive scheduling algorithm. The priors derived from a targeted search are significantly more constrained than those from a blind search.
+Simulated observations will incorporate realistic noise sources. Radiometer noise for each TOA will be calculated based on the DSA-1650's System Equivalent Flux Density (SEFD) of 1.8 Jy (average). Additional noise terms will be injected, including: a) single-pulse jitter noise, b) red noise with parameters typical for young pulsars, and c) stochastic DM variations modeled as a random walk process to simulate ISM turbulence.
 
-### Timing and Noise Models
+Two distinct cadence strategies will be simulated for each pulsar:
 
-The timing analysis relies on a standard rotational model and a suite of stochastic noise models tailored to each pulsar sub-population.
+*   **Control Group (Fixed Cadence):** This strategy serves as the baseline. Each pulsar will be observed with a fixed cadence of one 20-minute observation every 14 days for the entire 18-month campaign, regardless of the outcome of previous observations.
 
-**1. Standard Timing Model:**
-The pulse phase `φ(t)` at a barycentric time `t` is modeled by a Taylor expansion around a reference epoch `t₀`:
-`φ(t) = φ₀ + ν(t - t₀) + (1/2)ν̇(t - t₀)²`
-The parameters to be fit are the spin frequency `ν` (Hz), its first derivative `ν̇` (Hz/s), astrometric position (`α`, `δ`), and Dispersion Measure (`DM`, pc cm⁻³).
+*   **Experimental Group (Adaptive Cadence):** This strategy employs a state-based logic driven by real-time detection outcomes. A detection is defined as a signal-to-noise ratio (S/N) > 8.
+    1.  **Initial Confirmation:** After discovery, three observations are scheduled within the first 7 days. A single detection transitions the source to the <code>Intensive Monitoring</code> state. Failure to detect in all three triggers the <code>Exponential Backoff</code> state.
+    2.  **Intensive Monitoring:** The goal is to secure phase connection quickly. The source is observed every 2-3 days. After three consecutive detections, the source transitions to <code>Maintenance</code>. A non-detection triggers a re-observation within 24 hours; two consecutive non-detections revert the source to <code>Exponential Backoff</code>.
+    3.  **Maintenance:** Once phase-connected, the cadence is relaxed to one observation every 21 days to maintain the solution efficiently. A non-detection immediately triggers a return to <code>Intensive Monitoring</code>.
+    4.  **Exponential Backoff:** For non-detections, the time to the next observation is doubled, starting from an initial 7-day wait (i.e., 7 days, 14 days, 28 days...), up to a maximum of 60 days. A successful detection at any point immediately transitions the source to <code>Intensive Monitoring</code>.
 
-**2. Sub-Population Noise Models:**
-In addition to radiometer noise derived from the telescope's SEFD, the following dominant noise sources are simulated:
-*   **Young Pulsars/Magnetars (Glitches):** Rotational instabilities are modeled as a Poisson process with a mean rate `λ_g` (0.1-0.5 yr⁻¹ for young pulsars, >1 yr⁻¹ for magnetars). Glitch magnitudes (`Δν/ν`) are drawn from a power-law distribution, with typical sizes of `10⁻⁹`–`10⁻⁶` for young pulsars and `10⁻⁶`–`10⁻⁴` for magnetars.
-*   **Millisecond Pulsars (Red Noise & Jitter):** Intrinsic, low-frequency timing noise is modeled with a power-law spectral density `P(f) = A²(f/f_yr)^-γ`, where `A` is the amplitude and `γ` is the spectral index. Pulse-to-pulse jitter is added as a white noise term `σ_J` in quadrature with the radiometer noise of each TOA.
-*   **High-B/Transition Objects:** Modeled with moderate glitch rates (`λ_g` ≈ 0.5-1.0 yr⁻¹) and a significant red noise component.
-*   **Intermittent Emitters (RRATs/Nullers):** Emission is modeled as a two-state (ON/OFF) semi-Markov process, parameterized by the mean durations of the ON-state (`⟨τ_on⟩`) and OFF-state (`⟨τ_off⟩`). A valid TOA can only be obtained if the source is in the ON state.
-*   **Galactic Center Pulsars (ISM Effects):** The dominant noise is environmental. DM variations are modeled as a random walk process. Extreme temporal scattering (`τ_scatt ∝ ν⁻⁴`) broadens the pulse profile, significantly increasing the TOA uncertainty `σ_TOA`.
+#### 3. Performance Evaluation and Analysis
 
-### The Adaptive Scheduling Algorithm
+For each simulated pulsar, the TOAs collected under both strategies will be fitted to a timing model using the <code>PINT</code> software package. A solution will be considered successfully **phase-connected** if it meets two criteria over the 18-month baseline: the reduced chi-squared of the fit is < 1.5, and there are no cycle count ambiguities between observations.
 
-The adaptive algorithm operates in a continuous loop of Bayesian inference and decision-making.
-1.  **Propose:** Using the current posterior probability distributions for the timing parameters, the algorithm forecasts the evolution of uncertainty. It seeks to determine the optimal time for the next observation, `t_next`, by maximizing a utility function, `U(t_next)`. The utility is defined as the expected information gain on the spin-down rate, which is equivalent to minimizing the predicted uncertainty `σ_predicted(ν̇)`:
-    `Utility(t_next) ∝ 1 / σ_predicted(ν̇ | t_next)`
-    This optimization is performed under the critical constraint that phase connection must be maintained. The algorithm calculates the maximum time gap, `t_max`, before the extrapolated phase uncertainty `δφ` exceeds a threshold of 0.4 cycles. The search for `t_next` is restricted to `t_now < t_next ≤ t_now + t_max`. This logic forces the scheduler to lengthen the timing baseline as aggressively as possible without risking phase ambiguity.
-2.  **Simulate:** The simulation advances the pulsar's true state to the proposed `t_next`, applying any stochastic events (glitches, DM changes) that occur in the intervening time. A new TOA is generated with realistic uncertainty.
-3.  **Update:** The new TOA is incorporated into the dataset, and the posterior distributions of the timing model parameters are updated using a Bayesian fitting routine (e.g., MCMC). This refined posterior becomes the prior for the next iteration.
-4.  **Iterate:** The loop repeats until a stopping condition is met.
-
-### Performance Evaluation and Benchmarking
-
-The effectiveness of the adaptive strategy is quantified by simulating its performance on the synthetic pulsar population and comparing it against a baseline of fixed-cadence strategies.
-
-**Simulation Workflow and Metrics:**
-For each pulsar drawn from the `psrpoppy` population, the discovery is simulated, and the adaptive scheduling loop is initiated. The simulation for each source terminates upon reaching one of the following conditions:
-*   **Success:** The fractional uncertainty in the spin-down rate is reduced below a target threshold: `σ(ν̇) / |ν̇| < 0.1`.
-*   **Failure:** Phase connection is lost, the cumulative observation time exceeds a 3-hour budget, or (for intermittent sources) 5 consecutive scheduled observations yield non-detections.
-
-The primary performance metrics are the **phase-connection success rate** (fraction of pulsars successfully timed) and the **total telescope time** (sum of all dwell times) required to reach the success condition.
-
-**Benchmark Fixed-Cadence Strategies:**
-The adaptive scheduler's performance is compared to that of a set of expert-designed, fixed cadences, which represent the conventional follow-up approach. The same simulated pulsars are timed using these fixed schedules:
-*   **Canonical/High-B Pulsars:** Logarithmically spaced observations at `t = 1, 3, 7, 15, 30, 60, 120` days post-discovery.
-*   **Millisecond Pulsars:** A sparse cadence at `t = 3, 10, 30, 90, 180` days.
-*   **Magnetars/GC Pulsars:** A dense initial cadence at `t = 1, 2, 4, 7, 14, 30, 60` days.
-*   **Intermittent Pulsars:** A block-based cadence at `t = 1, 2, 3, 10, 17, 24, 31` days.
-
-The final analysis will directly compare the success rates and total telescope time consumed by the adaptive algorithm versus the fixed strategies across the entire population and within each sub-class, thereby providing a quantitative measure of the adaptive framework's efficiency.
+The strategies will be compared using the following primary metrics, averaged over the population:
+*   **Phase-Connection Completeness (%):** The fraction of pulsars for which a phase-connected solution was achieved.
+*   **Parameter Precision:** The final fractional uncertainty on P (σ_P / P) and Ṗ (σ_Ṗ / Ṗ) for successfully timed pulsars.
+*   **Total Telescope Time (hours):** The mean total observation time used per pulsar.

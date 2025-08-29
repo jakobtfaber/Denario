@@ -42,17 +42,6 @@ class Method:
             data_description: description of the data and tools to be used.
         """
 
-        # Debug: print models passed to cmbagent
-        print("[DEBUG] cmbagent.planning_and_control_context_carryover called with:")
-        print(f"  researcher_model={self.researcher_model}")
-        print(f"  planner_model=gemini-2.5-pro")
-        print(f"  plan_reviewer_model=gemini-2.5-pro")
-        print(f"  engineer_model=gemini-2.5-pro")
-        print(f"  idea_maker_model=gemini-2.5-pro")
-        print(f"  idea_hater_model=gemini-2.5-pro")
-        print(f"  camb_context_model=gemini-2.5-pro")
-        print(f"  default_llm_model=gemini-2.5-pro")
-
         results = cmbagent.planning_and_control_context_carryover(data_description,
                                                     n_plan_reviews = 1,
                                                     max_n_attempts = 4,

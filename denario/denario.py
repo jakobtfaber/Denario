@@ -7,7 +7,9 @@ import shutil
 from pathlib import Path
 from PIL import Image 
 
-os.environ["CMBAGENT_DEBUG"] = "false"
+# Set CMBAGENT_DEBUG to "false" only if it's not already set
+if "CMBAGENT_DEBUG" not in os.environ:
+    os.environ["CMBAGENT_DEBUG"] = "false"
 
 # import cmbagent
 

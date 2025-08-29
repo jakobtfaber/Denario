@@ -15,10 +15,44 @@ def _execute_query(payload, keys: KeyManager):
         PerplexityChatCompletionResponse: Parsed response from the Perplexity API.
     """
     api_key = keys.PERPLEXITY
+    
+    # Check if API key is available
+    if not api_key:
+        print("WARNING: No Perplexity API key found. Skipping literature search.")
+        return {
+            "choices": [{"message": {"content": "Citations unavailable (no Perplexity API key)."}}],
+            "citations": []
+        }
+    
     headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    response = requests.post("https://api.perplexity.ai/chat/completions", headers=headers, json=payload).json()
-
-    return response
+    
+    try:
+        response = requests.post("https://api.perplexity.ai/chat/completions", headers=headers, json=payload)
+        
+        # Check if request was successful
+        if response.status_code != 200:
+            print(f"WARNING: Perplexity API returned status {response.status_code}. Skipping literature search.")
+            return {
+                "choices": [{"message": {"content": "Citations unavailable (API error)."}}],
+                "citations": []
+            }
+        
+        # Try to parse JSON response
+        try:
+            return response.json()
+        except requests.exceptions.JSONDecodeError:
+            print("WARNING: Perplexity API returned invalid JSON. Skipping literature search.")
+            return {
+                "choices": [{"message": {"content": "Citations unavailable (invalid response)."}}],
+                "citations": []
+            }
+            
+    except Exception as e:
+        print(f"WARNING: Perplexity API request failed: {e}. Skipping literature search.")
+        return {
+            "choices": [{"message": {"content": "Citations unavailable (request failed)."}}],
+            "citations": []
+        }
 
 
 def perplexity(para, keys: KeyManager):

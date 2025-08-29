@@ -22,6 +22,33 @@ To install denario, just run
 pip install denario
 ```
 
+## Quick Start with GPT-5 Reasoning
+
+**🚀 Ready-to-run scientific research pipeline with GPT-5 + Gemini:**
+
+```bash
+# Clone and set up environment
+git clone https://github.com/AstroPilot-AI/Denario.git
+cd Denario
+python -m venv .venv
+source .venv/bin/activate
+pip install -e .
+
+# Set up API keys in .env file
+echo "OPENAI_API_KEY=your_openai_key" >> .env
+echo "GOOGLE_API_KEY=your_google_key" >> .env
+
+# Run the GPT-5 + Gemini hybrid pipeline
+python restart_denario_gpt5_reasoning.py
+```
+
+This will run an end-to-end scientific research pipeline using:
+- **GPT-5** for advanced reasoning and analysis
+- **Gemini-2.5-pro** for planning and coordination  
+- **Vendored cmbagent** for multi-agent orchestration
+
+See [`scripts/README.md`](scripts/README.md) for more options.
+
 ## Get started
 
 Initialize a `Denario` instance and describe the data and tools to be employed.
