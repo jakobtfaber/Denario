@@ -6,12 +6,15 @@ API access is managed via keys generated on each provider's platform and set as 
 
 The required and optional models for Denario's subsystems are summarized below:
 
-| Subsystem         | Required Models           | Optional Models                                         |
-|-------------------|--------------------------|---------------------------------------------------------|
-| Research Ideas    | OpenAI (gpt-4o-mini)     | Gemini (gemini-2.5-pro), Claude (claude-3.7-sonnet)     |
-| Literature Search | OpenAI (gpt-4o-mini)     | Gemini (gemini-2.5-pro), Claude (claude-3.7-sonnet)     |
-| Analysis          | OpenAI (gpt-4o-mini)     | Gemini (gemini-2.5-pro), Claude (claude-3.7-sonnet)     |
-| Paper Writing     | OpenAI (gpt-4o-mini)     | Gemini (gemini-2.5-pro), Claude (claude-3.7-sonnet)     |
+| Subsystem         | OpenAI | Gemini | Vertex AI | Claude | Perplexity | FutureHouse |
+| ----------------- | ------ | ------ | --------- | ------ | ---------- | ----------- |
+| Generate Ideas    | 🟠     | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
+| Methods           | 🟠     | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
+| Analysis          | ✅      | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
+| Literature Search | ❌      | ❌      | ❌         | ❌      | ✅          | ❌           |
+| Paper Writing     | 🟠     | 🟠     | ❌         | 🟠     | ❌          | ❌           |
+| Check Idea        | ❌      | ❌      | ❌         | ❌      | ❌          | ✅           |
+
 
 
 ---
