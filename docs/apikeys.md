@@ -8,12 +8,12 @@ The required and optional models for Denario's subsystems are summarized below:
 
 | Subsystem         | OpenAI | Gemini | Vertex AI | Claude | Perplexity | FutureHouse |
 | ----------------- | ------ | ------ | --------- | ------ | ---------- | ----------- |
-| Generate Ideas    | 🟠     | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
-| Methods           | 🟠     | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
-| Analysis          | ✅      | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
-| Literature Search | ❌      | ❌      | ❌         | ❌      | ✅          | ❌           |
-| Paper Writing     | 🟠     | 🟠     | ❌         | 🟠     | ❌          | ❌           |
-| Check Idea        | ❌      | ❌      | ❌         | ❌      | ❌          | ✅           |
+| **Generate Ideas**    | 🟠     | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
+| **Methods**           | 🟠     | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
+| **Analysis**          | ✅      | 🟠     | 🟠        | 🟠     | ❌          | ❌           |
+| **Paper Writing**     | 🟠     | 🟠     | ❌         | 🟠     | ❌          | ❌           |
+| Citation Search | ❌      | ❌      | ❌         | ❌      | ✅          | ❌           |
+| Check Idea        | 🟠      | 🟠      | 🟠         | 🟠      | 🟠          | ✅           |
 
 
 
@@ -21,7 +21,7 @@ The required and optional models for Denario's subsystems are summarized below:
 
 ### How Much Money Is Needed?
 
-With \$10, it is possible to generate hundreds of ideas, methods, and draft hundreds of papers, provided the analysis has already been completed. Running analyses (i.e., obtaining actual results) remains inexpensive when using lightweight models such as gpt-4o-mini. Most papers produced with the first public release of Denario were generated using either gemini-2.5-pro or gpt-4.1, which are more resource-intensive and costly. Generating research analysis for a single idea typically costs around \$2–\$5 with these models.
+With $10, it is possible to generate hundreds of ideas, methods, and draft hundreds of papers, provided the analysis has already been completed. Running analyses (i.e., obtaining actual results) remains inexpensive when using lightweight models such as gpt-4o-mini. Most papers produced with the first public release of Denario were generated using either gemini-2.5-pro or gpt-4.1, which are more resource-intensive and costly. Generating research analysis for a single idea typically costs around $2–$5 with these models.
 
 ---
 
@@ -35,7 +35,11 @@ Careful monitoring of LLM provider usage is essential. API keys should never be 
 
 New users are likely to encounter token rate limits when using OpenAI models. This may cause Denario to pause temporarily if too much text or code is generated. To increase token rate limits, refer to [OpenAI's rate limit documentation](https://platform.openai.com/docs/guides/rate-limits).
 
+
+If rate limits are a problem for you, please contact us at [denario.astropilot.ai@gmail.com](mailto:denario.astropilot.ai@gmail.com).
+
 ---
+
 
 
 ## Obtaining API Keys
