@@ -5,7 +5,15 @@ site_url: !ENV READTHEDOCS_CANONICAL_URL
 nav:
   - Home: index.md
   - Installation: install.md
-  - API keys: apikeys.md
+  - API keys:
+      - Overview: apikeys.md
+      - How Much Money Is Needed?: apikeys.md#how-much-money-is-needed
+      - Risk of Overspending: apikeys.md#risk-of-overspending
+      - Rate Limits: apikeys.md#rate-limits
+      - Obtaining API Keys: apikeys.md#obtaining-api-keys
+      - Vertex AI Setup: apikeys.md#vertex-ai-setup
+      - FutureHouse: apikeys.md#futurehouse
+      - Where to Store API Keys: apikeys.md#where-to-store-api-keys
   - Get started: get_started.md
   - App: app.md
   - Prompts: prompts.md
