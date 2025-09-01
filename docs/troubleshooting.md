@@ -56,3 +56,21 @@ When a paper is written, it will produce several versions:
 We recommend checking all versions, and not just the last one, as in some cases some plots may be missing. If figures are in version1, but missing in version2, remove all the results files `paper/temp/Results*` and rerun Denario.
 
 Sometimes Denario may have problems inserting figures in the text. In this case, as above, we recommend checking the `paper/temp` folder and removing the problematic files.
+
+Sometimes, in the paper there may be missing parts of text (e.g. in the abstract or the main text). This sometimes happens because LaTeX takes the symbol % as a comment, while sometimes in the text is intended to be used as the percent symbol. In this case, we recommend opening the LaTeX file (e.g. paper_v2_no_citations.tex or paper_v4_final.tex) fix the error (e.g. change % by \%) and recompile again with something like:
+
+```sh
+xelatex paper_v2_no_citations.tex
+xelatex paper_v2_no_citations.tex
+```
+
+or
+
+```sh
+xelatex paper_v4_final.tex
+bibtex paper_v4_final
+xelatex paper_v4_final.tex
+xelatex paper_v4_final.tex
+```
+
+Note that at least two compilations are needed to include references properly.
