@@ -222,6 +222,7 @@ def save_paper(state: GraphState, paper_name: str):
 \usepackage{{multirow}}
 \usepackage{{natbib}}
 \usepackage{{graphicx}} 
+\usepackage{{tabularx}}
 {journaldict.usepackage}
 
 
