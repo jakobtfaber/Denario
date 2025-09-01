@@ -20,12 +20,13 @@ class Experiment:
                  engineer_model: str = "claude-3-7-sonnet-20250219",
                  researcher_model: str = "o3-mini-2025-01-31",
                  work_dir = None,
-                 restart_at_step: int = -1):
+                 restart_at_step: int = -1,
+                 hardware_constraints: str = None):
         
         self.engineer_model = engineer_model
         self.researcher_model = researcher_model
         self.restart_at_step = restart_at_step
-        
+        self.hardware_constraints = hardware_constraints
         if work_dir is None:
             raise ValueError("workdir must be provided")
 
@@ -73,7 +74,8 @@ class Experiment:
                             engineer_instructions=self.engineer_append_instructions,
                             work_dir = self.experiment_dir,
                             api_keys = self.api_keys,
-                            restart_at_step = self.restart_at_step
+                            restart_at_step = self.restart_at_step,
+                            hardware_constraints = self.hardware_constraints
                             )
         chat_history = results['chat_history']
         final_context = results['final_context']
