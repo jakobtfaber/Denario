@@ -404,6 +404,7 @@ class Denario:
                     engineer_model: LLM | str = models["claude-3.7-sonnet"],
                     researcher_model: LLM | str = models["o3-mini"],
                     restart_at_step: int = -1,
+                    hardware_constraints: str = None,
                     ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
@@ -435,7 +436,9 @@ class Denario:
                                 researcher_model=researcher_model.name,
                                 work_dir = self.project_dir,
                                 keys=self.keys,
-                                restart_at_step = restart_at_step)
+                                restart_at_step = restart_at_step,
+                                hardware_constraints = hardware_constraints)
+        
         experiment.run_experiment(self.research.data_description)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths
