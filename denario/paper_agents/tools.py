@@ -187,13 +187,19 @@ def extract_latex_block(state: GraphState, text: str, block: str) -> str:
     TEXT
     \end{block}
     """
-    
+
+    # Check if the input 'text' is a list and convert it to a string
+    if isinstance(text, list):
+        # Join the list items into a single string
+        # Use str(item) to ensure all list elements can be joined
+        text = "".join([str(item) for item in text])
+
     pattern = rf"\\begin{{{block}}}(.*?)\\end{{{block}}}"
     match = re.search(pattern, text, re.DOTALL)
 
     if match:
-        return match.group(1).strip()    
-
+        return match.group(1).strip()
+    
     # in case it fails
     with open(state['files']['Error'], 'w', encoding='utf-8') as f:
         f.write(text)
@@ -203,6 +209,7 @@ def extract_latex_block(state: GraphState, text: str, block: str) -> str:
         return fixer(state, block)
     except ValueError:
         raise ValueError(f"Failed to extract {block}")
+
     
 
 def fixer(state: GraphState, section_name):
