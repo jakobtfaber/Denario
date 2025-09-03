@@ -3,15 +3,13 @@ name = "denario"
 version = "0.1.13"
 description = "Modular Automation of Scientific Research with Multi-Agent Systems"
 authors = [
-  { name = "Pablo Villanueva-Domingo", email = "pablo.villanueva.domingo@gmail.com" },
-  { name = "Boris Bolliet", email = "boris.bolliet@gmail.com" },
-  { name = "Francisco Villaescusa-Navarro", email = "villaescusa.francisco@gmail.com" },
+  { name = "Pablo Villanueva-Domingo", email = "denario.astropilot.ai@gmail.com" },
+  { name = "Boris Bolliet", email = "denario.astropilot.ai@gmail.com" },
+  { name = "Francisco Villaescusa-Navarro", email = "denario.astropilot.ai@gmail.com" },
  
 ]
 maintainers = [
-  { name = "Pablo Villanueva-Domingo", email = "pablo.villanueva.domingo@gmail.com" },
-  { name = "Francisco Villaescusa-Navarro", email = "villaescusa.francisco@gmail.com" },
-  { name = "Boris Bolliet", email = "boris.bolliet@gmail.com" },
+  { name = "Pablo-Paco-Boris", email = "denario.astropilot.ai@gmail.com" },
 ]
 readme = "README.md"
 requires-python = ">=3.12"
