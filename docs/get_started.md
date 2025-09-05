@@ -21,11 +21,24 @@ Generate a research idea from that data specification.
 den.get_idea()
 ```
 
+This will trigger a planning and control workflow to design the ide. For a faster method you can use:
+
+```python
+den.get_idea_fast()
+```
+
 Generate the methodology required for working on that idea.
 
 ```python
 den.get_method()
 ```
+
+This will trigger a planning and control workflow to design the ide. For a faster method you can use:
+
+```python
+den.get_method_fast()
+```
+
 
 With the methodology setup, perform the required computations and get the plots and results.
 
