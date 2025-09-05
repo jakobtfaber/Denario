@@ -55,6 +55,12 @@ gpt5 = LLM(name="gpt-5",
            temperature=None)
 """`gpt-5` model """
 
+# Proposed mini variant; adjust as real limits become available
+gpt5mini = LLM(name="gpt-5-mini",
+               max_output_tokens=16384,
+               temperature=0.5)
+"""`gpt-5-mini` model."""
+
 claude37sonnet = LLM(name="claude-3-7-sonnet-20250219",
                      max_output_tokens=64000,
                      temperature=0)
@@ -80,6 +86,7 @@ models : Dict[str, LLM] = {
                             "gpt-4o-mini" : gpt4omini,
                             "gpt-4.5" : gpt45,
                             "gpt-5" : gpt5,
+                            "gpt-5-mini" : gpt5mini,
                             "claude-3.7-sonnet" : claude37sonnet,
                             "claude-4-opus" : claude4opus,
                             "claude-4.1-opus" : claude41opus,
