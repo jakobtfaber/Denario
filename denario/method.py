@@ -17,10 +17,13 @@ class Method:
                  research_idea: str,
                  keys: KeyManager,
                  researcher_model = "gpt-4.1-2025-04-14",
+                 planner_model = "gpt-4.1-2025-04-14",
+                 plan_reviewer_model = "claude-3.7-sonnet",
                  work_dir = None):
         
         self.researcher_model = researcher_model
-
+        self.planner_model = planner_model
+        self.plan_reviewer_model = plan_reviewer_model
         self.api_keys = keys
 
         if work_dir is None:
@@ -47,6 +50,8 @@ class Method:
                               max_n_attempts = 4,
                               max_plan_steps = 4,
                               researcher_model = self.researcher_model,
+                              planner_model = self.planner_model,
+                              plan_reviewer_model = self.plan_reviewer_model,
                               plan_instructions = self.planner_append_instructions,
                               researcher_instructions = self.researcher_append_instructions,
                               work_dir = self.method_dir,

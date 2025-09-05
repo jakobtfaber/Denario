@@ -323,8 +323,17 @@ class Denario:
 
         
     
-    def get_method(self) -> None:
-        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`."""
+    def get_method(self,
+                 method_generator_model: LLM | str = models["gpt-4o"],
+                 planner_model: LLM | str = models["gpt-4o"],
+                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"]
+                ) -> None:
+        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`.
+        Args:
+           - method_generator_model: (researcher) the LLM model to be used for the researcher agent. Default is gpt-4o
+           - planner_model: the LLM model to be used for the planner agent. Default is gpt-4o
+           - plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is claude-3.7-sonnet
+        """
 
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
@@ -334,7 +343,16 @@ class Denario:
             with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
                 self.research.idea = f.read()
 
-        method = Method(self.research.idea, keys=self.keys,  work_dir = self.project_dir)
+        method_generator_model = llm_parser(method_generator_model)
+        planner_model = llm_parser(planner_model)
+        plan_reviewer_model = llm_parser(plan_reviewer_model)
+
+        method = Method(self.research.idea, keys=self.keys,  
+                        work_dir = self.project_dir, 
+                        researcher_model=method_generator_model.name, 
+                        planner_model=planner_model.name, 
+                        plan_reviewer_model=plan_reviewer_model.name)
+        
         methododology = method.develop_method(self.research.data_description)
         self.research.methodology = methododology
 
