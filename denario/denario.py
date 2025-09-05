@@ -125,16 +125,22 @@ class Denario:
     def get_idea(self,
                  idea_maker_model: LLM | str = models["gpt-4o"],
                  idea_hater_model: LLM | str = models["claude-3.7-sonnet"],
+                 planner_model: LLM | str = models["gpt-4o"],
+                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"]
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
            idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
            idea_hater_model: the LLM to be used for the idea hater agent. Default is claude-3.7-sonnet
+           planner_model: the LLM to be used for the planner agent. Default is gpt-4o
+           plan_reviewer_model: the LLM to be used for the plan reviewer agent. Default is claude-3.7-sonnet
         """
 
         # Get LLM instances
         idea_maker_model = llm_parser(idea_maker_model)
         idea_hater_model = llm_parser(idea_hater_model)
+        planner_model = llm_parser(planner_model)
+        plan_reviewer_model = llm_parser(plan_reviewer_model)
         
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
@@ -143,6 +149,8 @@ class Denario:
         idea = Idea(work_dir = self.project_dir,
                     idea_maker_model = idea_maker_model.name,
                     idea_hater_model = idea_hater_model.name,
+                    planner_model = planner_model.name,
+                    plan_reviewer_model = plan_reviewer_model.name,
                     keys=self.keys)
         
         idea = idea.develop_idea(self.research.data_description)

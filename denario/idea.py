@@ -31,6 +31,8 @@ class Idea:
                  keys : KeyManager,
                  idea_maker_model = "gpt-4o", 
                  idea_hater_model = "claude-3-7-sonnet",
+                 planner_model = "gpt-4o",
+                 plan_reviewer_model = "claude-3-7-sonnet",
                  work_dir = None, 
                 ):
         
@@ -41,7 +43,8 @@ class Idea:
         self.idea_dir = os.path.join(work_dir, "idea_generation_output")
         self.idea_maker_model = idea_maker_model
         self.idea_hater_model = idea_hater_model
-
+        self.planner_model = planner_model
+        self.plan_reviewer_model = plan_reviewer_model
         self.api_keys = keys
 
         # Create directory if it doesn't exist
@@ -64,6 +67,8 @@ class Idea:
                               idea_maker_model = self.idea_maker_model,
                               idea_hater_model = self.idea_hater_model,
                               plan_instructions=self.planner_append_instructions,
+                              planner_model=self.planner_model,
+                              plan_reviewer_model=self.plan_reviewer_model,
                               work_dir = self.idea_dir,
                               api_keys = self.api_keys
                              )
