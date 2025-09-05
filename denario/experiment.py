@@ -19,14 +19,25 @@ class Experiment:
                  involved_agents: List[str] = ['engineer', 'researcher'],
                  engineer_model: str = "claude-3-7-sonnet-20250219",
                  researcher_model: str = "o3-mini-2025-01-31",
+                 planner_model: str = "gpt-4o",
+                 plan_reviewer_model: str = "claude-3-7-sonnet",
                  work_dir = None,
                  restart_at_step: int = -1,
-                 hardware_constraints: str = None):
+                 hardware_constraints: str = None,
+                 max_n_attempts: int = 10,
+                 max_n_steps: int = 6):
         
         self.engineer_model = engineer_model
         self.researcher_model = researcher_model
+        self.planner_model = planner_model
+        self.plan_reviewer_model = plan_reviewer_model
         self.restart_at_step = restart_at_step
         self.hardware_constraints = hardware_constraints
+        self.max_n_attempts = max_n_attempts
+        self.max_n_steps = max_n_steps
+
+
+        
         if work_dir is None:
             raise ValueError("workdir must be provided")
 
@@ -61,14 +72,22 @@ class Experiment:
 
         print(f"Engineer model: {self.engineer_model}")
         print(f"Researcher model: {self.researcher_model}")
-        
+        print(f"Planner model: {self.planner_model}")
+        print(f"Plan reviewer model: {self.plan_reviewer_model}")
+        print(f"Max n attempts: {self.max_n_attempts}")
+        print(f"Max n steps: {self.max_n_steps}")
+        print(f"Restart at step: {self.restart_at_step}")
+        print(f"Hardware constraints: {self.hardware_constraints}")
+
         results = cmbagent.planning_and_control_context_carryover(data_description,
                             n_plan_reviews = 1,
-                            max_n_attempts = 10,
-                            max_plan_steps = 6,
+                            max_n_attempts = self.max_n_attempts,
+                            max_plan_steps = self.max_n_steps,
                             max_rounds_control = 500,
                             engineer_model = self.engineer_model,
                             researcher_model = self.researcher_model,
+                            planner_model = self.planner_model,
+                            plan_reviewer_model = self.plan_reviewer_model,
                             plan_instructions=self.planner_append_instructions,
                             researcher_instructions=self.researcher_append_instructions,
                             engineer_instructions=self.engineer_append_instructions,

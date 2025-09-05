@@ -431,17 +431,31 @@ class Denario:
                     researcher_model: LLM | str = models["o3-mini"],
                     restart_at_step: int = -1,
                     hardware_constraints: str = None,
+                    planner_model: LLM | str = models["gpt-4o"],
+                    plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
+                    max_n_attempts: int = 10,
+                    max_n_steps: int = 6,   
                     ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
 
         Args:
             involved_agents: List of agents employed to compute the results.
+            engineer_model: the LLM model to be used for the engineer agent. Default is claude-3.7-sonnet
+            researcher_model: the LLM model to be used for the researcher agent. Default is o3-mini
+            restart_at_step: the step to restart the experiment. Default is -1
+            hardware_constraints: the hardware constraints to be used for the experiment. Default is None
+            planner_model: the LLM model to be used for the planner agent. Default is gpt-4o
+            plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is claude-3.7-sonnet
+            max_n_attempts: the maximum number of attempts to execute code within one step if the code execution fails. Default is 10
+            max_n_steps: the maximum number of steps in the workflow. Default is 6
         """
 
         # Get LLM instances
         engineer_model = llm_parser(engineer_model)
         researcher_model = llm_parser(researcher_model)
+        planner_model = llm_parser(planner_model)
+        plan_reviewer_model = llm_parser(plan_reviewer_model)
 
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
@@ -460,10 +474,14 @@ class Denario:
                                 involved_agents=involved_agents,
                                 engineer_model=engineer_model.name,
                                 researcher_model=researcher_model.name,
+                                planner_model=planner_model.name,
+                                plan_reviewer_model=plan_reviewer_model.name,
                                 work_dir = self.project_dir,
                                 keys=self.keys,
                                 restart_at_step = restart_at_step,
-                                hardware_constraints = hardware_constraints)
+                                hardware_constraints = hardware_constraints,
+                                max_n_attempts=max_n_attempts,
+                                max_n_steps=max_n_steps)
         
         experiment.run_experiment(self.research.data_description)
         self.research.results = experiment.results
