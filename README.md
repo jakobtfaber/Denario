@@ -78,19 +78,19 @@ You can also manually provide any info as a string or markdown file in an interm
 den.set_method(path_to_the_method_file.md)
 ```
 
-## App
+## DenarioApp
 
 You can run Denario using a GUI through the [DenarioApp](https://github.com/AstroPilot-AI/DenarioApp).
 
-The app is already installed with `pip install denario[app]`, otherwise install it with `pip install denario_app`.
+The app is already installed with `pip install denario[app]`, otherwise install it with `pip install denario_app` or `uv sync --extra app`.
 
-Launch it with
+Then, launch the GUI with
 
 ```bash
 denario run
 ```
 
-Test a [demo of the deployed app in HugginFace Spaces](https://huggingface.co/spaces/astropilot-ai/Denario).
+Test a [deployed demo of the app in HugginFace Spaces](https://huggingface.co/spaces/astropilot-ai/Denario).
 
 ## Build from source
 
