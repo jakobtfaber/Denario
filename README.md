@@ -156,8 +156,8 @@ If you use this library please link this repository and cite [arXiv:2506.xxxxx](
 
 [GNU GENERAL PUBLIC LICENSE (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html)
 
-## Contact and Permissions
+Denario - Copyright (C) 2025 Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet
 
-Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet
+## Contact and Enquieries
 
 E-mail: [denario.astropilot.ai@gmail.com](mailto:denario.astropilot.ai@gmail.com)
