@@ -37,11 +37,25 @@ conda activate Denario_env
 
 ## Install from PyPI
 
+### pip
+
 To install Denario, just run
 
 ```bash
-pip install denario
+pip install denario[app]
 ```
+
+The `[app]` allow us to run the [GUI](docs/app.md). If we do not need that, we can also install just `pip install denario`.
+
+### uv
+
+Alternatively, we can use [uv](https://docs.astral.sh/uv/) to install denario as
+
+```bash
+uv add denario[app]
+```
+
+or `uv add denario` if we do not need GUI support.
 
 ## Build from source
 
