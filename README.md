@@ -96,7 +96,7 @@ den.set_method(path_to_the_method_file.md)
 
 You can run Denario using a GUI through the [DenarioApp](https://github.com/AstroPilot-AI/DenarioApp).
 
-The app is already installed with `pip install denario[app]`, otherwise install it with `pip install denario_app` or `uv sync --extra app`.
+The app is already installed with `pip install "denario[app]"`, otherwise install it with `pip install denario_app` or `uv sync --extra app`.
 
 Then, launch the GUI with
 
