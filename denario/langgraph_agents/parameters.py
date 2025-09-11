@@ -20,6 +20,7 @@ class FILES(TypedDict):
     papers: str           #name of the file with the papers found and processed
     referee_report: str   #name of the file with the referee report
     referee_log: str      #name of the file to write the referee logs
+    paper_images:str      #name of the folder that will contain the paper images
     Error: str            #name of the error file
     module_folder: str    #name of the folder containing the results from the considered module
     f_stream: str         #name of the file to stream the results
@@ -51,6 +52,7 @@ class IDEA(TypedDict):
 class REFEREE(TypedDict):
     paper_version: int
     report: str
+    images: list[str]
 
 # Literature class
 class LITERATURE(TypedDict):

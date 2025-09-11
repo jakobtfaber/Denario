@@ -70,6 +70,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     elif state['task']=='referee':
         state['files']['module_folder'] = 'referee_output'
         state['files']['f_stream'] = f"{state['files']['Folder']}/{state['files']['module_folder']}/referee.log"
+        state['files']['paper_images'] = f"{state['files']['Folder']}/{state['files']['module_folder']}"
         
     state['files'] = {**state['files'],
                       "Temp":      f"{state['files']['Folder']}/{state['files']['module_folder']}",
@@ -101,7 +102,7 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
         idea = {**state['idea'], 'idea': idea}
 
     elif state['task']=='referee':
-        state['referee'] = {**state['referee'], 'paper_version':2, 'report':''}
+        state['referee'] = {**state['referee'], 'paper_version':2, 'report':'', 'images':[]}
         state['files'] = {**state['files'],
                           "Paper_folder": f"{state['files']['Folder']}/{PAPER_FOLDER}",
                           "referee_report": f"{state['files']['Folder']}/{INPUT_FILES}/{REFEREE_FILE}",

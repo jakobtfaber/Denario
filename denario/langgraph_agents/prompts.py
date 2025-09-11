@@ -174,18 +174,17 @@ In <SUMMARY> place the summary you have generated.
 
 
 def reviewer_fast_prompt(state):
-
-    # name of file containing the paper
-    if state['referee']['paper_version']==2:
-        paper_name = "paper_v2_no_citations.tex"
-    elif state['referee']['paper_version']==4:
-        paper_name = "paper_v4_final.tex"
-    f_in = f"{state['files']['Paper_folder']}/{paper_name}"
-
-    with open(f_in, 'r') as f:
-        paper = f.read()
     
-    return [HumanMessage(content=f"""You are a scientific referee. Below, you can find a scientific paper written in latex. Your task is to read and understand the paper. Next write a detailed report about the good/interesting aspects of the paper but also bad things, failures...etc. For the bad things, please provide comments on what would be needed to do in order to improve it. Note that you may be reviewing an AI-generated paper, so the author may not be human, and keywords may be missing. No need to mention those. 
+    image_parts = [
+        {
+            "type": "image_url",
+            "image_url": {"url": f"data:image/png;base64,{image_b64}"}
+        }
+        for image_b64 in state['referee']['images']
+    ]
+
+    prompt = [
+        {"type":"text", "text": f"""You are a scientific referee. Below, you can find a scientific paper written in latex. Your task is to read and understand the paper. Next write a detailed report about the good/interesting aspects of the paper but also bad things, failures...etc. For the bad things, please provide comments on what would be needed to do in order to improve it. Note that you may be reviewing an AI-generated paper, so the author may not be human, and keywords may be missing. No need to mention those. 
 
 - Find all flaws in the paper 
 - Find things that may not be done correctly
@@ -195,13 +194,12 @@ def reviewer_fast_prompt(state):
 
 Try to judge whether the paper will be worth a publication or not. Give a score from 0 (a very bad paper) to 9 (an amazing paper). For bad papers, give a low score.
 
-Paper:
-{paper}
-
 **Respond in exactly this format**:
 \\begin{{REVIEW}}
 <REVIEW>
 \\end{{REVIEW}}
 
 In <REVIEW>, put your report. 
-""")]
+    """}] + image_parts
+
+    return [HumanMessage(content=prompt)]

@@ -1,9 +1,10 @@
 import os
 import argparse
 import fitz  # PyMuPDF
+import base64
 
-def pdf_to_images(pdf_path: str, out_dir: str = None, dpi: int = 200,
-                  fmt: str = "png", password: str = None, transparent: bool = False):
+def pdf_to_images(pdf_path: str, out_dir: str = None, dpi: int = 200, fmt: str = "png",
+                  password: str = None, transparent: bool = False, keep_images=False):
     """
     Convert all pages of a PDF to images.
 
@@ -15,6 +16,7 @@ def pdf_to_images(pdf_path: str, out_dir: str = None, dpi: int = 200,
         password: PDF password if encrypted.
         transparent: If True, keeps alpha channel (PNG only).
     """
+    
     if out_dir is None:
         base = os.path.splitext(os.path.basename(pdf_path))[0]
         out_dir = os.path.join(os.path.dirname(pdf_path), f"{base}_pages")
@@ -30,6 +32,7 @@ def pdf_to_images(pdf_path: str, out_dir: str = None, dpi: int = 200,
     zoom = dpi / 72.0
     mat = fitz.Matrix(zoom, zoom)
 
+    # save images to file
     n_pages = doc.page_count
     for i in range(n_pages):
         page = doc.load_page(i)
@@ -38,23 +41,22 @@ def pdf_to_images(pdf_path: str, out_dir: str = None, dpi: int = 200,
         fpath = os.path.join(out_dir, fname)
         pix.save(fpath)
 
-    return out_dir, n_pages
+    # read base64 representation of the images
+    images = []
+    for i in range(n_pages):
+        fname = f"page-{i+1:03d}.{fmt.lower()}"
+        fpath = os.path.join(out_dir, fname)
+        with open(fpath, "rb") as file:
+            data = file.read()
+        images.append(base64.b64encode(data).decode('utf-8'))
 
-def main():
-    ap = argparse.ArgumentParser(description="Convert a PDF into per-page images.")
-    ap.add_argument("pdf", help="Path to the PDF file")
-    ap.add_argument("--out-dir", help="Output directory (default: <pdf>_pages)")
-    ap.add_argument("--dpi", type=int, default=200, help="Output DPI (default: 200)")
-    ap.add_argument("--fmt", default="png", choices=["png", "jpg", "jpeg", "tiff", "ppm"],
-                    help="Image format (default: png)")
-    ap.add_argument("--password", help="Password if the PDF is encrypted")
-    ap.add_argument("--transparent", action="store_true",
-                    help="Keep alpha channel (only meaningful for PNG)")
-    args = ap.parse_args()
+    # remove the images
+    if not(keep_images):
+        for i in range(n_pages):
+            fname = f"page-{i+1:03d}.{fmt.lower()}"
+            fpath = os.path.join(out_dir, fname)
+            if os.path.exists(fpath):
+                os.remove(fpath)
 
-    out_dir, n = pdf_to_images(args.pdf, args.out_dir, args.dpi, args.fmt,
-                               args.password, args.transparent)
-    print(f"Saved {n} pages to: {out_dir}")
+    return images
 
-if __name__ == "__main__":
-    main()
