@@ -20,6 +20,7 @@ nav:
       - Literature search: idea_check.ipynb
       - Write a paper: Write_paper.ipynb
       - End-to-end Gemini+fast mode: EtE_Gemini_fast.ipynb
+  - Tutorials: tutorials.md
   - Troubleshooting: troubleshooting.md
   - API Reference:
       - Denario: api_denario.md
@@ -80,6 +81,7 @@ plugins:
 
 extra_css:
   - css/mkdocstrings.css
+  - css/extra.css
 
 markdown_extensions:
   - pymdownx.highlight:
