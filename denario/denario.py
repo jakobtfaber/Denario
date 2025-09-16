@@ -126,7 +126,9 @@ class Denario:
                  idea_maker_model: LLM | str = models["gpt-4o"],
                  idea_hater_model: LLM | str = models["claude-3.7-sonnet"],
                  planner_model: LLM | str = models["gpt-4o"],
-                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"]
+                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
+                 default_orchestration_model: LLM | str = models["gpt-4.1"],
+                 default_formatter_model: LLM | str = models["o3-mini"],
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
@@ -151,7 +153,9 @@ class Denario:
                     idea_hater_model = idea_hater_model.name,
                     planner_model = planner_model.name,
                     plan_reviewer_model = plan_reviewer_model.name,
-                    keys=self.keys)
+                    keys=self.keys,
+                    default_orchestration_model = default_orchestration_model.name,
+                    default_formatter_model = default_formatter_model.name)
         
         idea = idea.develop_idea(self.research.data_description)
         self.research.idea = idea
@@ -326,7 +330,9 @@ class Denario:
     def get_method(self,
                  method_generator_model: LLM | str = models["gpt-4o"],
                  planner_model: LLM | str = models["gpt-4o"],
-                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"]
+                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
+                 default_orchestration_model: LLM | str = models["gpt-4.1"],
+                 default_formatter_model: LLM | str = models["o3-mini"],
                 ) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`.
         Args:
@@ -351,7 +357,9 @@ class Denario:
                         work_dir = self.project_dir, 
                         researcher_model=method_generator_model.name, 
                         planner_model=planner_model.name, 
-                        plan_reviewer_model=plan_reviewer_model.name)
+                        plan_reviewer_model=plan_reviewer_model.name,
+                        default_orchestration_model = default_orchestration_model.name,
+                        default_formatter_model = default_formatter_model.name)
         
         methododology = method.develop_method(self.research.data_description)
         self.research.methodology = methododology
@@ -435,6 +443,8 @@ class Denario:
                     plan_reviewer_model: LLM | str = models["o3-mini"],
                     max_n_attempts: int = 10,
                     max_n_steps: int = 6,   
+                    default_orchestration_model: LLM | str = models["gpt-4.1"],
+                    default_formatter_model: LLM | str = models["o3-mini"],
                     ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
@@ -481,7 +491,9 @@ class Denario:
                                 restart_at_step = restart_at_step,
                                 hardware_constraints = hardware_constraints,
                                 max_n_attempts=max_n_attempts,
-                                max_n_steps=max_n_steps)
+                                max_n_steps=max_n_steps,
+                                default_orchestration_model = default_orchestration_model.name,
+                                default_formatter_model = default_formatter_model.name)
         
         experiment.run_experiment(self.research.data_description)
         self.research.results = experiment.results
