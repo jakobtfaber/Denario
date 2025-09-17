@@ -6,11 +6,12 @@ API access is managed via keys generated on each provider's platform and set as 
 
 The table below summarizes which LLM models are required (✅), optional (🟠) or not employed (❌) for each of the Denario modules:
 
-| Subsystem          | OpenAI | Gemini | Vertex AI | Claude | Perplexity | FutureHouse |
+| Module             | OpenAI | Gemini | Vertex AI | Claude | Perplexity | FutureHouse |
 | ------------------ | ------ | ------ | --------- | ------ | ---------- | ----------- |
 | **Generate Ideas** | 🟠     | 🟠     | 🟠        | 🟠     | ❌         | ❌          |
 | **Methods**        | 🟠     | 🟠     | 🟠        | 🟠     | ❌         | ❌          |
 | **Analysis**       | ✅     | 🟠     | 🟠        | 🟠     | ❌         | ❌          |
 | **Paper Writing**  | 🟠     | 🟠     | ❌        | 🟠     | ❌         | ❌          |
+| **Paper Revision** | 🟠     | 🟠     | ❌        | 🟠     | ❌         | ❌          |
 | Citation Search    | ❌     | ❌     | ❌        | ❌     | ✅         | ❌          |
 | Check Idea         | 🟠     | 🟠     | 🟠        | 🟠     | 🟠         | 🟠          |
