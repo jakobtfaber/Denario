@@ -30,7 +30,7 @@ dependencies = [
   "flatbuffers>=24.12.23",
   "filelock>=3.17.0",
   "cmbagent>=0.0.1post59",
-  "pymupdf",
+  # "pymupdf",  # Disabled: PyMuPDF dependency commented out; PDF inputs not supported
   "pillow",
   "jsonschema",
   "futurehouse-client",
