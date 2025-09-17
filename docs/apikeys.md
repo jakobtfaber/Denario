@@ -12,6 +12,6 @@ The table below summarizes which LLM models are required (✅), optional (🟠) 
 | **Methods**        | 🟠     | 🟠     | 🟠        | 🟠     | ❌         | ❌          |
 | **Analysis**       | ✅     | 🟠     | 🟠        | 🟠     | ❌         | ❌          |
 | **Paper Writing**  | 🟠     | 🟠     | ❌        | 🟠     | ❌         | ❌          |
-| **Paper Revision** | 🟠     | 🟠     | ❌        | 🟠     | ❌         | ❌          |
+| **Paper Review**   | 🟠     | 🟠     | ❌        | 🟠     | ❌         | ❌          |
 | Citation Search    | ❌     | ❌     | ❌        | ❌     | ✅         | ❌          |
 | Check Idea         | 🟠     | 🟠     | 🟠        | 🟠     | 🟠         | 🟠          |
