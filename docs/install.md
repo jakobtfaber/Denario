@@ -42,7 +42,7 @@ conda activate Denario_env
 To install Denario, just run
 
 ```bash
-pip install denario[app]
+pip install "denario[app]"
 ```
 
 The `[app]` allow us to run the [GUI](docs/app.md). If we do not need that, we can also install just `pip install denario`.

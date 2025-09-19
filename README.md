@@ -30,7 +30,7 @@ To install denario create a virtual environment and pip install it. We recommend
 ```bash
 python -m venv Denario_env
 source Denario_env/bin/activate
-pip install denario[app] # if this doesn't work do: pip install "denario[app]"
+pip install "denario[app]"
 ```
 
 Or alternatively install it with [uv](https://docs.astral.sh/uv/), initializing a project and installing it:
