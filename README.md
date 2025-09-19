@@ -147,6 +147,28 @@ which will create the virtual environment and install the dependencies and proje
 source .venv/bin/activate
 ```
 
+## Docker
+
+You can run Denario in a docker image. Pull the image with:
+
+```bash
+docker pull pablovd/denario:latest
+```
+
+Once built, you can run the GUI with
+
+```bash
+docker run -p 8501:8501 --rm pablovd/denario:latest
+```
+
+or in interactive mode with
+
+```bash
+docker run --rm -it pablovd/denario:latest bash
+```
+
+Share volumes with `-v $(pwd)/project:/app/project` for inputing data and accessing to it. You can also share the API keys with a `.env` file in the same folder with `-v $(pwd).env/app/.env`.
+
 ## Contributing
 
 Pull requests are welcome! Feel free to open an issue for bugs, comments, questions and suggestions.

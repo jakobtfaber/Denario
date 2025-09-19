@@ -10,7 +10,7 @@ Also, you will need [LaTeX](https://www.latex-project.org/) installed for the wr
 
 Given that Denario could install packages and run code, we recommend to run it within a virtual environment. We recommend using Python 3.12. You can create a virtual environment through different otions.
 
-## venv
+### venv
 
 Using `venv`:
 
@@ -24,7 +24,7 @@ Activate the virtual environment with
 source Denario_env/bin/activate
 ```
 
-## conda
+### conda
 
 You can also use [conda](https://docs.conda.io/projects/conda/en/stable/index.html) instead:
 
@@ -33,7 +33,7 @@ conda create -n Denario_env python==3.12
 conda activate Denario_env
 ```
 
-## uv
+### uv
 
 Or also [uv](https://docs.astral.sh/uv/):
 
