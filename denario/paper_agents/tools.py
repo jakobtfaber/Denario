@@ -131,23 +131,21 @@ def temp_file(state, fin, action, text=None, json_file=False):
             if json_file:
                 json.dump(text, f, indent=2)
             else:
-                latex_text = rf"""\documentclass[{
-                    journaldict.layout}]{
-                    {
-                        journaldict.article}}
+                latex_text = (
+                    rf"""\documentclass[{journaldict.layout}]{{{journaldict.article}}}
 
-\usepackage{amsmath}
-\usepackage{multirow}
-\usepackage{natbib}
-\usepackage{graphicx} {
-                    journaldict.usepackage}
+\usepackage{{amsmath}}
+\usepackage{{multirow}}
+\usepackage{{natbib}}
+\usepackage{{graphicx}} {journaldict.usepackage}
 
-\begin{document}
+\begin{{document}}
 
 {text}
 
-\end{document}
-                """
+\end{{document}}
+                    """
+                )
                 f.write(latex_text)
     else:
         raise Exception("wrong action chosen!")
@@ -160,6 +158,8 @@ def json_parser(text):
 
     json_pattern = r"```json(.*)```"
     match = re.findall(json_pattern, text, re.DOTALL)
+    if not match:
+        raise ValueError("No JSON fenced block found in text")
     json_string = match[0].strip()
     # deal with unescaped backslashes
     json_string = json_string.replace("\\", "\\\\")

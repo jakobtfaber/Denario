@@ -40,7 +40,7 @@ import sys
 
 from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
-from .tools import json_parser, json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
+from .tools import json_parser, json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text, LLM_call_with_tools
 from ..tools import create_wolfram_tool
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex, fix_percent
@@ -61,6 +61,38 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         print('Found on Keywords.tex', end="", flush=True)
 
     else:
+        # First, check if user-reviewed keywords exist from the app
+        reviewed_md = Path(
+            f"{state['files']['Folder']}/{INPUT_FILES}/keywords_selected.md")
+        if reviewed_md.exists():
+            try:
+                content = reviewed_md.read_text(encoding='utf-8')
+                # Expected format: "Keywords: kw1, kw2, kw3"
+                if ':' in content:
+                    keywords = content.split(':', 1)[1].strip()
+                else:
+                    keywords = content.strip()
+
+                # Persist to Temp/Keywords.tex and compile so downstream
+                # expects it
+                temp_file(state, f_temp, 'write', keywords)
+                compile_tex_document(state, f_temp, state['files']['Temp'])
+
+                minutes, seconds = divmod(
+                    time.time() - state['time']['start'], 60)
+                print(" |  done ", end='')
+                # Print a compact status line without multi-line f-strings
+                print(
+                    "  Selected keywords: "
+                    + str(keywords)
+                    + f" {state['tokens']['ti']} {state['tokens']['to']} "
+                    + f"[{int(minutes)}m {int(seconds)}s]"
+                )
+                return {'paper': {**state['paper'], 'Keywords': keywords},
+                        'tokens': state['tokens']}
+            except Exception:
+                # Fall back to existing branches on any read/parse error
+                pass
 
         if state['paper']['cmbagent_keywords']:
             ################ CMB Agent keywords ###############
@@ -228,6 +260,16 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     print(f'Writing {section_name}'.ljust(33, '.'), end="", flush=True)
     f_temp = Path(f"{state['files']['Temp']}/{section_name}.tex")
 
+    # Force regeneration for mathematical sections to ensure Wolfram Alpha
+    # usage
+    if f_temp.exists() and section_name in [
+            'Methods', 'Results', 'Introduction']:
+        print(
+            f'Regenerating {section_name} with Wolfram Alpha...',
+            end="",
+            flush=True)
+        f_temp.unlink()  # Remove cached file to force regeneration
+
     # check if abstract already exists
     if f_temp.exists():
         state['paper'][section_name] = temp_file(state, f_temp, 'read')
@@ -244,14 +286,19 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
             PROMPT = prompt_fn(state)
 
             # Initialize Wolfram Alpha tool for mathematical computations
-            wolfram_tool = create_wolfram_tool(enable_hitl=False)
+            wolfram_tool = create_wolfram_tool(enable_hitl=True)
 
             # Get the LLM instance and bind tools
             llm = state['llm']['llm']
             llm_with_tools = llm.bind_tools([wolfram_tool])
 
-            # Use tool-enabled LLM for sections that might need math
+            # Force regeneration for mathematical sections to ensure Wolfram
+            # Alpha usage
             if section_name in ['Methods', 'Results', 'Introduction']:
+                print(
+                    f" (Using Wolfram Alpha for {section_name})",
+                    end="",
+                    flush=True)
                 state, result = LLM_call_with_tools(
                     PROMPT, state, llm_with_tools)
             else:
@@ -437,7 +484,7 @@ def plots_node(state: GraphState, config: RunnableConfig):
                     break
             else:
                 raise RuntimeError(
-                    "Unable to put the images in the text. Failed after three attemps")
+                    "Unable to put the images in the text. Failed after three attempts")
 
             # save temporary file
             temp_file(state, f_temp, 'write', state['paper']['Results'])

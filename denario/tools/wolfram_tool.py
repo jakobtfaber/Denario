@@ -59,7 +59,8 @@ class WolframAlphaTool(BaseTool):
                 return f"Wolfram Alpha query failed: {error_msg}"
 
             # Check if HITL review is needed
-            if require_hitl and self._client.needs_hitl_review(result):
+            if (require_hitl or self._client.enable_hitl) and self._client.needs_hitl_review(
+                    result):
                 hitl_prompt = self._client.get_hitl_prompt(query, result)
                 return f"HITL_REVIEW_NEEDED: {hitl_prompt}"
 

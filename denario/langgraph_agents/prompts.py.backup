@@ -33,9 +33,9 @@ Critisms:
 
 Respond in the following format:
 
-\\begin{{IDEA}}
+\\begin{IDEA}
 <IDEA>
-\\end{{IDEA}}
+\\end{IDEA}
 
 In <IDEA>, put the idea together with its description. Try to be brief in the description. Do not explain how you have addressed any criticism.
 """)]
@@ -57,9 +57,9 @@ Current idea:
 
 Respond in the following format:
 
-\\begin{{CRITIC}}
+\\begin{CRITIC}
 <CRITIC>
-\\end{{CRITIC}}
+\\end{CRITIC}
 
 In <CRITIC>, put your criticism to the idea. Try to be brief in the description.
 """)]
@@ -92,9 +92,9 @@ Idea:
 
 Respond in this format:
 
-\\begin{{METHODS}}
+\\begin{METHODS}
 <METHODS>
-\\end{{METHODS}}
+\\end{METHODS}
 
 In <METHODS> put the methods you have generated.
 """)]
@@ -189,9 +189,9 @@ def summary_literature_prompt(state):
 
 **Respond in exactly this format**:
 
-\\begin{{SUMMARY}}
+\\begin{SUMMARY}
 <SUMMARY>
-\\end{{SUMMARY}}
+\\end{SUMMARY}
 
 In <SUMMARY> place the summary you have generated.
 """)]
@@ -219,9 +219,9 @@ def reviewer_fast_prompt(state):
 Try to judge whether the paper will be worth a publication or not. Give a score from 0 (a very bad paper) to 9 (an amazing paper). For bad papers, give a low score.
 
 **Respond in exactly this format**:
-\\begin{{REVIEW}}
+\\begin{REVIEW}
 <REVIEW>
-\\end{{REVIEW}}     
+\\end{REVIEW}
 
 In <REVIEW>, put your report.
     """}] + image_parts
