@@ -1,9 +1,10 @@
 """Premium mathematical computation orchestrator."""
 
 from typing import Dict, List, Optional, Any
+import os
+import subprocess
 from .base import MathematicalProvider, ComputationResult, ComputationError
 from .matlab_provider import MATLABProvider
-from ..utils import WolframAlphaClient
 
 
 class QueryAnalysis:
@@ -34,7 +35,7 @@ class PremiumMathematicalOrchestrator:
 
     def _build_capability_matrix(self) -> Dict[str, Dict[str, int]]:
         """Build capability scoring matrix for all providers."""
-        return {
+        matrix = {
             'matlab': {
                 'symbolic': 6,
                 'numeric': 10,
@@ -47,7 +48,8 @@ class PremiumMathematicalOrchestrator:
                 'calculus': 8,
                 'signal_processing': 10,
                 'linear_algebra': 10,
-                'statistics': 10},
+                'statistics': 10
+            },
             'wolfram_alpha': {
                 'symbolic': 8,
                 'numeric': 8,
@@ -60,7 +62,141 @@ class PremiumMathematicalOrchestrator:
                 'calculus': 8,
                 'signal_processing': 4,
                 'linear_algebra': 7,
-                'statistics': 6}}
+                'statistics': 6
+            }
+        }
+
+        # Dynamically adjust MATLAB capabilities based on available toolboxes
+        try:
+            mcfg = self.config.get('matlab', {})
+            backend = mcfg.get('backend') or os.getenv('MATLAB_BACKEND', '')
+            container = (
+                mcfg.get('container_name')
+                or os.getenv('MATLAB_DOCKER_CONTAINER', 'matlab_r2025a')
+            )
+            if backend == 'docker':
+                # Prefer cached capabilities JSON if present
+                caps = self._load_cached_capabilities()
+                tb_map = {}
+                oper = {}
+                if caps:
+                    licensed = caps.get('toolboxes', {}).get('licensed', {})
+                    oper = caps.get('toolboxes', {}).get('operational', {})
+                    # Normalize keys for licensed map (remove spaces)
+                    tb_map = {
+                        'Symbolic_Toolbox': bool(
+                            licensed.get(
+                                'SymbolicMathToolbox', False)), 'Optimization_Toolbox': bool(
+                            licensed.get(
+                                'OptimizationToolbox', False)), 'Statistics_and_Machine_Learning_Toolbox': bool(
+                            licensed.get(
+                                'StatisticsAndMachineLearningToolbox', False)), 'Signal_Processing_Toolbox': bool(
+                            licensed.get(
+                                'SignalProcessingToolbox', False)), 'Image_Processing_Toolbox': bool(
+                            licensed.get(
+                                'ImageProcessingToolbox', False)), 'Parallel_Computing_Toolbox': bool(
+                            licensed.get(
+                                'ParallelComputingToolbox', False)), 'Control_System_Toolbox': bool(
+                            licensed.get(
+                                'ControlSystemToolbox', False)), 'Curve_Fitting_Toolbox': bool(
+                            licensed.get(
+                                'CurveFittingToolbox', False)), }
+                else:
+                    tb_map = self._probe_matlab_toolboxes(container)
+                # Lower capability scores when toolbox missing
+                if not (
+                    tb_map.get(
+                        'Symbolic_Toolbox',
+                        False) or oper.get(
+                        'Symbolic',
+                        False)):
+                    matrix['matlab']['symbolic'] = 0
+                if not (
+                    tb_map.get(
+                        'Optimization_Toolbox',
+                        False) or oper.get(
+                        'Optimization',
+                        False)):
+                    matrix['matlab']['optimization'] = 5
+                if not (
+                    tb_map.get(
+                        'Statistics_and_Machine_Learning_Toolbox',
+                        False) or oper.get(
+                        'Statistics',
+                        False)):
+                    matrix['matlab']['statistics'] = 5
+                if not (
+                    tb_map.get(
+                        'Signal_Processing_Toolbox',
+                        False) or oper.get(
+                        'Signal',
+                        False)):
+                    matrix['matlab']['signal_processing'] = 6
+                if not tb_map.get('Linear_Algebra_Toolbox', True):
+                    # not an actual toolbox; keep default
+                    pass
+        except Exception:
+            # Best-effort; keep defaults on probe failure
+            pass
+
+        return matrix
+
+    def _load_cached_capabilities(self) -> Optional[Dict[str, Any]]:
+        """Load cached capability JSON written by preflight if present.
+
+        Looks for path in env MATLAB_CAPABILITIES_JSON, else a default
+        DenarioApp location.
+        """
+        import json as _json
+        paths = [
+            os.getenv('MATLAB_CAPABILITIES_JSON', ''),
+            '/data/cmbagents/DenarioApp/data/matlab_capabilities.json',
+        ]
+        for p in paths:
+            if not p:
+                continue
+            try:
+                if os.path.exists(p):
+                    with open(p, 'r') as f:
+                        return _json.load(f)
+            except Exception:
+                continue
+        return None
+
+    def _probe_matlab_toolboxes(self, container: str) -> Dict[str, bool]:
+        """Probe selected MATLAB toolboxes in a docker container.
+
+        Returns a dict mapping toolbox IDs to booleans.
+        """
+        toolboxes = [
+            'Symbolic_Toolbox',
+            'Optimization_Toolbox',
+            'Statistics_and_Machine_Learning_Toolbox',
+            'Signal_Processing_Toolbox',
+            'Parallel_Computing_Toolbox',
+            'Image_Processing_Toolbox',
+            'Control_System_Toolbox',
+            'Curve_Fitting_Toolbox',
+        ]
+        status: Dict[str, bool] = {}
+        for tb in toolboxes:
+            try:
+                cmd = [
+                    'docker', 'exec', container, 'matlab', '-batch',
+                    f"disp(license(''test'',''{tb}''))",
+                ]
+                proc = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    text=True,
+                    timeout=6,
+                )
+                status[tb] = (
+                    proc.returncode == 0 and proc.stdout.strip() == '1')
+            except Exception:
+                status[tb] = False
+        return status
 
     def _build_domain_routing(self) -> Dict[str, str]:
         """Build domain-based routing rules."""
@@ -79,11 +215,16 @@ class PremiumMathematicalOrchestrator:
     def _initialize_providers(self):
         """Initialize available mathematical computation providers."""
 
-        # MATLAB provider
+        # MATLAB provider (supports docker backend)
         if self.config.get('matlab', {}).get('enabled', True):
+            mcfg = self.config.get('matlab', {})
             self.providers['matlab'] = MATLABProvider(
-                matlab_path=self.config.get('matlab', {}).get('path'),
-                license_file=self.config.get('matlab', {}).get('license_file')
+                matlab_path=mcfg.get('path'),
+                license_file=mcfg.get('license_file'),
+                backend=mcfg.get('backend'),
+                container_name=mcfg.get('container_name'),
+                work_mount=mcfg.get('work_mount'),
+                entrypoint=mcfg.get('entrypoint'),
             )
 
         # Wolfram Alpha provider (existing)
@@ -262,6 +403,22 @@ class PremiumMathematicalOrchestrator:
             else:
                 stats[name] = {'status': 'active', 'queries': 0}
         return stats
+
+    def healthcheck(self) -> Dict[str, Any]:
+        """Return health and capability info for providers (lightweight)."""
+        info: Dict[str, Any] = {}
+        # MATLAB docker quick probe
+        if 'matlab' in self.providers:
+            p = self.providers['matlab']
+            status = {'backend': getattr(p, 'backend', 'engine')}
+            if getattr(p, 'backend', None) == 'docker':
+                status['container'] = getattr(p, 'container_name', None)
+                status['work_mount'] = getattr(p, 'work_mount', None)
+                # Do not exec docker here; just surface config
+            info['matlab'] = status
+        if 'wolfram_alpha' in self.providers:
+            info['wolfram_alpha'] = {'enabled': True}
+        return info
 
     def list_providers(self) -> List[str]:
         """List available providers."""

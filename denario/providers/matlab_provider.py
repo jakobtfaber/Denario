@@ -1,18 +1,27 @@
 """MATLAB provider for mathematical computations."""
 
 import time
-import re
-from typing import Dict, List, Optional, Any
+from typing import List, Optional
+import os
+import json
+import uuid
+import shutil
+import subprocess
 from .base import MathematicalProvider, ComputationResult, ComputationError
 
 
 class MATLABProvider(MathematicalProvider):
     """Provider using MATLAB R2024a for mathematical computations."""
 
-    def __init__(self,
-                 matlab_path: Optional[str] = None,
-                 license_file: Optional[str] = None,
-                 **kwargs):
+    def __init__(
+            self,
+            matlab_path: Optional[str] = None,
+            license_file: Optional[str] = None,
+            backend: Optional[str] = None,
+            container_name: Optional[str] = None,
+            work_mount: Optional[str] = None,
+            entrypoint: Optional[str] = None,
+            **kwargs):
         super().__init__(
             capabilities=[
                 'symbolic', 'numeric', 'visualization', 'optimization',
@@ -26,8 +35,20 @@ class MATLABProvider(MathematicalProvider):
         )
         self.matlab_path = matlab_path
         self.license_file = license_file
+        # Docker backend configuration (optional)
+        self.backend = backend or os.getenv("MATLAB_BACKEND")
+        self.container_name = (
+            container_name or os.getenv("MATLAB_DOCKER_CONTAINER")
+        )
+        self.work_mount = work_mount or os.getenv("MATLAB_WORK_MOUNT")
+        self.entrypoint = entrypoint or os.getenv("MATLAB_ENTRYPOINT")
+
         self.engine = None
-        self._initialize_matlab()
+        # Initialize engine only if not using docker backend
+        if self.backend == "docker":
+            print("MATLABProvider: using Docker backend")
+        else:
+            self._initialize_matlab()
 
     def _initialize_matlab(self):
         """Initialize MATLAB Engine API."""
@@ -84,7 +105,9 @@ class MATLABProvider(MathematicalProvider):
 
         except ImportError:
             print("MATLAB Engine API not available - using mock implementation")
-            print("To install: pip install matlabengine (requires MATLAB installation)")
+            print(
+                "To install: pip install matlabengine (requires MATLAB installation)"
+            )
             self.engine = None
         except Exception as e:
             print(
@@ -131,6 +154,13 @@ class MATLABProvider(MathematicalProvider):
         start_time = time.time()
 
         try:
+            # Docker backend preferred when configured
+            if self.backend == "docker":
+                result = self._docker_compute(query)
+                execution_time = time.time() - start_time
+                self._record_execution(execution_time)
+                return result
+
             if self.engine is None:
                 # Use mock implementation for development
                 return self._mock_compute(query)
@@ -167,6 +197,125 @@ class MATLABProvider(MathematicalProvider):
             execution_time = time.time() - start_time
             self._record_execution(execution_time)
             raise ComputationError(f"MATLAB computation failed: {e}")
+
+    def _docker_compute(self, query: str) -> ComputationResult:
+        """Execute computation using a running MATLAB Docker container.
+
+        Requires:
+          - self.container_name: name of the running container
+          - self.work_mount: host path mounted as /work in the container
+          - self.entrypoint: path to entrypoint.m on the host (copied into job dir)
+        """
+        if not self.container_name or not self.work_mount:
+            raise ComputationError(
+                "Docker backend not configured: container_name and work_mount are required")
+
+        job_id = str(uuid.uuid4())
+        job_dir = os.path.join(self.work_mount, "jobs", job_id)
+        os.makedirs(job_dir, exist_ok=True)
+
+        # Prepare input.json
+        input_path = os.path.join(job_dir, "input.json")
+        with open(input_path, "w") as f:
+            json.dump({"query": query}, f)
+
+        # Ensure entrypoint.m is present in job directory
+        entrypoint_host = self.entrypoint or os.path.join(
+            self.work_mount, "entrypoint.m")
+        entrypoint_dest = os.path.join(job_dir, "entrypoint.m")
+        if os.path.exists(entrypoint_host):
+            try:
+                shutil.copy2(entrypoint_host, entrypoint_dest)
+            except Exception as e:
+                raise ComputationError(f"Failed to copy entrypoint.m: {e}")
+        else:
+            # Write a minimal numeric entrypoint as fallback
+            try:
+                with open(entrypoint_dest, "w") as f:
+                    f.write(
+                        """
+function entrypoint()
+  try
+    inpath = fullfile(pwd, 'input.json');
+    params = struct();
+    if exist(inpath,'file')==2, params = jsondecode(fileread(inpath)); end
+    tic;
+    syms x; y = int(exp(-x^2), -inf, inf); % requires Symbolic toolbox
+    elapsed = toc;
+    out = struct('plaintext', char(y), 'latex', latex(y), 'provider','matlab', 'execution_time', elapsed);
+    fid=fopen('result.json','w'); fwrite(fid,jsonencode(out)); fclose(fid);
+  catch ME
+    fid=fopen('result.json','w'); fwrite(fid,jsonencode(struct('error',ME.message))); fclose(fid);
+    rethrow(ME);
+  end
+end
+""".strip()
+                    )
+            except Exception as e:
+                raise ComputationError(
+                    f"Failed to write fallback entrypoint.m: {e}")
+
+        # Compute the container-side working directory corresponding to job_dir
+        # Host job_dir is under self.work_mount; inside container it's under
+        # /work
+        if not job_dir.startswith(self.work_mount.rstrip("/")):
+            raise ComputationError(
+                "job_dir is not under work_mount; cannot map to container path")
+        rel = job_dir[len(self.work_mount.rstrip("/")):].lstrip("/")
+        container_workdir = os.path.join("/work", rel)
+
+        # Run MATLAB in the container
+        cmd = [
+            "docker", "exec", "-w", container_workdir,
+            self.container_name,
+            "matlab", "-batch", "entrypoint",
+        ]
+        try:
+            completed = subprocess.run(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True,
+                timeout=600)
+        except subprocess.TimeoutExpired:
+            raise ComputationError("MATLAB docker job timed out")
+        except Exception as e:
+            raise ComputationError(f"Failed to execute docker job: {e}")
+
+        if completed.returncode != 0:
+            raise ComputationError(
+                f"MATLAB docker job failed: {
+                    completed.stderr.strip() or completed.stdout.strip()}")
+
+        # Read result.json
+        result_path = os.path.join(job_dir, "result.json")
+        if not os.path.exists(result_path):
+            raise ComputationError(
+                "MATLAB docker job did not produce result.json")
+
+        try:
+            with open(result_path, "r") as f:
+                res = json.load(f)
+        except Exception as e:
+            raise ComputationError(f"Failed to parse result.json: {e}")
+
+        if isinstance(res, dict) and "error" in res:
+            raise ComputationError(f"MATLAB error: {res['error']}")
+
+        plaintext = res.get("plaintext") or ""
+        latex = res.get("latex") or ""
+        images: List[str] = []
+
+        return ComputationResult(
+            plaintext=plaintext,
+            latex=latex,
+            mathml=None,
+            images=images,
+            provider="matlab",
+            cost=0.0,
+            execution_time=res.get("execution_time", 0.0),
+            query=query,
+        )
 
     def _mock_compute(self, query: str) -> ComputationResult:
         """Mock MATLAB computation for development/testing."""
