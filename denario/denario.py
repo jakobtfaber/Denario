@@ -178,18 +178,18 @@ class Denario:
     # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
     def get_idea(self,
                  idea_maker_model: LLM | str = models["gpt-4o"],
-                 idea_hater_model: LLM | str = models["claude-3.7-sonnet"],
+                 idea_hater_model: LLM | str = models["o3-mini"],
                  planner_model: LLM | str = models["gpt-4o"],
-                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
+                 plan_reviewer_model: LLM | str = models["o3-mini"],
                  default_orchestration_model: LLM | str = models["gpt-4.1"],
                  default_formatter_model: LLM | str = models["o3-mini"],
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
            idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
-           idea_hater_model: the LLM to be used for the idea hater agent. Default is claude-3.7-sonnet
+           idea_hater_model: the LLM to be used for the idea hater agent. Default is o3-mini
            planner_model: the LLM to be used for the planner agent. Default is gpt-4o
-           plan_reviewer_model: the LLM to be used for the plan reviewer agent. Default is claude-3.7-sonnet
+           plan_reviewer_model: the LLM to be used for the plan reviewer agent. Default is o3-mini
         """
 
         # Get LLM instances
@@ -384,7 +384,7 @@ class Denario:
     def get_method(self,
                  method_generator_model: LLM | str = models["gpt-4o"],
                  planner_model: LLM | str = models["gpt-4o"],
-                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
+                 plan_reviewer_model: LLM | str = models["o3-mini"],
                  default_orchestration_model: LLM | str = models["gpt-4.1"],
                  default_formatter_model: LLM | str = models["o3-mini"],
                 ) -> None:
@@ -392,7 +392,7 @@ class Denario:
         Args:
            - method_generator_model: (researcher) the LLM model to be used for the researcher agent. Default is gpt-4o
            - planner_model: the LLM model to be used for the planner agent. Default is gpt-4o
-           - plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is claude-3.7-sonnet
+           - plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is o3-mini
         """
 
         if self.research.data_description == "":
@@ -505,12 +505,12 @@ class Denario:
 
         Args:
             involved_agents: List of agents employed to compute the results.
-            engineer_model: the LLM model to be used for the engineer agent. Default is claude-3.7-sonnet
+            engineer_model: the LLM model to be used for the engineer agent. Default is o3-mini
             researcher_model: the LLM model to be used for the researcher agent. Default is o3-mini
             restart_at_step: the step to restart the experiment. Default is -1
             hardware_constraints: the hardware constraints to be used for the experiment. Default is None
             planner_model: the LLM model to be used for the planner agent. Default is gpt-4o
-            plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is claude-3.7-sonnet
+            plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is o3-mini
             max_n_attempts: the maximum number of attempts to execute code within one step if the code execution fails. Default is 10
             max_n_steps: the maximum number of steps in the workflow. Default is 6
         """
