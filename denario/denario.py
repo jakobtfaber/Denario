@@ -50,6 +50,7 @@ from pathlib import Path
 from PIL import Image
 
 os.environ["CMBAGENT_DEBUG"] = "false"
+from cmbagent import preprocess_task
 
 
 # TODO: unify display and print by new method
@@ -148,6 +149,59 @@ class Denario:
         # overwrite the data_description.md file
         with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'w') as f:
             f.write(data_description)
+        
+    def enhance_data_description(self, data_description: str = None, 
+                                summarizer_model: str = None, 
+                                summarizer_response_formatter_model: str = None) -> None:
+
+        # Check if data description exists
+        if not hasattr(self.research, 'data_description') or not self.research.data_description:
+            # Try to load from file if it exists
+            try:
+                with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
+                    self.research.data_description = f.read()
+            except FileNotFoundError:
+                raise ValueError("No data description found. Please set a data description first before enhancing it.")
+
+        # Prepare parameters for preprocess_task
+        preprocess_params = {"work_dir": self.project_dir}
+        
+        if summarizer_model:
+            preprocess_params["summarizer_model"] = summarizer_model
+        if summarizer_response_formatter_model:
+            preprocess_params["summarizer_response_formatter_model"] = summarizer_response_formatter_model
+
+        # Get the enhanced text from preprocess_task
+        enhanced_text = preprocess_task(self.research.data_description, **preprocess_params)
+        
+        # Debug: Check if the enhanced text is different from original
+        print(f"Original text length: {len(self.research.data_description)}")
+        print(f"Enhanced text length: {len(enhanced_text)}")
+        print(f"Texts are different: {self.research.data_description != enhanced_text}")
+        
+        # If the enhanced text is the same as original, try reading from enhanced_input.md
+        if self.research.data_description == enhanced_text:
+            enhanced_input_path = os.path.join(self.project_dir, "enhanced_input.md")
+            if os.path.exists(enhanced_input_path):
+                print("Reading enhanced content from enhanced_input.md")
+                with open(enhanced_input_path, 'r', encoding='utf-8') as f:
+                    enhanced_text = f.read()
+                print(f"Enhanced text from file length: {len(enhanced_text)}")
+        
+        # Update the research object with enhanced text
+        self.research.data_description = enhanced_text
+
+        # Create the input_files directory if it doesn't exist
+        input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
+        if not os.path.exists(input_files_dir):
+            os.makedirs(input_files_dir, exist_ok=True)
+
+        # Write the enhanced text to data_description.md
+        with open(os.path.join(input_files_dir, DESCRIPTION_FILE), 'w', encoding='utf-8') as f:
+            f.write(enhanced_text)
+            
+        print(f"Enhanced text written to: {os.path.join(input_files_dir, DESCRIPTION_FILE)}")
+
 
     def show_data_description(self) -> None:
         """Show the data description set by the `set_data_description` method."""
@@ -161,8 +215,10 @@ class Denario:
                  idea_maker_model: LLM | str = models["gpt-4o"],
                  idea_hater_model: LLM | str = models["claude-3.7-sonnet"],
                  planner_model: LLM | str = models["gpt-4o"],
-                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"]
-                 ) -> None:
+                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
+                 default_orchestration_model: LLM | str = models["gpt-4.1"],
+                 default_formatter_model: LLM | str = models["o3-mini"],
+                ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
         Args:
            idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
@@ -181,13 +237,15 @@ class Denario:
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
                 self.research.data_description = f.read()
 
-        idea = Idea(work_dir=self.project_dir,
-                    idea_maker_model=idea_maker_model.name,
-                    idea_hater_model=idea_hater_model.name,
-                    planner_model=planner_model.name,
-                    plan_reviewer_model=plan_reviewer_model.name,
-                    keys=self.keys)
-
+        idea = Idea(work_dir = self.project_dir,
+                    idea_maker_model = idea_maker_model.name,
+                    idea_hater_model = idea_hater_model.name,
+                    planner_model = planner_model.name,
+                    plan_reviewer_model = plan_reviewer_model.name,
+                    keys=self.keys,
+                    default_orchestration_model = default_orchestration_model.name,
+                    default_formatter_model = default_formatter_model.name)
+        
         idea = idea.develop_idea(self.research.data_description)
         self.research.idea = idea
         # Write idea to file
@@ -358,10 +416,12 @@ class Denario:
             print(f'Error: {e}')
 
     def get_method(self,
-                   method_generator_model: LLM | str = models["gpt-4o"],
-                   planner_model: LLM | str = models["gpt-4o"],
-                   plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"]
-                   ) -> None:
+                 method_generator_model: LLM | str = models["gpt-4o"],
+                 planner_model: LLM | str = models["gpt-4o"],
+                 plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
+                 default_orchestration_model: LLM | str = models["gpt-4.1"],
+                 default_formatter_model: LLM | str = models["o3-mini"],
+                ) -> None:
         """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`.
         Args:
            - method_generator_model: (researcher) the LLM model to be used for the researcher agent. Default is gpt-4o
@@ -381,12 +441,14 @@ class Denario:
         planner_model = llm_parser(planner_model)
         plan_reviewer_model = llm_parser(plan_reviewer_model)
 
-        method = Method(self.research.idea, keys=self.keys,
-                        work_dir=self.project_dir,
-                        researcher_model=method_generator_model.name,
-                        planner_model=planner_model.name,
-                        plan_reviewer_model=plan_reviewer_model.name)
-
+        method = Method(self.research.idea, keys=self.keys,  
+                        work_dir = self.project_dir, 
+                        researcher_model=method_generator_model.name, 
+                        planner_model=planner_model.name, 
+                        plan_reviewer_model=plan_reviewer_model.name,
+                        default_orchestration_model = default_orchestration_model.name,
+                        default_formatter_model = default_formatter_model.name)
+        
         methododology = method.develop_method(self.research.data_description)
         self.research.methodology = methododology
 
@@ -460,20 +522,19 @@ class Denario:
         # display(Markdown(self.research.methodology))
         print(self.research.methodology)
 
-    def get_results(
-        self,
-        involved_agents: List[str] = [
-            'engineer',
-            'researcher'],
-        engineer_model: LLM | str = models["claude-3.7-sonnet"],
-        researcher_model: LLM | str = models["o3-mini"],
-        restart_at_step: int = -1,
-        hardware_constraints: str = None,
-        planner_model: LLM | str = models["gpt-4o"],
-        plan_reviewer_model: LLM | str = models["claude-3.7-sonnet"],
-        max_n_attempts: int = 10,
-        max_n_steps: int = 6,
-    ) -> None:
+    def get_results(self,
+                    involved_agents: List[str] = ['engineer', 'researcher'],
+                    engineer_model: LLM | str = models["gpt-4.1"],
+                    researcher_model: LLM | str = models["o3-mini"],
+                    restart_at_step: int = -1,
+                    hardware_constraints: str = None,
+                    planner_model: LLM | str = models["gpt-4o"],
+                    plan_reviewer_model: LLM | str = models["o3-mini"],
+                    max_n_attempts: int = 10,
+                    max_n_steps: int = 6,   
+                    default_orchestration_model: LLM | str = models["gpt-4.1"],
+                    default_formatter_model: LLM | str = models["o3-mini"],
+                    ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
 
@@ -519,8 +580,10 @@ class Denario:
                                 restart_at_step=restart_at_step,
                                 hardware_constraints=hardware_constraints,
                                 max_n_attempts=max_n_attempts,
-                                max_n_steps=max_n_steps)
-
+                                max_n_steps=max_n_steps,
+                                default_orchestration_model = default_orchestration_model.name,
+                                default_formatter_model = default_formatter_model.name)
+        
         experiment.run_experiment(self.research.data_description)
         self.research.results = experiment.results
         self.research.plot_paths = experiment.plot_paths

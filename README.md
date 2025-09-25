@@ -9,24 +9,28 @@ Denario is a multiagent system designed to automatize scientific research. Denar
 
 ## Resources
 
-- [Project page](https://astropilot-ai.github.io/DenarioPaperPage/)
+- [🌐 Project page](https://astropilot-ai.github.io/DenarioPaperPage/)
 
-- [Documentation](https://denario.readthedocs.io/en/latest/)
+<!-- - [📄 Paper](arxivblabla) -->
 
-- [Denario GUI repository](https://github.com/AstroPilot-AI/DenarioApp)
+- [📖 Documentation](https://denario.readthedocs.io/en/latest/)
 
-- [Demo web app for Denario GUI](https://huggingface.co/spaces/astropilot-ai/Denario)
+- [🖥️ Denario GUI repository](https://github.com/AstroPilot-AI/DenarioApp)
 
-- [End-to-end research papers generated with Denario](https://github.com/AstroPilot-AI/DenarioExamplePapers)
+- [🤗 Demo web app for Denario GUI](https://huggingface.co/spaces/astropilot-ai/Denario)
+
+- [📝 End-to-end research papers generated with Denario](https://github.com/AstroPilot-AI/DenarioExamplePapers)
+
+- [🎥 YouTube channel](https://www.youtube.com/@denario-ai)
 
 ## Installation
 
-To install denario create a virtual environment and pip install it. We recommend using python 3.12:
+To install denario create a virtual environment and pip install it. We recommend using Python 3.12:
 
 ```bash
 python -m venv Denario_env
 source Denario_env/bin/activate
-pip install denario[app] # if this doesn't work do: pip install "denario[app]"
+pip install "denario[app]"
 ```
 
 Or alternatively install it with [uv](https://docs.astral.sh/uv/), initializing a project and installing it:
@@ -41,7 +45,6 @@ Then, run the gui with:
 ```
 denario run
 ```
-
 
 ## Get started
 
@@ -143,6 +146,28 @@ which will create the virtual environment and install the dependencies and proje
 ```bash
 source .venv/bin/activate
 ```
+
+## Docker
+
+You can run Denario in a docker image. Pull the image with:
+
+```bash
+docker pull pablovd/denario:latest
+```
+
+Once built, you can run the GUI with
+
+```bash
+docker run -p 8501:8501 --rm pablovd/denario:latest
+```
+
+or in interactive mode with
+
+```bash
+docker run --rm -it pablovd/denario:latest bash
+```
+
+Share volumes with `-v $(pwd)/project:/app/project` for inputing data and accessing to it. You can also share the API keys with a `.env` file in the same folder with `-v $(pwd).env/app/.env`.
 
 ## Contributing
 
