@@ -694,7 +694,7 @@ class Denario:
                      llm: LLM | str = models["gemini-2.5-flash"],
                      verbose=False) -> None:
         """
-        Review a paper
+        Review a paper, producing a report providing feedback on the quality of the articled and aspects to be improved.
 
         Args:
            - llm: the LLM model to be used
@@ -738,8 +738,8 @@ class Denario:
             seconds = int(elapsed_time % 60)
             print(f"Paper reviewed in {minutes} min {seconds} sec.")
             
-        except Exception as e:
-            print('Denario failed to provide a review the paper')
+        except FileNotFoundError as e:
+            print('Denario failed to provide a review for the paper. Ensure that a paper in the `paper` folder ex')
             print(f'Error: {e}')
         
     def research_pilot(self, data_description: str = None) -> None:
