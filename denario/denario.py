@@ -11,7 +11,7 @@ os.environ["CMBAGENT_DEBUG"] = "false"
 
 import cmbagent
 
-from .config import DEFAUL_PROJECT_NAME, INPUT_FILES, PLOTS_FOLDER, DESCRIPTION_FILE, IDEA_FILE, METHOD_FILE, RESULTS_FILE
+from .config import DEFAUL_PROJECT_NAME, INPUT_FILES, PLOTS_FOLDER, DESCRIPTION_FILE, IDEA_FILE, METHOD_FILE, RESULTS_FILE, LITERATURE_FILE
 from .research import Research
 from .key_manager import KeyManager
 from .llm import LLM, models
@@ -290,43 +290,62 @@ class Denario:
         # display(Markdown(self.research.idea))
         print(self.research.idea)
 
-    def check_idea(self) -> str:
-        """use futurehouse to check the idea against previous literature"""
-        from futurehouse_client import FutureHouseClient, JobNames
-        from futurehouse_client.models import (
-            TaskRequest,
-        )
-        import os
-        fhkey = os.getenv("FUTURE_HOUSE_API_KEY")
+    def check_idea(self, mode : str = 'futurehouse', llm: LLM | str = models["gemini-2.5-flash"], max_iterations: int = 7, verbose=False) -> str:
+        """use futurehouse or semantic scholar to check the idea against previous literature"""
+
+        if mode == 'futurehouse':
+            from futurehouse_client import FutureHouseClient, JobNames
+            from futurehouse_client.models import (
+                TaskRequest,
+            )
+            import os
+            fhkey = os.getenv("FUTURE_HOUSE_API_KEY")
 
 
-        fh_client = FutureHouseClient(
-            api_key=fhkey,
-        )
+            fh_client = FutureHouseClient(
+                api_key=fhkey,
+            )
 
-        check_idea_prompt = rf"""
-        Has anyone worked on or explored the following idea?
+            check_idea_prompt = rf"""
+            Has anyone worked on or explored the following idea?
 
-        {self.research.idea}
-        
-        <DESIRED_RESPONSE_FORMAT>
-        Answer: <yes or no>
+            {self.research.idea}
+            
+            <DESIRED_RESPONSE_FORMAT>
+            Answer: <yes or no>
 
-        Related previous work: <describe previous literature on the topic>
-        </DESIRED_RESPONSE_FORMAT>
-        """
-        task_data = TaskRequest(name=JobNames.from_string("owl"),
-                                query=check_idea_prompt)
-        
-        task_response = fh_client.run_tasks_until_done(task_data)
+            Related previous work: <describe previous literature on the topic>
+            </DESIRED_RESPONSE_FORMAT>
+            """
+            task_data = TaskRequest(name=JobNames.from_string("owl"),
+                                    query=check_idea_prompt)
+            
+            task_response = fh_client.run_tasks_until_done(task_data)
 
-        return task_response[0].formatted_answer
+            answer = task_response[0].formatted_answer
+
+
+            ## process the answer to remove everything above </DESIRED_RESPONSE_FORMAT> 
+            answer = answer.split("</DESIRED_RESPONSE_FORMAT>")[1]
+
+            # prepend " Has anyone worked on or explored the following idea?" to the answer
+            answer = "Has anyone worked on or explored the following idea?\n" + answer
+
+            ## save the response into {INPUT_FILES}/{LITERATURE_FILE}
+            with open(os.path.join(self.project_dir, INPUT_FILES, LITERATURE_FILE), 'w') as f:
+                f.write(answer)
+
+            return answer
+
+        elif mode == 'semantic_scholar':
+
+            return self.check_idea_fast(llm=llm, max_iterations=max_iterations, verbose=verbose)
 
     def check_idea_fast(self,
                         llm: LLM | str = models["gemini-2.5-flash"],
                         max_iterations: int = 7,
                         verbose=False,
-                        ) -> None:
+                        ) -> str:
         """
         Check with the literature if an idea is original or not.
 
@@ -378,7 +397,15 @@ class Denario:
         except Exception as e:
             print('Denario failed to check literature')
             print(f'Error: {e}')
+            return "Error occurred during literature check"
 
+        # Read and return the generated literature content
+        try:
+            literature_file = os.path.join(self.project_dir, INPUT_FILES, LITERATURE_FILE)
+            with open(literature_file, 'r') as f:
+                return f.read()
+        except FileNotFoundError:
+            return "Literature file not found"
         
     
     def get_method(self,
