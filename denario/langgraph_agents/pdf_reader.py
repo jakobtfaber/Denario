@@ -1,5 +1,4 @@
 import os
-import argparse
 import fitz  # PyMuPDF
 import base64
 

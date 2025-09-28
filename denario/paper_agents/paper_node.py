@@ -8,11 +8,10 @@ import asyncio
 from functools import partial
 import fitz  # PyMuPDF
 import cmbagent
-import sys
 
 from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
-from .tools import json_parser, json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
+from .tools import json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex, fix_percent
 from ..config import INPUT_FILES
@@ -84,7 +83,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         compile_tex_document(state, f_temp, state['files']['Temp'])
 
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f" |  done ",end='')
+    print(" |  done ",end='')
     print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
     #print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
@@ -154,7 +153,7 @@ def abstract_node(state: GraphState, config: RunnableConfig):
 
     # print some information
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f" |  done ",end='')
+    print(" |  done ",end='')
     print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
     return {'paper':{**state['paper'],
@@ -226,7 +225,7 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
 
     # print some information
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
-    print(f" |  done ",end='')
+    print(" |  done ",end='')
     print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
 
     # return updated state

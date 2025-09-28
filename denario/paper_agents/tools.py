@@ -1,5 +1,7 @@
-import re, sys
-import json,json5
+import re
+import sys
+import json
+import json5
 from pathlib import Path
 
 from .prompts import fixer_prompt, LaTeX_prompt
