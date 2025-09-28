@@ -204,6 +204,8 @@ class Denario:
             default_formatter_model: the LLM to be used for formatting the responses of the agents.
         """
 
+        print(f"Generating idea with {mode} mode")
+
         if mode == "fast":
             self.get_idea_fast(llm=llm_fast)
         elif mode == "cmbagent":
@@ -348,12 +350,17 @@ class Denario:
             verbose: whether to stream the LLM response
         """
 
+        print(f"Checking idea in literature with {mode} mode")
+
         if mode == 'futurehouse':
             return self.check_idea_futurhouse()
 
         elif mode == 'semantic_scholar':
 
             return self.check_idea_fast(llm=llm, max_iterations=max_iterations, verbose=verbose)
+        
+        else:
+            raise ValueError("Mode must be either 'futurehouse' or 'semantic_scholar'")
     
     def check_idea_futurhouse(self) -> str:
         """
@@ -493,6 +500,8 @@ class Denario:
             default_orchestration_model: the LLM to be used for the orchestration of the agents.
             default_formatter_model: the LLM to be used for formatting the responses of the agents.
         """
+
+        print(f"Generating methodology with {mode} mode")
 
         if mode == "fast":
             self.get_method_fast(llm=llm_fast, verbose=verbose)
