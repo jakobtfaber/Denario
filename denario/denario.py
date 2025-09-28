@@ -175,8 +175,9 @@ class Denario:
         # display(Markdown(self.research.data_description))
         print(self.research.data_description)
 
-    # TODO: some code duplication with set_idea, get_idea could call set_idea internally after generating ideas
     def get_idea(self,
+                 mode = "fast",
+                 llm_fast: LLM | str = models["gemini-2.0-flash"],
                  idea_maker_model: LLM | str = models["gpt-4o"],
                  idea_hater_model: LLM | str = models["o3-mini"],
                  planner_model: LLM | str = models["gpt-4o"],
@@ -185,11 +186,45 @@ class Denario:
                  default_formatter_model: LLM | str = models["o3-mini"],
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
+
         Args:
-           idea_maker_model: the LLM to be used for the idea maker agent. Default is gpt-4o.
-           idea_hater_model: the LLM to be used for the idea hater agent. Default is o3-mini
-           planner_model: the LLM to be used for the planner agent. Default is gpt-4o
-           plan_reviewer_model: the LLM to be used for the plan reviewer agent. Default is o3-mini
+            mode: either "fast" or "cmbagent". Fast mode uses langgraph backend and is faster but less reliable. Cmbagent mode uses cmbagent backend and is slower but more reliable.
+            llm_fast: the LLM to be used for the fast mode.
+            idea_maker_model: the LLM to be used for the idea maker agent.
+            idea_hater_model: the LLM to be used for the idea hater agent.
+            planner_model: the LLM to be used for the planner agent.
+            plan_reviewer_model: the LLM to be used for the plan reviewer agent.
+            default_orchestration_model: the LLM to be used for the orchestration of the agents.
+            default_formatter_model: the LLM to be used for formatting the responses of the agents.
+        """
+
+        if mode == "fast":
+            self.get_idea_fast(llm=llm_fast)
+        elif mode == "cmbagent":
+            self.get_idea_cmagent(idea_maker_model=idea_maker_model,
+                                  idea_hater_model=idea_hater_model,
+                                  planner_model=planner_model,
+                                  plan_reviewer_model=plan_reviewer_model,
+                                  default_orchestration_model=default_orchestration_model,
+                                  default_formatter_model=default_formatter_model)
+        else:
+            raise ValueError("Mode must be either 'fast' or 'cmbagent'")
+
+    def get_idea_cmagent(self,
+                    idea_maker_model: LLM | str = models["gpt-4o"],
+                    idea_hater_model: LLM | str = models["o3-mini"],
+                    planner_model: LLM | str = models["gpt-4o"],
+                    plan_reviewer_model: LLM | str = models["o3-mini"],
+                    default_orchestration_model: LLM | str = models["gpt-4.1"],
+                    default_formatter_model: LLM | str = models["o3-mini"],
+                ) -> None:
+        """Generate an idea making use of the data and tools described in `data_description.md` with the cmbagent backend.
+        
+        Args:
+            idea_maker_model: the LLM to be used for the idea maker agent.
+            idea_hater_model: the LLM to be used for the idea hater agent.
+            planner_model: the LLM to be used for the planner agent.
+            plan_reviewer_model: the LLM to be used for the plan reviewer agent.
         """
 
         # Get LLM instances
@@ -228,8 +263,8 @@ class Denario:
         Generate an idea using the idea maker - idea hater method.
         
         Args:
-           - llm: the LLM model to be used
-           - verbose: whether to stream the LLM response
+            llm: the LLM model to be used
+            verbose: whether to stream the LLM response
         """
 
         # Start timer
@@ -290,56 +325,82 @@ class Denario:
         # display(Markdown(self.research.idea))
         print(self.research.idea)
 
-    def check_idea(self, mode : str = 'futurehouse', llm: LLM | str = models["gemini-2.5-flash"], max_iterations: int = 7, verbose=False) -> str:
-        """use futurehouse or semantic scholar to check the idea against previous literature"""
+    def check_idea(self,
+                   mode : str = 'futurehouse',
+                   llm: LLM | str = models["gemini-2.5-flash"],
+                   max_iterations: int = 7,
+                   verbose=False) -> str:
+        """
+        Use Futurehouse or Semantic Scholar to check the idea against previous literature
+
+        Args:
+            mode: either 'futurehouse' or 'semantic_scholar'
+            llm: the LLM model to be used
+            max_iterations: maximum number of iterations to search for literature
+            verbose: whether to stream the LLM response
+        """
 
         if mode == 'futurehouse':
-            from futurehouse_client import FutureHouseClient, JobNames
-            from futurehouse_client.models import (
-                TaskRequest,
-            )
-            import os
-            fhkey = os.getenv("FUTURE_HOUSE_API_KEY")
-
-
-            fh_client = FutureHouseClient(
-                api_key=fhkey,
-            )
-
-            check_idea_prompt = rf"""
-            Has anyone worked on or explored the following idea?
-
-            {self.research.idea}
-            
-            <DESIRED_RESPONSE_FORMAT>
-            Answer: <yes or no>
-
-            Related previous work: <describe previous literature on the topic>
-            </DESIRED_RESPONSE_FORMAT>
-            """
-            task_data = TaskRequest(name=JobNames.from_string("owl"),
-                                    query=check_idea_prompt)
-            
-            task_response = fh_client.run_tasks_until_done(task_data)
-
-            answer = task_response[0].formatted_answer
-
-
-            ## process the answer to remove everything above </DESIRED_RESPONSE_FORMAT> 
-            answer = answer.split("</DESIRED_RESPONSE_FORMAT>")[1]
-
-            # prepend " Has anyone worked on or explored the following idea?" to the answer
-            answer = "Has anyone worked on or explored the following idea?\n" + answer
-
-            ## save the response into {INPUT_FILES}/{LITERATURE_FILE}
-            with open(os.path.join(self.project_dir, INPUT_FILES, LITERATURE_FILE), 'w') as f:
-                f.write(answer)
-
-            return answer
+            return self.check_idea_futurhouse(llm=llm, max_iterations=max_iterations, verbose=verbose)
 
         elif mode == 'semantic_scholar':
 
             return self.check_idea_fast(llm=llm, max_iterations=max_iterations, verbose=verbose)
+    
+    def check_idea_futurhouse(self,
+                                llm: LLM | str = models["gemini-2.5-flash"],
+                                max_iterations: int = 7,
+                                verbose=False,
+                                ) -> str:
+        """
+        Check with the literature if an idea is original or not.
+
+        Args:
+           llm: the LLM model to be used
+           verbose: whether to stream the LLM response 
+        """
+
+        from futurehouse_client import FutureHouseClient, JobNames
+        from futurehouse_client.models import (
+            TaskRequest,
+        )
+        import os
+        fhkey = os.getenv("FUTURE_HOUSE_API_KEY")
+
+
+        fh_client = FutureHouseClient(
+            api_key=fhkey,
+        )
+
+        check_idea_prompt = rf"""
+        Has anyone worked on or explored the following idea?
+
+        {self.research.idea}
+        
+        <DESIRED_RESPONSE_FORMAT>
+        Answer: <yes or no>
+
+        Related previous work: <describe previous literature on the topic>
+        </DESIRED_RESPONSE_FORMAT>
+        """
+        task_data = TaskRequest(name=JobNames.from_string("owl"),
+                                query=check_idea_prompt)
+        
+        task_response = fh_client.run_tasks_until_done(task_data)
+
+        answer = task_response[0].formatted_answer
+
+        ## process the answer to remove everything above </DESIRED_RESPONSE_FORMAT> 
+        answer = answer.split("</DESIRED_RESPONSE_FORMAT>")[1]
+
+        # prepend " Has anyone worked on or explored the following idea?" to the answer
+        answer = "Has anyone worked on or explored the following idea?\n" + answer
+
+        ## save the response into {INPUT_FILES}/{LITERATURE_FILE}
+        with open(os.path.join(self.project_dir, INPUT_FILES, LITERATURE_FILE), 'w') as f:
+            f.write(answer)
+
+        return answer
 
     def check_idea_fast(self,
                         llm: LLM | str = models["gemini-2.5-flash"],
@@ -350,8 +411,8 @@ class Denario:
         Check with the literature if an idea is original or not.
 
         Args:
-           - llm: the LLM model to be used
-           - verbose: whether to stream the LLM response 
+           llm: the LLM model to be used
+           verbose: whether to stream the LLM response 
         """
 
         # Start timer
@@ -407,7 +468,6 @@ class Denario:
         except FileNotFoundError:
             return "Literature file not found"
         
-    
     def get_method(self,
                  method_generator_model: LLM | str = models["gpt-4o"],
                  planner_model: LLM | str = models["gpt-4o"],
@@ -415,11 +475,13 @@ class Denario:
                  default_orchestration_model: LLM | str = models["gpt-4.1"],
                  default_formatter_model: LLM | str = models["o3-mini"],
                 ) -> None:
-        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`.
+        """
+        Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`.
+        
         Args:
-           - method_generator_model: (researcher) the LLM model to be used for the researcher agent. Default is gpt-4o
-           - planner_model: the LLM model to be used for the planner agent. Default is gpt-4o
-           - plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is o3-mini
+           method_generator_model: (researcher) the LLM model to be used for the researcher agent. Default is gpt-4o
+           planner_model: the LLM model to be used for the planner agent. Default is gpt-4o
+           plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is o3-mini
         """
 
         if self.research.data_description == "":
@@ -454,10 +516,12 @@ class Denario:
                         llm: LLM | str = models["gemini-2.0-flash"],
                         verbose=False,
                         ) -> None:
-        """Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method.
+        """
+        Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`. Faster version get_method.
+        
         Args:
-           - llm: the LLM model to be used
-           - verbose: whether to stream the LLM response
+           llm: the LLM model to be used
+           verbose: whether to stream the LLM response
         """
 
         # Start timer
@@ -727,15 +791,15 @@ class Denario:
         print(f"Paper written in {minutes} min {seconds} sec.")    
 
 
-    def referee_fast(self,
-                     llm: LLM | str = models["gemini-2.5-flash"],
-                     verbose=False) -> None:
+    def referee(self,
+                llm: LLM | str = models["gemini-2.5-flash"],
+                verbose=False) -> None:
         """
         Review a paper, producing a report providing feedback on the quality of the articled and aspects to be improved.
 
         Args:
-           - llm: the LLM model to be used
-           - verbose: whether to stream the LLM response 
+           llm: the LLM model to be used
+           verbose: whether to stream the LLM response 
         """
 
         # Start timer

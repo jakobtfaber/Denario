@@ -6,7 +6,7 @@ from .reader import preprocess_node
 from .idea import idea_maker, idea_hater
 from .methods import methods_fast
 from .literature import novelty_decider, semantic_scholar, literature_summary
-from .referee import referee_fast
+from .referee import referee
 from .routers import router, task_router, literature_router
 
 
@@ -29,7 +29,7 @@ def build_lg_graph(mermaid_diagram=False):
     builder.add_node("novelty",            novelty_decider)
     builder.add_node("semantic_scholar",   semantic_scholar)
     builder.add_node("literature_summary", literature_summary)
-    builder.add_node("referee",            referee_fast)
+    builder.add_node("referee",            referee)
     
     # Define edges: these determine how the control flow moves
     builder.add_edge(START,                          "preprocess_node")

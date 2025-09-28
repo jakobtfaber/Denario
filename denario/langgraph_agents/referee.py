@@ -6,7 +6,7 @@ from .parameters import GraphState
 from .pdf_reader import pdf_to_images
 
 
-def referee_fast(state: GraphState, config: RunnableConfig):
+def referee(state: GraphState, config: RunnableConfig):
 
     print('Reviewing the paper...', end="", flush=True)
 
