@@ -16,6 +16,7 @@ nav:
   - Prompts: prompts.md
   - Examples:
       - End-to-end research: denario_oscillator_full_run.ipynb
+      - Enhance input description: enhance_input.ipynb
       - Generate research ideas: research_idea.ipynb
       - Literature search: idea_check.ipynb
       - Write a paper: Write_paper.ipynb
