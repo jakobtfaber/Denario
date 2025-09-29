@@ -172,6 +172,9 @@ class Denario:
         # Write the enhanced text to data_description.md
         with open(os.path.join(input_files_dir, DESCRIPTION_FILE), 'w', encoding='utf-8') as f:
             f.write(enhanced_text)
+
+        # set the enhanced text to the research object
+        self.research.data_description = enhanced_text
             
         print(f"Enhanced text written to: {os.path.join(input_files_dir, DESCRIPTION_FILE)}")
 
