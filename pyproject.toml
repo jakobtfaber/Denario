@@ -1,12 +1,11 @@
 [project]
 name = "denario"
-version = "0.1.21"
+version = "0.1.22"
 description = "Modular Automation of Scientific Research with Multi-Agent Systems"
 authors = [
   { name = "Pablo Villanueva-Domingo" },
   { name = "Francisco Villaescusa-Navarro"},
   { name = "Boris Bolliet"},
- 
 ]
 maintainers = [
   { name = "Denario", email = "denario.astropilot.ai@gmail.com" },
@@ -14,7 +13,7 @@ maintainers = [
 readme = "README.md"
 requires-python = ">=3.12"
 license = { text = "GPLv3" }
-keywords = ["machine learning","agent", "biology", "chemistry", "cosmology","material sciences"]
+keywords = ["machine learning","agent","biology","chemistry","cosmology","material sciences","llm"]
 dependencies = [
   "langchain-google-genai",
   "langchain-anthropic>=0.3.10",
@@ -33,8 +32,9 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://astropilot-ai.github.io/DenarioPaperPage/"
-documentation = "https://denario.readthedocs.io/en/latest/"
+Homepage = "https://astropilot-ai.github.io/DenarioPaperPage/"
+Documentation = "https://denario.readthedocs.io/en/latest/"
+Repository = "https://github.com/AstroPilot-AI/Denario"
 
 [project.scripts]
 denario = "denario.cli:main"
@@ -45,7 +45,6 @@ app = ["denario_app"]
 [dependency-groups]
 dev = [
   {include-group = "docs"},
-  {include-group = "app"}
 ]
 docs = [
   "mkdocs",
@@ -53,10 +52,6 @@ docs = [
   "mkdocs-material>=9.6.12",
   "mkdocs-jupyter>=0.25.1",
   "mkdocs-git-committers-plugin-2>=2.5.0",
-]
-app = [
-  "streamlit",
-  "streamlit_pdf_viewer",
 ]
 
 [build-system]
