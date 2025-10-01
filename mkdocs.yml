@@ -6,30 +6,34 @@ nav:
   - Home: index.md
   - Installation: install.md
   - LLM APIs:
-      - Overview: apikeys.md
-      - Cost: cost.md
-      - Obtaining API Keys: obtaining-api-keys.md
-      - Vertex AI Setup: vertex-ai-setup.md
-      - Storing API Keys: storing-api-keys.md
+      - Overview: llm_api_keys/apikeys.md
+      - Cost: llm_api_keys/cost.md
+      - Obtaining API Keys: llm_api_keys/obtaining-api-keys.md
+      - Vertex AI Setup: llm_api_keys/vertex-ai-setup.md
+      - Storing API Keys: llm_api_keys/storing-api-keys.md
   - Get started: get_started.md
   - App: app.md
   - Prompts: prompts.md
   - Examples:
-      - End-to-end research: denario_oscillator_full_run.ipynb
-      - Enhance input description: enhance_input.ipynb
-      - Generate research ideas: research_idea.ipynb
-      - Literature search: idea_check.ipynb
-      - Write a paper: Write_paper.ipynb
-      - End-to-end Gemini+fast mode: EtE_Gemini_fast.ipynb
-  - Video tutorials: tutorials.md
+      - End-to-end research: examples/denario_oscillator_full_run.ipynb
+      - Enhance input description: examples/enhance_input.ipynb
+      - Generate research ideas: examples/research_idea.ipynb
+      - Literature search: examples/idea_check.ipynb
+      - Write a paper: examples/write_paper.ipynb
+      - End-to-end Gemini+fast mode: examples/EtE_Gemini_fast.ipynb
+  - Video tutorials:
+      - End to end research: tutorials/tut_end2end.md
+      - LLM API Credentials: tutorials/tut_llm_api.md
+      - Installation: tutorials/tut_install.md
+      - Graphical User Interface: tutorials/tut_gui.md
   - Troubleshooting: troubleshooting.md
   - API Reference:
-      - Denario: api_denario.md
-      - Classes: api_classes.md
-      - LLMs: api_llms.md
-      - Paper: api_paper.md
-      - Journals: api_journals.md
-      - Utils: api_utils.md
+      - Denario: api_ref/api_denario.md
+      - Classes: api_ref/api_classes.md
+      - LLMs: api_ref/api_llms.md
+      - Paper: api_ref/api_paper.md
+      - Journals: api_ref/api_journals.md
+      - Utils: api_ref/api_utils.md
 
 theme:
   name: material
