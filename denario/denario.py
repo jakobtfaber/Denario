@@ -6,6 +6,7 @@ import os
 import shutil
 from pathlib import Path
 from PIL import Image 
+import warnings
 
 os.environ["CMBAGENT_DEBUG"] = "false"
 
@@ -20,7 +21,7 @@ from .idea import Idea
 from .method import Method
 from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
-from .utils import llm_parser, input_check
+from .utils import llm_parser, input_check, extract_file_paths
 from .langgraph_agents.agents_graph import build_lg_graph
 from cmbagent import preprocess_task
 
@@ -111,6 +112,20 @@ class Denario:
             raise ValueError("Data description must be a string, a path to a markdown file or None if you want to load data description from input_files/data_description.md")
 
         self.research.data_description = data_description
+
+        existing_paths, missing_paths = extract_file_paths(data_description)
+        if len(missing_paths) > 0:
+            raise FileNotFoundError(
+                f"The following data files paths in the data description are not in the right format or do not exist:\n"
+                f"{missing_paths}\n"
+                f"Please fix them according to the convention '- /absolute/path/to/file.ext'\n"
+                f"otherwise this may cause hallucinations in the LLMs."
+            )
+        
+        if len(existing_paths) == 0:
+            warnings.warn(
+                f"No data files paths were found in the data description. This may cause hallucinations in the LLM in the get_results() workflow later on."
+            )
 
         # overwrite the data_description.md file
         with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'w') as f:
@@ -270,6 +285,7 @@ class Denario:
 
     def get_idea_fast(self,
                       llm: LLM | str = models["gemini-2.0-flash"],
+                      iterations: int = 4,
                       verbose=False,
                       ) -> None:
         """
@@ -303,7 +319,7 @@ class Denario:
                     "max_output_tokens": llm.max_output_tokens,
                     "stream_verbose": verbose},
             "keys": self.keys,
-            "idea": {"total_iterations": 4},
+            "idea": {"total_iterations": iterations},
         }
         
         # Run the graph

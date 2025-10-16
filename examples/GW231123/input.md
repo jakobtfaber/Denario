@@ -1,7 +1,7 @@
 We have data from recent binary black merger GW231123 detected in gravitational waves. 
 The data is located in the two files: 
-/home/jayw/ML/LLM/Denario/examples/GW231123/data/GW231123_NRSur7dq4.csv
-/home/jayw/ML/LLM/Denario/examples/GW231123/data/GW231123_IMRPhenomXO4a.csv
+- ...../examples/GW231123/data/GW231123_NRSur7dq4.csv
+- ...../examples/GW231123/data/GW231123_IMRPhenomXO4a.csv
 
 These files contain samples from the posterior distribution corresponding to two different gravitational-wave waveform models which are detailed below. The meaning of each column can be found in the file header, but is also provided below for reference.
 
@@ -29,4 +29,4 @@ Here is a description of the columns in the csv file:
 'phi_jl': Azimuthal angle between the total and orbital angular momentum (called spin azimuth)
 'log_likelihood': Log-likelihood of the samples
 
-Use state-of-the-art methods to analyze the data. For every step, make plots and save the data you generate, as it may be used for other steps. When writing the code, write some lines to indicate whether the execution was successful or not. Join plots that are similar. Do not create dummy data.
+Use state-of-the-art methods to analyze the data. For every step, make plots and save the data you generate, as it may be used for other steps. When writing the code, write some lines to indicate whether the execution was successful or not. Join plots that are similar. Do not create dummy data. Do not include more than 10 figures in the paper. You have access to 8 cpus; for computationally heavy tasks, try to use all of them.
