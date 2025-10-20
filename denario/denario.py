@@ -93,25 +93,7 @@ class Denario:
             data_description: String or path to markdown file including the description of the tools and data. If None, assume that a `data_description.md` is present in `project_dir/input_files`.
         """
 
-        if data_description is None:
-            try:
-                with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
-                    data_description = f.read()
-                data_description = data_description.replace("{path_to_project_data}", str(self.project_dir)+ "/project_data/")
-            except FileNotFoundError:
-                raise FileNotFoundError("Please provide an input string or markdown file with the data description.")
-
-        elif data_description.endswith(".md"):
-            with open(data_description, 'r') as f:
-                data_description = f.read()
-
-        elif isinstance(data_description, str):
-            pass
-
-        else:
-            raise ValueError("Data description must be a string, a path to a markdown file or None if you want to load data description from input_files/data_description.md")
-
-        self.research.data_description = data_description
+        self.data_description = self.setter(data_description, DESCRIPTION_FILE)
 
         existing_paths, missing_paths = extract_file_paths(data_description)
         if len(missing_paths) > 0:
@@ -126,14 +108,10 @@ class Denario:
             warnings.warn(
                 "No data files paths were found in the data description. This may cause hallucinations in the LLM in the get_results() workflow later on."
             )
-
-        # overwrite the data_description.md file
-        with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'w') as f:
-            f.write(data_description)
         
     def enhance_data_description(self,
-                                 summarizer_model: str | None = None, 
-                                 summarizer_response_formatter_model: str | None = None) -> None:
+                                 summarizer_model: str, 
+                                 summarizer_response_formatter_model: str) -> None:
         """
         Enhance the data description using the preprocess_task from cmbagent.
 
@@ -151,16 +129,12 @@ class Denario:
             except FileNotFoundError:
                 raise ValueError("No data description found. Please set a data description first before enhancing it.")
 
-        # Prepare parameters for preprocess_task
-        preprocess_params = {"work_dir": self.project_dir}
-        
-        if summarizer_model:
-            preprocess_params["summarizer_model"] = summarizer_model
-        if summarizer_response_formatter_model:
-            preprocess_params["summarizer_response_formatter_model"] = summarizer_response_formatter_model
-
         # Get the enhanced text from preprocess_task
-        enhanced_text = preprocess_task(self.research.data_description, **preprocess_params)
+        enhanced_text = preprocess_task(self.research.data_description,
+                                        work_dir = self.project_dir,
+                                        summarizer_model = summarizer_model,
+                                        summarizer_response_formatter_model = summarizer_response_formatter_model
+                                        )
         
         # Debug: Check if the enhanced text is different from original
         print(f"Original text length: {len(self.research.data_description)}")
@@ -332,23 +306,29 @@ class Denario:
         elapsed_time = end_time - start_time
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
-        print(f"Idea generated in {minutes} min {seconds} sec.")  
+        print(f"Idea generated in {minutes} min {seconds} sec.")
+
+    def setter(self, field: str | None, file: str) -> str:
+        """Base method for setting the content of idea, method or results."""
+
+        if field is None:
+            try:
+                with open(os.path.join(self.project_dir, INPUT_FILES, file), 'r') as f:
+                    field = f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError("Please provide an input string or path to a markdown file.")
+
+        field = input_check(field)
+                
+        with open(os.path.join(self.project_dir, INPUT_FILES, file), 'w') as f:
+            f.write(field)
+
+        return field
         
     def set_idea(self, idea: str | None = None) -> None:
         """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
 
-        if idea is None:
-            with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'r') as f:
-                idea = f.read()
-
-        idea = input_check(idea)
-        
-        self.research.idea = idea
-        
-        with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'w') as f:
-            f.write(idea)
-
-        self.research.idea = idea
+        self.research.idea = self.setter(idea, IDEA_FILE)
     
     def show_idea(self) -> None:
         """Show the provided or generated idea by the `set_idea` or `get_idea` methods."""
@@ -632,17 +612,8 @@ class Denario:
         
     def set_method(self, method: str | None = None) -> None:
         """Manually set methods, either directly from a string or providing the path of a markdown file with the methods."""
-
-        if method is None:
-            with open(os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE), 'r') as f:
-                method = f.read()
-
-        method = input_check(method)
         
-        self.research.methodology = method
-        
-        with open(os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE), 'w') as f:
-            f.write(method)
+        self.research.methodology = self.setter(method, METHOD_FILE)
     
     def show_method(self) -> None:
         """Show the provided or generated methods by `set_method` or `get_method`."""
@@ -737,15 +708,10 @@ class Denario:
         with open(results_path, 'w') as f:
             f.write(self.research.results)
 
-    def set_results(self, results: str = None) -> None:
+    def set_results(self, results: str | None = None) -> None:
         """Manually set the results, either directly from a string or providing the path of a markdown file with the results."""
-
-        results = input_check(results)
         
-        self.research.results = results
-        
-        with open(os.path.join(self.project_dir, INPUT_FILES, RESULTS_FILE), 'w') as f:
-            f.write(results)
+        self.research.results = self.setter(results, RESULTS_FILE)
 
     def set_plots(self, plots: list[str] | list[Image.Image]) -> None:
         """Manually set the plots from their path."""

@@ -103,8 +103,8 @@ class Experiment:
         
         try:
             task_result = get_task_result(chat_history,'researcher_response_formatter')
-        except Exception:
-            return None
+        except Exception as e:
+            raise e
             
         MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"
         extracted_results = re.findall(MD_CODE_BLOCK_PATTERN, task_result, flags=re.DOTALL)[0]

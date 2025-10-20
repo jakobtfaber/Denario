@@ -67,7 +67,7 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
     """
     
     # search papers given the query
-    results = SSAPI(state['literature']['query'], state['keys'], limit=10)
+    results = SSAPI(state['literature']['query'], limit=10)
 
     total_papers = results.get("total", []) #total number of relevant papers found
     papers       = results.get("data",  []) #the actual data of the retrieved papers
@@ -108,7 +108,7 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
     return {"literature": {**state['literature'], 'papers': papers_str, "num_papers":total_papers_found}}
 
 
-def SSAPI(query, keys, limit=10):
+def SSAPI(query, limit=10) -> list:
     """
     Search for papers similar to the given query using Semantic Scholar API.
 

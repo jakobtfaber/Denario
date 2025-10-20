@@ -50,7 +50,7 @@ class Idea:
         # Set prompt
         self.planner_append_instructions = idea_planner_prompt
         
-    def develop_idea(self, data_description: str):
+    def develop_idea(self, data_description: str) -> str:
         """
         Develops an idea based on the data description.
 
@@ -76,8 +76,8 @@ class Idea:
         
         try:
             task_result = get_task_result(chat_history,'idea_maker_nest')
-        except Exception:
-            return None
+        except Exception as e:
+            raise e
 
         pattern = r'\*\*Ideas\*\*\s*\n- Idea 1:'
         replacement = "Project Idea:"

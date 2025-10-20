@@ -38,7 +38,7 @@ class Method:
         self.planner_append_instructions = method_planner_prompt.format(research_idea=research_idea)
         self.researcher_append_instructions = method_researcher_prompt.format(research_idea=research_idea)
 
-    def develop_method(self, data_description: str):
+    def develop_method(self, data_description: str) -> str:
         """
         Develops the methods based on the data description.
 
@@ -65,8 +65,8 @@ class Method:
         
         try:
             task_result = get_task_result(chat_history,'researcher_response_formatter')
-        except Exception:
-            return None
+        except Exception as e:
+            raise e
         
         MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"
         extracted_methodology = re.findall(MD_CODE_BLOCK_PATTERN, task_result, flags=re.DOTALL)[0]
