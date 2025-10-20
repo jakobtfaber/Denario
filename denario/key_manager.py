@@ -3,11 +3,11 @@ from pydantic import BaseModel
 from dotenv import load_dotenv
 
 class KeyManager(BaseModel):
-    ANTHROPIC: str = ""
-    GEMINI: str = ""
-    OPENAI: str = ""
-    PERPLEXITY: str = ""
-    SEMANTIC_SCHOLAR: str = ""
+    ANTHROPIC: str | None = ""
+    GEMINI: str | None = ""
+    OPENAI: str | None = ""
+    PERPLEXITY: str | None = ""
+    SEMANTIC_SCHOLAR: str | None = ""
 
     def get_keys_from_env(self) -> None:
 

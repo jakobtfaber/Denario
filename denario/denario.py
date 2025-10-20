@@ -43,8 +43,7 @@ class Denario:
     """
 
     def __init__(self,
-                 input_data: Research | None = None,
-                 params={}, 
+                 research: Research | None = None,
                  project_dir: str | None = None, 
                  clear_project_dir: bool = False,
                  ):
@@ -54,11 +53,10 @@ class Denario:
         if not os.path.exists(project_dir):
             os.mkdir(project_dir)
 
-        if input_data is None:
-            input_data = Research()  # Initialize with default values
+        if research is None:
+            research = Research()  # Initialize with default values
+        self.research = research
         self.clear_project_dir = clear_project_dir
-        self.research = input_data
-        self.params = params
 
         if os.path.exists(project_dir) and clear_project_dir:
             shutil.rmtree(project_dir)
@@ -97,7 +95,7 @@ class Denario:
 
         existing_paths, missing_paths = extract_file_paths(data_description)
         if len(missing_paths) > 0:
-            raise FileNotFoundError(
+            warnings.warn(
                 f"The following data files paths in the data description are not in the right format or do not exist:\n"
                 f"{missing_paths}\n"
                 f"Please fix them according to the convention '- /absolute/path/to/file.ext'\n"
@@ -106,7 +104,7 @@ class Denario:
         
         if len(existing_paths) == 0:
             warnings.warn(
-                "No data files paths were found in the data description. This may cause hallucinations in the LLM in the get_results() workflow later on."
+                "No data files paths were found in the data description. If you want to provide input data, ensure that you indicate their path, otherwise this may cause hallucinations in the LLM in the get_results() workflow later on."
             )
         
     def enhance_data_description(self,
@@ -299,7 +297,7 @@ class Denario:
         }
         
         # Run the graph
-        graph.invoke(input_state, config)
+        graph.invoke(input_state, config) # type: ignore
         
         # End timer and report duration in minutes and seconds
         end_time = time.time()
@@ -395,7 +393,7 @@ class Denario:
         
         task_response = fh_client.run_tasks_until_done(task_data)
 
-        answer = task_response[0].formatted_answer
+        answer = task_response[0].formatted_answer # type: ignore
 
         ## process the answer to remove everything above </DESIRED_RESPONSE_FORMAT> 
         answer = answer.split("</DESIRED_RESPONSE_FORMAT>")[1]
@@ -454,7 +452,7 @@ class Denario:
         
         # Run the graph
         try:
-            graph.invoke(input_state, config)
+            graph.invoke(input_state, config) # type: ignore
             
             # End timer and report duration in minutes and seconds
             end_time = time.time()
@@ -601,7 +599,7 @@ class Denario:
         }
         
         # Run the graph
-        graph.invoke(input_state, config)
+        graph.invoke(input_state, config) # type: ignore
         
         # End timer and report duration in minutes and seconds
         end_time = time.time()
@@ -747,7 +745,7 @@ class Denario:
         """
         
         keywords = cmbagent.get_keywords(input_text, n_keywords = n_keywords, kw_type = kw_type, api_keys = self.keys)
-        self.research.keywords = keywords
+        self.research.keywords = keywords # type: ignore
         print('keywords: ', self.research.keywords)
     
     def show_keywords(self) -> None:
@@ -823,7 +821,7 @@ class Denario:
         }
 
         # Run the graph
-        asyncio.run(graph.ainvoke(input_state, config))
+        asyncio.run(graph.ainvoke(input_state, config)) # type: ignore
         
         # End timer and report duration in minutes and seconds
         end_time = time.time()
@@ -872,7 +870,7 @@ class Denario:
         
         # Run the graph
         try:
-            graph.invoke(input_state, config)
+            graph.invoke(input_state, config) # type: ignore
             
             # End timer and report duration in minutes and seconds
             end_time = time.time()
@@ -885,7 +883,7 @@ class Denario:
             print('Denario failed to provide a review for the paper. Ensure that a paper in the `paper` folder ex')
             print(f'Error: {e}')
         
-    def research_pilot(self, data_description: str = None) -> None:
+    def research_pilot(self, data_description: str | None = None) -> None:
         """Full run of Denario. It calls the following methods sequentially:
         ```
         set_data_description(data_description)
