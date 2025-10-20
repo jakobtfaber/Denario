@@ -334,7 +334,7 @@ class Denario:
         seconds = int(elapsed_time % 60)
         print(f"Idea generated in {minutes} min {seconds} sec.")  
         
-    def set_idea(self, idea: str = None) -> None:
+    def set_idea(self, idea: str | None = None) -> None:
         """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
 
         if idea is None:
@@ -655,7 +655,7 @@ class Denario:
                     engineer_model: LLM | str = models["gpt-4.1-mini"],
                     researcher_model: LLM | str = models["gpt-4.1-mini"],
                     restart_at_step: int = -1,
-                    hardware_constraints: str = None,
+                    hardware_constraints: str | None = None,
                     planner_model: LLM | str = models["gpt-4.1-mini"],
                     plan_reviewer_model: LLM | str = models["gpt-4o-mini"],
                     max_n_attempts: int = 10,

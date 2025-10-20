@@ -1,7 +1,6 @@
 import re
 import os
-os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "false"
-os.environ["CMBAGENT_GUI_MODE"] = "true"
+from pathlib import Path
 import cmbagent
 
 from .key_manager import KeyManager
@@ -28,21 +27,16 @@ class Idea:
         work_dir: working directory.
     """
     def __init__(self, 
-                 keys : KeyManager,
+                 keys: KeyManager,
+                 work_dir: str | Path,
                  idea_maker_model = "gpt-4o", 
                  idea_hater_model = "o3-mini",
                  planner_model = "gpt-4o",
                  plan_reviewer_model = "o3-mini",
-                 work_dir = None, 
                  orchestration_model = "gpt-4.1",
                  formatter_model = "o3-mini",
                 ):
         
-        if work_dir is None:
-            raise ValueError("workdir must be provided")
-        
-        
-        self.idea_dir = os.path.join(work_dir, "idea_generation_output")
         self.idea_maker_model = idea_maker_model
         self.idea_hater_model = idea_hater_model
         self.planner_model = planner_model
@@ -52,7 +46,9 @@ class Idea:
         self.api_keys = keys
 
         # Create directory if it doesn't exist
-        os.makedirs(self.idea_dir, exist_ok=True)
+        idea_dir = os.path.join(work_dir, "idea_generation_output")
+        os.makedirs(idea_dir, exist_ok=True)
+        self.idea_dir = Path(idea_dir)
 
         # Set prompt
         self.planner_append_instructions = idea_planner_prompt
@@ -88,7 +84,7 @@ class Idea:
                     break
             task_result = result
         except:
-            task_result = None
+            return None
 
         pattern = r'\*\*Ideas\*\*\s*\n- Idea 1:'
         replacement = "Project Idea:"

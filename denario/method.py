@@ -1,5 +1,6 @@
 import os
 import re
+from pathlib import Path
 import cmbagent
 
 from .key_manager import KeyManager
@@ -16,10 +17,10 @@ class Method:
     def __init__(self,
                  research_idea: str,
                  keys: KeyManager,
+                 work_dir: str | Path,
                  researcher_model = "gpt-4.1-2025-04-14",
                  planner_model = "gpt-4.1-2025-04-14",
                  plan_reviewer_model = "o3-mini",
-                 work_dir = None,
                  orchestration_model = "gpt-4.1",
                  formatter_model = "o3-mini",
                 ):
@@ -31,12 +32,10 @@ class Method:
         self.formatter_model = formatter_model
         self.api_keys = keys
 
-        if work_dir is None:
-            raise ValueError("workdir must be provided")
-
-        self.method_dir = os.path.join(work_dir, "method_generation_output")
+        method_dir = os.path.join(work_dir, "method_generation_output")
         # Create directory if it doesn't exist
-        os.makedirs(self.method_dir, exist_ok=True)
+        os.makedirs(method_dir, exist_ok=True)
+        self.method_dir = Path(method_dir)
 
         # Set prompts
         self.planner_append_instructions = method_planner_prompt.format(research_idea=research_idea)
@@ -74,7 +73,8 @@ class Method:
                     break
             task_result = result
         except:
-            task_result = None
+            return None
+        
         MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"
         extracted_methodology = re.findall(MD_CODE_BLOCK_PATTERN, task_result, flags=re.DOTALL)[0]
         clean_methodology = re.sub(r'^<!--.*?-->\s*\n', '', extracted_methodology)

@@ -1,6 +1,7 @@
 from typing import List
 import os
 import re
+from pathlib import Path
 import cmbagent
 
 from .key_manager import KeyManager
@@ -16,14 +17,14 @@ class Experiment:
                  research_idea: str,
                  methodology: str,
                  keys: KeyManager,
+                 work_dir: str | Path,
                  involved_agents: List[str] = ['engineer', 'researcher'],
                  engineer_model: str = "gpt-4.1",
                  researcher_model: str = "o3-mini-2025-01-31",
                  planner_model: str = "gpt-4o",
                  plan_reviewer_model: str = "o3-mini",
-                 work_dir = None,
                  restart_at_step: int = -1,
-                 hardware_constraints: str = None,
+                 hardware_constraints: str | None = None,
                  max_n_attempts: int = 10,
                  max_n_steps: int = 6,
                  orchestration_model = "gpt-4.1",
@@ -35,21 +36,20 @@ class Experiment:
         self.planner_model = planner_model
         self.plan_reviewer_model = plan_reviewer_model
         self.restart_at_step = restart_at_step
+        if hardware_constraints is None:
+            hardware_constraints = ""
         self.hardware_constraints = hardware_constraints
         self.max_n_attempts = max_n_attempts
         self.max_n_steps = max_n_steps
         self.orchestration_model = orchestration_model
         self.formatter_model = formatter_model
 
-        
-        if work_dir is None:
-            raise ValueError("workdir must be provided")
-
         self.api_keys = keys
 
-        self.experiment_dir = os.path.join(work_dir, "experiment_generation_output")
+        experiment_dir = os.path.join(work_dir, "experiment_generation_output")
         # Create directory if it doesn't exist
-        os.makedirs(self.experiment_dir, exist_ok=True)
+        os.makedirs(experiment_dir, exist_ok=True)
+        self.experiment_dir = Path(experiment_dir)
 
         involved_agents_str = ', '.join(involved_agents)
 
@@ -112,7 +112,7 @@ class Experiment:
                     break
             task_result = result
         except:
-            task_result = None
+            return None
             
         MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"
         extracted_results = re.findall(MD_CODE_BLOCK_PATTERN, task_result, flags=re.DOTALL)[0]
