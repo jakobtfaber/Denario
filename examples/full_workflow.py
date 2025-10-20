@@ -20,16 +20,17 @@ astro_pilot = Denario(project_dir=folder)
 astro_pilot.set_data_description(f"{folder}/input.md")
 
 # This module generates the idea to be investigated.
-# get_idea_fast() is a faster version of get_idea() 
+# get_idea() allows to employ two backends: a planning and control workflow from cmbagent or a faster method based on Langgraph
+# get_idea(mode="fast") is a faster version than get_idea(mode="cmbagent") 
 # but can produce results with slightly lower quality.
-# same logic below for get_method_fast() and check_idea_fast()
-astro_pilot.get_idea_fast(llm='gpt-4.1-mini') 
+# same logic below for get_method()
+astro_pilot.get_idea(mode="fast",llm='gpt-4.1-mini') 
 
 # This module checks if the idea is novel or not against previous literature
-astro_pilot.check_idea_fast(llm='gpt-4.1-mini', max_iterations=7) 
+astro_pilot.check_idea(llm='gpt-4.1-mini', max_iterations=7) 
 
 # This module generates the methodology to be employed.
-astro_pilot.get_method_fast(llm='gpt-4.1-mini') 
+astro_pilot.get_method(mode="fast",llm='gpt-4.1-mini') 
 
 # This module writes codes, executes the codes, makes plots,
 #  and summarizes the results.

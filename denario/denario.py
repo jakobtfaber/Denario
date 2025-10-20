@@ -201,7 +201,7 @@ class Denario:
 
     def get_idea(self,
                  mode = "fast",
-                 llm_fast: LLM | str = models["gemini-2.0-flash"],
+                 llm: LLM | str = models["gemini-2.0-flash"],
                  idea_maker_model: LLM | str = models["gpt-4o"],
                  idea_hater_model: LLM | str = models["o3-mini"],
                  planner_model: LLM | str = models["gpt-4o"],
@@ -213,7 +213,7 @@ class Denario:
 
         Args:
             mode: either "fast" or "cmbagent". Fast mode uses langgraph backend and is faster but less reliable. Cmbagent mode uses cmbagent backend and is slower but more reliable.
-            llm_fast: the LLM to be used for the fast mode.
+            llm: the LLM to be used for the fast mode.
             idea_maker_model: the LLM to be used for the idea maker agent.
             idea_hater_model: the LLM to be used for the idea hater agent.
             planner_model: the LLM to be used for the planner agent.
@@ -225,7 +225,7 @@ class Denario:
         print(f"Generating idea with {mode} mode")
 
         if mode == "fast":
-            self.get_idea_fast(llm=llm_fast)
+            self.get_idea_fast(llm=llm)
         elif mode == "cmbagent":
             self.get_idea_cmagent(idea_maker_model=idea_maker_model,
                                   idea_hater_model=idea_hater_model,
@@ -376,7 +376,7 @@ class Denario:
 
         elif mode == 'semantic_scholar':
 
-            return self.check_idea_fast(llm=llm, max_iterations=max_iterations, verbose=verbose)
+            return self.check_idea_semantic_scholar(llm=llm, max_iterations=max_iterations, verbose=verbose)
         
         else:
             raise ValueError("Mode must be either 'futurehouse' or 'semantic_scholar'")
@@ -431,7 +431,7 @@ class Denario:
 
         return answer
 
-    def check_idea_fast(self,
+    def check_idea_semantic_scholar(self,
                         llm: LLM | str = models["gemini-2.5-flash"],
                         max_iterations: int = 7,
                         verbose=False,
@@ -499,7 +499,7 @@ class Denario:
         
     def get_method(self,
                    mode = "fast",
-                   llm_fast: LLM | str = models["gemini-2.0-flash"],
+                   llm: LLM | str = models["gemini-2.0-flash"],
                    method_generator_model: LLM | str = models["gpt-4o"],
                    planner_model: LLM | str = models["gpt-4o"],
                    plan_reviewer_model: LLM | str = models["o3-mini"],
@@ -512,7 +512,7 @@ class Denario:
         
         Args:
             mode: either "fast" or "cmbagent". Fast mode uses langgraph backend and is faster but less reliable. Cmbagent mode uses cmbagent backend and is slower but more reliable.
-            llm_fast: the LLM to be used for the fast mode.
+            llm: the LLM to be used for the fast mode.
             method_generator_model: (researcher) the LLM model to be used for the researcher agent. Default is gpt-4o
             planner_model: the LLM model to be used for the planner agent. Default is gpt-4o
             plan_reviewer_model: the LLM model to be used for the plan reviewer agent. Default is o3-mini
@@ -523,7 +523,7 @@ class Denario:
         print(f"Generating methodology with {mode} mode")
 
         if mode == "fast":
-            self.get_method_fast(llm=llm_fast, verbose=verbose)
+            self.get_method_fast(llm=llm, verbose=verbose)
         elif mode == "cmbagent":
             self.get_method_cmbagent(method_generator_model=method_generator_model,
                                      planner_model=planner_model,
