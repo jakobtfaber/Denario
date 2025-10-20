@@ -1,5 +1,7 @@
 from .llm import LLM, models
-import os, re
+import os
+import re
+from pathlib import Path
 
 def input_check(str_input: str) -> str:
     """Check if the input is a string with the desired content or the path markdown file, in which case reads it to get the content."""
@@ -15,6 +17,7 @@ def input_check(str_input: str) -> str:
 
 def llm_parser(llm: LLM | str) -> LLM:
     """Get the LLM instance from a string."""
+
     if isinstance(llm, str):
         try:
             llm = models[llm]
@@ -52,3 +55,20 @@ def extract_file_paths(markdown_text):
             missing_paths.append(path)
     
     return existing_paths, missing_paths
+
+def create_work_dir(work_dir: str | Path, name: str) -> Path:
+    """Create working directory"""
+
+    work_dir = os.path.join(work_dir, f"{name}_generation_output")
+    os.makedirs(work_dir, exist_ok=True)
+    return Path(work_dir)
+
+def get_task_result(chat_history, name: str):
+    """Get task result from chat history"""
+    
+    for obj in chat_history[::-1]:
+        if obj['name'] == name:
+            result = obj['content']
+            break
+    task_result = result
+    return task_result

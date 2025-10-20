@@ -1,10 +1,10 @@
-import os
 import re
 from pathlib import Path
 import cmbagent
 
 from .key_manager import KeyManager
 from .prompts.method import method_planner_prompt, method_researcher_prompt
+from .utils import create_work_dir, get_task_result
 
 class Method:
     """
@@ -32,10 +32,7 @@ class Method:
         self.formatter_model = formatter_model
         self.api_keys = keys
 
-        method_dir = os.path.join(work_dir, "method_generation_output")
-        # Create directory if it doesn't exist
-        os.makedirs(method_dir, exist_ok=True)
-        self.method_dir = Path(method_dir)
+        self.method_dir = create_work_dir(work_dir, "method")
 
         # Set prompts
         self.planner_append_instructions = method_planner_prompt.format(research_idea=research_idea)
@@ -67,11 +64,7 @@ class Method:
         chat_history = results['chat_history']
         
         try:
-            for obj in chat_history[::-1]:
-                if obj['name'] == 'researcher_response_formatter':
-                    result = obj['content']
-                    break
-            task_result = result
+            task_result = get_task_result(chat_history,'researcher_response_formatter')
         except:
             return None
         

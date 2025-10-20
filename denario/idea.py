@@ -1,10 +1,10 @@
 import re
-import os
 from pathlib import Path
 import cmbagent
 
 from .key_manager import KeyManager
 from .prompts.idea import idea_planner_prompt
+from .utils import create_work_dir, get_task_result
 
 class Idea:
     """
@@ -45,10 +45,7 @@ class Idea:
         self.formatter_model = formatter_model
         self.api_keys = keys
 
-        # Create directory if it doesn't exist
-        idea_dir = os.path.join(work_dir, "idea_generation_output")
-        os.makedirs(idea_dir, exist_ok=True)
-        self.idea_dir = Path(idea_dir)
+        self.idea_dir = create_work_dir(work_dir, "idea")
 
         # Set prompt
         self.planner_append_instructions = idea_planner_prompt
@@ -78,11 +75,7 @@ class Idea:
         chat_history = results['chat_history']
         
         try:
-            for obj in chat_history[::-1]:
-                if obj['name'] == 'idea_maker_nest':
-                    result = obj['content']
-                    break
-            task_result = result
+            task_result = get_task_result(chat_history,'idea_maker_nest')
         except:
             return None
 

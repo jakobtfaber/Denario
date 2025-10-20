@@ -1,11 +1,10 @@
-from typing import List
-import os
 import re
 from pathlib import Path
 import cmbagent
 
 from .key_manager import KeyManager
 from .prompts.experiment import experiment_planner_prompt, experiment_engineer_prompt, experiment_researcher_prompt
+from .utils import create_work_dir, get_task_result
 
 class Experiment:
     """
@@ -18,7 +17,7 @@ class Experiment:
                  methodology: str,
                  keys: KeyManager,
                  work_dir: str | Path,
-                 involved_agents: List[str] = ['engineer', 'researcher'],
+                 involved_agents: list[str] = ['engineer', 'researcher'],
                  engineer_model: str = "gpt-4.1",
                  researcher_model: str = "o3-mini-2025-01-31",
                  planner_model: str = "gpt-4o",
@@ -46,10 +45,7 @@ class Experiment:
 
         self.api_keys = keys
 
-        experiment_dir = os.path.join(work_dir, "experiment_generation_output")
-        # Create directory if it doesn't exist
-        os.makedirs(experiment_dir, exist_ok=True)
-        self.experiment_dir = Path(experiment_dir)
+        self.experiment_dir = create_work_dir(work_dir, "experiment")
 
         involved_agents_str = ', '.join(involved_agents)
 
@@ -106,11 +102,7 @@ class Experiment:
         final_context = results['final_context']
         
         try:
-            for obj in chat_history[::-1]:
-                if obj['name'] == 'researcher_response_formatter':
-                    result = obj['content']
-                    break
-            task_result = result
+            task_result = get_task_result(chat_history,'researcher_response_formatter')
         except:
             return None
             
