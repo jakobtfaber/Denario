@@ -355,7 +355,7 @@ class Denario:
         print(self.research.idea)
 
     def check_idea(self,
-                   mode : str = 'futurehouse',
+                   mode : str = 'semantic_scholar',
                    llm: LLM | str = models["gemini-2.5-flash"],
                    max_iterations: int = 7,
                    verbose=False) -> str:
