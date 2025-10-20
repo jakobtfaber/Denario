@@ -76,7 +76,7 @@ class Idea:
         
         try:
             task_result = get_task_result(chat_history,'idea_maker_nest')
-        except:
+        except Exception:
             return None
 
         pattern = r'\*\*Ideas\*\*\s*\n- Idea 1:'

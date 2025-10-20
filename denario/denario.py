@@ -124,7 +124,7 @@ class Denario:
         
         if len(existing_paths) == 0:
             warnings.warn(
-                f"No data files paths were found in the data description. This may cause hallucinations in the LLM in the get_results() workflow later on."
+                "No data files paths were found in the data description. This may cause hallucinations in the LLM in the get_results() workflow later on."
             )
 
         # overwrite the data_description.md file

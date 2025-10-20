@@ -477,7 +477,7 @@ Ensure the modified output can still be compiled in LaTeX without error.
 """)]
 
 
-def summary_prompt(state, text):
+def summary_prompt(state, text, summary):
 
     return [SystemMessage(content=f"""You are a {state['writer']}"""),
             HumanMessage(content=rf"""

@@ -122,9 +122,11 @@ def abstract_node(state: GraphState, config: RunnableConfig):
             except Exception:
                 time.sleep(2)
         else:
-            print(f'''Tried 3 times but failed to extract the abstract. Recommendations:
-- Run the paper writing module again
-- If still fails, try using a more power LLM, e.g. gemini-2.5-pro''')
+            fail_message = '''Tried 3 times but failed to extract the abstract. Recommendations:
+                                - Run the paper writing module again
+                                - If still fails, try using a more power LLM, e.g. gemini-2.5-pro
+                            '''
+            print(fail_message)
             raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
     
         # perform self-reflections

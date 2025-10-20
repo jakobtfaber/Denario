@@ -6,7 +6,7 @@ def main():
     subparsers = parser.add_subparsers(dest="command")
 
     # `denario run`
-    run_parser = subparsers.add_parser("run", help="Run the Denario Streamlit app")
+    subparsers.add_parser("run", help="Run the Denario Streamlit app")
 
     args = parser.parse_args()
 

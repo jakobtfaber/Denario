@@ -103,7 +103,7 @@ class Experiment:
         
         try:
             task_result = get_task_result(chat_history,'researcher_response_formatter')
-        except:
+        except Exception:
             return None
             
         MD_CODE_BLOCK_PATTERN = r"```[ \t]*(?:markdown)[ \t]*\r?\n(.*)\r?\n[ \t]*```"

@@ -70,7 +70,6 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
     results = SSAPI(state['literature']['query'], state['keys'], limit=10)
 
     total_papers = results.get("total", []) #total number of relevant papers found
-    token        = results.get("token", []) #
     papers       = results.get("data",  []) #the actual data of the retrieved papers
 
     # A list with the idx, title, abstract, and url of the found papers. To be passed to the other agent
