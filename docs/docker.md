@@ -51,10 +51,32 @@ docker run --rm \
   denario_src
 ```
 
-- Interactive
+- Interactive (terminal)
 
 ```bash
 docker run -it --rm \
   -v "$(pwd)":/app \
   denario_src bash
+```
+
+## Run with Docker compose
+
+A simpler way to run the local image is with [Docker Compose](https://docs.docker.com/compose/), which already sets the volumes to be shared in the yaml settings file.
+
+- GUI
+
+```bash
+docker compose up
+```
+
+or
+
+```bash
+docker compose run --rm denario
+```
+
+- Interactive (terminal)
+
+```bash
+docker compose run --rm denario bash
 ```
