@@ -16,7 +16,7 @@ Once built, you can run the GUI with
 docker run -p 8501:8501 --rm pablovd/denario:latest
 ```
 
-where we indicate the port `8501`. We can also run a container in interactive mode with
+where we indicate the port `8501`. We can also run a container in interactive mode, so you can access through the terminal to the container, with
 
 ```bash
 docker run --rm -it pablovd/denario:latest bash
@@ -26,6 +26,7 @@ Share volumes with `-v $(pwd)/project:/app/project` for inputing data and access
 
 ```bash
 docker run --rm \
+  -p 8501:8501 \
   -v $(pwd)/project:/app/project \
   -v $(pwd).env/app/.env \
   denario_src
@@ -39,12 +40,13 @@ If you build Denario from source and want to build a local image, we can do it r
 docker build -f docker/Dockerfile.dev -t denario_src .
 ```
 
-And then run a container with the commands above, indicating the name of the image `denario_sr` and sharing as a volume the current path to allow that the changes in the code are reflected automatically:
+And then run a container with the commands above, indicating the name of the image `denario_src` and sharing as a volume the current path to allow that the changes in the code are reflected automatically:
 
 - GUI
 
 ```bash
 docker run --rm \
+  -p 8501:8501 \
   -v "$(pwd)":/app \
   denario_src
 ```
