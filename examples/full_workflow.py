@@ -7,10 +7,10 @@
 # but their output quality can be slightly lower.
 # see e.g., https://platform.openai.com/docs/pricing
 
-from denario import Denario, Journal
-
 import os
 import urllib.request
+
+from denario import Denario, Journal
 
 # Function to download GW data, already preprocessed
 def download_data(workdir):
@@ -37,7 +37,7 @@ download_data(project_dir)
 # Set the input prompt containing the data description
 # WARNING: PLEASE PROVIDE ABSOLUTE PATHS to all the data files listed in the .md file
 # (otherwise this may cause hallucinations in the LLMs)
-astro_pilot.set_data_description(f"{folder}/input.md")
+astro_pilot.set_data_description(f"{project_dir}/input.md")
 
 # This module generates the idea to be investigated.
 # get_idea() allows to employ two backends: a planning and control workflow from cmbagent or a faster method based on Langgraph
