@@ -1,5 +1,4 @@
 from typing import List
-# from IPython.display import display, Markdown
 import asyncio
 import time
 import os
@@ -21,12 +20,10 @@ from .idea import Idea
 from .method import Method
 from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
-from .utils import llm_parser, input_check, extract_file_paths
+from .utils import llm_parser, input_check, extract_file_paths, in_notebook
 from .langgraph_agents.agents_graph import build_lg_graph
 from cmbagent import preprocess_task
 
-
-# TODO: unify display and print by new method
 class Denario:
     """
     Denario main class. Allows to set the data and tools description, generate a research idea, generate methodology and compute the results. The it can generate the latex draft of a scientific article with a given journal style from the computed results.
@@ -73,6 +70,8 @@ class Denario:
         self.keys = KeyManager()
         self.keys.get_keys_from_env()
 
+        self.run_in_notebook = in_notebook()
+
     def _setup_input_files(self) -> None:
         input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
         
@@ -83,6 +82,23 @@ class Denario:
         # Create fresh input_files directory
         os.makedirs(input_files_dir, exist_ok=True)
 
+    def setter(self, field: str | None, file: str) -> str:
+        """Base method for setting the content of idea, method or results."""
+
+        if field is None:
+            try:
+                with open(os.path.join(self.project_dir, INPUT_FILES, file), 'r') as f:
+                    field = f.read()
+            except FileNotFoundError:
+                raise FileNotFoundError("Please provide an input string or path to a markdown file.")
+
+        field = input_check(field)
+                
+        with open(os.path.join(self.project_dir, INPUT_FILES, file), 'w') as f:
+            f.write(field)
+
+        return field
+
     def set_data_description(self, data_description: str | None = None) -> None:
         """
         Set the description of the data and tools to be used by the agents.
@@ -91,9 +107,9 @@ class Denario:
             data_description: String or path to markdown file including the description of the tools and data. If None, assume that a `data_description.md` is present in `project_dir/input_files`.
         """
 
-        self.data_description = self.setter(data_description, DESCRIPTION_FILE)
+        self.research.data_description = self.setter(data_description, DESCRIPTION_FILE)
 
-        existing_paths, missing_paths = extract_file_paths(data_description)
+        existing_paths, missing_paths = extract_file_paths(self.research.data_description)
         if len(missing_paths) > 0:
             warnings.warn(
                 f"The following data files paths in the data description are not in the right format or do not exist:\n"
@@ -165,11 +181,19 @@ class Denario:
             
         print(f"Enhanced text written to: {os.path.join(input_files_dir, DESCRIPTION_FILE)}")
 
+    def printer(self, content: str) -> None:
+        """Method to show the content depending on the execution environment, whether Jupyter notebook or Python script."""
+
+        if self.run_in_notebook:
+            from IPython.display import display, Markdown
+            display(Markdown(content))
+        else:
+            print(content)
+
     def show_data_description(self) -> None:
         """Show the data description set by the `set_data_description` method."""
 
-        # display(Markdown(self.research.data_description))
-        print(self.research.data_description)
+        self.printer(self.research.data_description)
 
     def get_idea(self,
                  mode = "fast",
@@ -305,23 +329,6 @@ class Denario:
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
         print(f"Idea generated in {minutes} min {seconds} sec.")
-
-    def setter(self, field: str | None, file: str) -> str:
-        """Base method for setting the content of idea, method or results."""
-
-        if field is None:
-            try:
-                with open(os.path.join(self.project_dir, INPUT_FILES, file), 'r') as f:
-                    field = f.read()
-            except FileNotFoundError:
-                raise FileNotFoundError("Please provide an input string or path to a markdown file.")
-
-        field = input_check(field)
-                
-        with open(os.path.join(self.project_dir, INPUT_FILES, file), 'w') as f:
-            f.write(field)
-
-        return field
         
     def set_idea(self, idea: str | None = None) -> None:
         """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
@@ -331,8 +338,7 @@ class Denario:
     def show_idea(self) -> None:
         """Show the provided or generated idea by the `set_idea` or `get_idea` methods."""
 
-        # display(Markdown(self.research.idea))
-        print(self.research.idea)
+        self.printer(self.research.idea)
 
     def check_idea(self,
                    mode : str = 'semantic_scholar',
@@ -616,8 +622,7 @@ class Denario:
     def show_method(self) -> None:
         """Show the provided or generated methods by `set_method` or `get_method`."""
 
-        # display(Markdown(self.research.methodology))
-        print(self.research.methodology)
+        self.printer(self.research.methodology)
 
     def get_results(self,
                     involved_agents: List[str] = ['engineer', 'researcher'],
@@ -728,8 +733,7 @@ class Denario:
     def show_results(self) -> None:
         """Show the obtained results."""
 
-        # display(Markdown(self.research.results))
-        print(self.research.results)
+        self.printer(self.research.results)
     
     def get_keywords(self, input_text: str, n_keywords: int = 5, kw_type: str = 'unesco') -> None:
         """
@@ -762,8 +766,7 @@ class Denario:
             # Handle list format (UNESCO keywords)
             keyword_list = "\n".join([f"- {keyword}" for keyword in self.research.keywords])
         
-        # display(Markdown(keyword_list))
-        print(keyword_list)
+        self.printer(keyword_list)
 
     def get_paper(self,
                   journal: Journal = Journal.NONE,

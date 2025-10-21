@@ -72,3 +72,16 @@ def get_task_result(chat_history, name: str):
             break
     task_result = result
     return task_result
+
+def in_notebook():
+    """Check whether the code is run from a Jupyter Notebook or not, to use different display options"""
+    
+    try:
+        from IPython import get_ipython # type: ignore
+        if 'IPKernelApp' not in get_ipython().config:  # type: ignore # pragma: no cover
+            return False
+    except ImportError:
+        return False
+    except AttributeError:
+        return False
+    return True
