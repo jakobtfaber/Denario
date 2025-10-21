@@ -61,7 +61,7 @@ docker run -it --rm \
 
 ## Run with Docker compose
 
-A simpler way to run the local image is with [Docker Compose](https://docs.docker.com/compose/), which already sets the volumes to be shared in the yaml settings file.
+A simpler way to run the local image is with [Docker Compose](https://docs.docker.com/compose/), which already sets the volumes to be shared in the yaml settings file. Ensure that you have [installed Docker Compose](https://docs.docker.com/compose/install) and run the following commands for using Denario:
 
 - GUI
 

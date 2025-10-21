@@ -54,7 +54,7 @@ astro_pilot.get_method(mode="fast",llm='gpt-4.1-mini')
 
 # This module writes codes, executes the codes, makes plots,
 #  and summarizes the results.
-astro_pilot.get_results(engineer_model='gpt-4.1-mini',
+astro_pilot.get_results(engineer_model='gpt-4.1',
                         researcher_model='gpt-4.1-mini',
                         planner_model='gpt-4.1-mini',
                         plan_reviewer_model='gpt-4.1-mini',
