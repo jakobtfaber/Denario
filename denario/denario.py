@@ -129,8 +129,11 @@ class Denario:
         
         self.research.results = self.setter(results, RESULTS_FILE)
 
-    def set_plots(self, plots: list[str] | list[Image.Image]) -> None:
+    def set_plots(self, plots: list[str] | list[Image.Image] | None = None) -> None:
         """Manually set the plots from their path."""
+
+        if plots is None:
+            plots = [str(p) for p in (Path(self.project_dir) / "input_files" / "Plots").glob("*.png")]
 
         for i, plot in enumerate(plots):
             if isinstance(plot,str):
@@ -142,6 +145,21 @@ class Denario:
                 plot_name = f"plot_{i}.png"
             
             img.save( os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER, plot_name) )
+
+    def set_all(self) -> None:
+        """Set all Research fields if present in the working directory"""
+
+        for setter in (
+            self.set_data_description,
+            self.set_idea,
+            self.set_method,
+            self.set_results,
+            self.set_plots,
+        ):
+            try:
+                setter()
+            except FileNotFoundError:
+                pass
 
     #---
     # Printers
