@@ -13,6 +13,7 @@ nav:
       - Storing API Keys: llm_api_keys/storing-api-keys.md
   - Get started: get_started.md
   - App: app.md
+  - Docker: docker.md
   - Prompts: prompts.md
   - Examples:
       - End-to-end research: examples/denario_oscillator_full_run.ipynb

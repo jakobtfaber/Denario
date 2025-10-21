@@ -153,7 +153,7 @@ source .venv/bin/activate
 
 ## Docker
 
-You can run Denario in a docker image. Pull the image with:
+You can run Denario in a [Docker](https://www.docker.com/) image, which includes all the required dependencies for Denario including LaTeX. Pull the image with:
 
 ```bash
 docker pull pablovd/denario:latest
@@ -172,6 +172,14 @@ docker run --rm -it pablovd/denario:latest bash
 ```
 
 Share volumes with `-v $(pwd)/project:/app/project` for inputing data and accessing to it. You can also share the API keys with a `.env` file in the same folder with `-v $(pwd).env/app/.env`.
+
+You can also build an image locally with
+
+```bash
+docker build -f docker/Dockerfile.dev -t denario_src .
+```
+
+Read more information on how to use the Docker images in the [documentation](https://denario.readthedocs.io/en/latest/docker/).
 
 ## Contributing
 
