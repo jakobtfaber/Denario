@@ -189,6 +189,20 @@ Pull requests are welcome! Feel free to open an issue for bugs, comments, questi
 
 If you use this library please link this repository and cite [arXiv:2506.xxxxx](arXiv:x2506.xxxxx). -->
 
+## Citation
+
+```bash
+    @software{Denario_2025,
+                author = {Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet},
+                title = {Denario: Modular Automation of Scientific Research with Multi-Agent Systems},
+                year = {2025},
+                url = {https://github.com/AstroPilot-AI/Denario},
+                note = {Available at https://github.com/AstroPilot-AI/Denario},
+                version = {latest}
+                }
+
+```
+
 ## License
 
 [GNU GENERAL PUBLIC LICENSE (GPLv3)](https://www.gnu.org/licenses/gpl-3.0.html)
