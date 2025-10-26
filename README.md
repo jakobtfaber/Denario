@@ -192,15 +192,14 @@ If you use this library please link this repository and cite [arXiv:2506.xxxxx](
 ## Citation
 
 ```bibtex
-    @software{Denario_2025,
-                author = {Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet},
-                title = {Denario: Modular Multi-Agent System for Scientific Research Assistance},
-                year = {2025},
-                url = {https://github.com/AstroPilot-AI/Denario},
-                note = {Available at https://github.com/AstroPilot-AI/Denario},
-                version = {latest}
-                }
-
+@software{Denario_2025,
+            author = {Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet},
+            title = {Denario: Modular Multi-Agent System for Scientific Research Assistance},
+            year = {2025},
+            url = {https://github.com/AstroPilot-AI/Denario},
+            note = {Available at https://github.com/AstroPilot-AI/Denario},
+            version = {latest}
+            }
 ```
 
 ## License
