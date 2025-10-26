@@ -40,7 +40,7 @@ Repository = "https://github.com/AstroPilot-AI/Denario"
 denario = "denario.cli:main"
 
 [project.optional-dependencies]
-app = ["denario_app"]
+app = ["denario_app>=0.1.13"]
 docs = [
   "mkdocs",
   "mkdocstrings[python]",
