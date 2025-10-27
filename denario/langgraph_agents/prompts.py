@@ -55,7 +55,6 @@ def methods_fast_prompt(state):
 Follow these instructions:
 - generate a detailed description of the methodology that will be used to perform the research project.
 - The description should clearly outline the steps, techniques, and rationale derived from the exploratory data analysis (EDA).
-- If EDA is performed, include relevant results from the EDA in the form of key statistics or tables (do not include references to plots, or generated files here).
 - The focus should be strictly on the methods and workflow for this specific project to be performed. **do not include** any discussion of future directions, future work, project extensions, or limitations.
 - The description should be written as if it were a senior researcher explaining to her research assistant how to perform the research necessary for this project.
 - Just provide the methods, do not add a sentence at the beginning saying showing your thinking process

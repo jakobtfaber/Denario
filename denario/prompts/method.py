@@ -12,7 +12,7 @@ The goal of the task is to write a plan that will be used to generate a detailed
 - The focus should be strictly on the methods and workflow for this specific project to be performed. **Do not include** any discussion of future directions, future work, project extensions, or limitations.
 - The description should be written as if it were a senior researcher explaining to her research assistant how to perform the research necessary for this project.
 
-The final step of the plan must be entirely dedicated to writing the full Methodology description (it will be subsequently be saved under the name "full_methodology.md").
+The final step of the plan must be entirely dedicated to writing the full Methodology description.
 
 The only agent involved in this workflow is the researcher.
 
@@ -30,6 +30,6 @@ The goal of the task is to develop a detailed methodology that will be used to c
 
 The designed methodology should focus on describing the research and analysis that will be performed.
 
-The full methodology description will be saved under the name "full_methodology.md" and should be written in markdown format and include all the details of the designed methodology.
+The full methodology description should be written in markdown format and include all the details of the designed methodology.
 It should be roughly 500 words long.
 """

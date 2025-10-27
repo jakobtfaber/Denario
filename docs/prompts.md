@@ -1,6 +1,6 @@
 # Prompts
 
-Here are detailed the exact prompts employed for the agents in each of the steps in the Denario generation process.
+Here are detailed some of the exact prompts employed for the agents in each of the steps in the Denario generation process. For all the prompts employed check the [source code](https://github.com/AstroPilot-AI/Denario).
 
 ## Idea
 
