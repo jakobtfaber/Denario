@@ -191,15 +191,26 @@ If you use this library please link this repository and cite [arXiv:2506.xxxxx](
 
 ## Citation
 
+If you make use of Denario, please cite the following references:
+
 ```bibtex
 @software{Denario_2025,
-            author = {Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet},
-            title = {Denario: Modular Multi-Agent System for Scientific Research Assistance},
-            year = {2025},
-            url = {https://github.com/AstroPilot-AI/Denario},
-            note = {Available at https://github.com/AstroPilot-AI/Denario},
-            version = {latest}
-            }
+          author = {Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet},
+          title = {Denario: Modular Multi-Agent System for Scientific Research Assistance},
+          year = {2025},
+          url = {https://github.com/AstroPilot-AI/Denario},
+          note = {Available at https://github.com/AstroPilot-AI/Denario},
+          version = {latest}
+          }
+
+@software{CMBAGENT_2025,
+          author = {Boris Bolliet},
+          title = {CMBAGENT: Open-Source Multi-Agent System for Science},
+          year = {2025},
+          url = {https://github.com/CMBAgents/cmbagent},
+          note = {Available at https://github.com/CMBAgents/cmbagent},
+          version = {latest}
+          }
 ```
 
 ## License
