@@ -102,3 +102,9 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.snippets:
       base_path: "./"
+      
+extra:
+  analytics:
+    provider: google
+    property: G-XRRM15GMS9
+
