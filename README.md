@@ -11,7 +11,7 @@ Denario is a multiagent system designed to be a scientific research assistant. D
 
 - [🌐 Project page](https://astropilot-ai.github.io/DenarioPaperPage/)
 
-<!-- - [📄 Paper](arxivblabla) -->
+- [📄 Paper](https://arxiv.org/pdf/2510.26887)
 
 - [📖 Documentation](https://denario.readthedocs.io/en/latest/)
 
@@ -24,6 +24,8 @@ Denario is a multiagent system designed to be a scientific research assistant. D
 - [🎥 YouTube channel](https://www.youtube.com/@denario-ai)
 
 ## Last updates
+
+- November 3, 2025 - The Denario paper is out at [arxiv](https://arxiv.org/pdf/2510.26887)!
 
 - October 9, 2025 - A paper fully generated with Denario has been accepted for publication in the [Open Conference of AI Agents for Science 2025](https://openreview.net/forum?id=LENY7OWxmN), the 1st open conference with AI as primary authors.
 
@@ -194,6 +196,16 @@ If you use this library please link this repository and cite [arXiv:2506.xxxxx](
 If you make use of Denario, please cite the following references:
 
 ```bibtex
+@article{villaescusanavarro2025denarioprojectdeepknowledge,
+         title={The Denario project: Deep knowledge AI agents for scientific discovery}, 
+         author={Francisco Villaescusa-Navarro and Boris Bolliet and Pablo Villanueva-Domingo and Adrian E. Bayer and Aidan Acquah and Chetana Amancharla and Almog Barzilay-Siegal and Pablo Bermejo and Camille Bilodeau and Pablo Cárdenas Ramírez and Miles Cranmer and Urbano L. França and ChangHoon Hahn and Yan-Fei Jiang and Raul Jimenez and Jun-Young Lee and Antonio Lerario and Osman Mamun and Thomas Meier and Anupam A. Ojha and Pavlos Protopapas and Shimanto Roy and David N. Spergel and Pedro Tarancón-Álvarez and Ujjwal Tiwari and Matteo Viel and Digvijay Wadekar and Chi Wang and Bonny Y. Wang and Licong Xu and Yossi Yovel and Shuwen Yue and Wen-Han Zhou and Qiyao Zhu and Jiajun Zou and Íñigo Zubeldia},
+         year={2025},
+         eprint={2510.26887},
+         archivePrefix={arXiv},
+         primaryClass={cs.AI},
+         url={https://arxiv.org/abs/2510.26887},
+}
+
 @software{Denario_2025,
           author = {Pablo Villanueva-Domingo, Francisco Villaescusa-Navarro, Boris Bolliet},
           title = {Denario: Modular Multi-Agent System for Scientific Research Assistance},
