@@ -11,7 +11,7 @@ Denario is a multiagent system designed to be a scientific research assistant. D
 
 - [🌐 Project page](https://astropilot-ai.github.io/DenarioPaperPage/)
 
-- [📄 Paper](https://arxiv.org/pdf/2510.26887)
+- [📄 Paper](https://arxiv.org/abs/2510.26887)
 
 - [📖 Documentation](https://denario.readthedocs.io/en/latest/)
 
