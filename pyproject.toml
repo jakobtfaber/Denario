@@ -1,6 +1,6 @@
 [project]
 name = "denario"
-version = "0.1.25"
+version = "1.0.0"
 description = "Modular Automation of Scientific Research with Multi-Agent Systems"
 authors = [
   { name = "Pablo Villanueva-Domingo" },
@@ -11,7 +11,7 @@ maintainers = [
   { name = "Denario", email = "denario.astropilot.ai@gmail.com" },
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.14"
 license = { text = "GPLv3" }
 keywords = ["machine learning","agent","biology","chemistry","cosmology","material sciences","llm"]
 dependencies = [
@@ -29,6 +29,7 @@ dependencies = [
   "jsonschema",
   "futurehouse-client",
   "json5",
+  "pip",
 ]
 
 [project.urls]
@@ -40,7 +41,7 @@ Repository = "https://github.com/AstroPilot-AI/Denario"
 denario = "denario.cli:main"
 
 [project.optional-dependencies]
-app = ["denario_app>=0.1.13"]
+app = ["denario_app>=1.0.0"]
 docs = [
   "mkdocs",
   "mkdocstrings[python]",
