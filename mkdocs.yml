@@ -28,6 +28,7 @@ nav:
       - Installation: tutorials/tut_install.md
       - Graphical User Interface: tutorials/tut_gui.md
   - Troubleshooting: troubleshooting.md
+  - Resources: resources.md
   - API Reference:
       - Denario: api_ref/api_denario.md
       - Classes: api_ref/api_classes.md
