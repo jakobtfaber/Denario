@@ -19,3 +19,5 @@
 - [MIT Talk - Francisco Villaescusa-Navarro](https://www.youtube.com/embed/YaOho8SICnU)
 
 - [Accepted Denario generated paper at Agents4Science 2025 Conference](https://www.youtube.com/watch?v=mxVLGNDxUY8)
+
+- [Frontiers of Agentic AI @ PyTorch Conference 2025 - Chi Wang (Google DeepMind)](https://www.youtube.com/watch?v=XI0FrEzQgSA)

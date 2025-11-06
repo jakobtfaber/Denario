@@ -23,9 +23,9 @@ nav:
       - Write a paper: examples/write_paper.ipynb
       - End-to-end Gemini+fast mode: examples/EtE_Gemini_fast.ipynb
   - Video tutorials:
-      - End to end research: tutorials/tut_end2end.md
       - LLM API Credentials: tutorials/tut_llm_api.md
       - Installation: tutorials/tut_install.md
+      - End to end research: tutorials/tut_end2end.md
       - Graphical User Interface: tutorials/tut_gui.md
   - Troubleshooting: troubleshooting.md
   - Resources: resources.md
