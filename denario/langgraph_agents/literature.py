@@ -2,7 +2,7 @@ from langchain_core.runnables import RunnableConfig
 from .parameters import GraphState
 from .prompts import novelty_prompt, summary_literature_prompt
 from ..paper_agents.tools import extract_latex_block, LLM_call_stream, json_parser3
-import time
+import time, sys
 import requests
 from tqdm import tqdm
 
@@ -60,37 +60,62 @@ def novelty_decider(state: GraphState, config: RunnableConfig):
                                'next_agent': "semantic_scholar"}}
     
 
-# This node will search the arXiv for papers similar to the ones in the query
+# This node will use semantic scholar to search for papers similar
+# to the ones in the query
 def semantic_scholar(state: GraphState, config: RunnableConfig):
     """
     This agent will search for papers given the search query and return the list of found ones
     """
     
     # search papers given the query
-    results = SSAPI(state['literature']['query'], limit=10)
+    results = SSAPI(state['literature']['query'], state['keys'], limit=20)
 
     total_papers = results.get("total", []) #total number of relevant papers found
     papers       = results.get("data",  []) #the actual data of the retrieved papers
 
     # A list with the idx, title, abstract, and url of the found papers. To be passed to the other agent
-    papers_str = [] 
+    papers_str = []
+    papers_analyzed = 0
     if papers:
         print(f"Found {total_papers} potentially relevant papers")
 
         # do a loop over the papers
         for idx, paper in enumerate(papers, start=0):
 
-            # get the year, abstract and url
+            # get the different fields of the paper
             authors = ", ".join([author.get("name", "Unknown") for author in paper.get("authors", [])])
-            title    = paper.get("title",    "No Title")
-            year     = paper.get("year",     "Unknown Year")
-            abstract = paper.get("abstract", "No Abstract")
-            url      = paper.get("url",      "No URL")
+            title      = paper.get("title",         None)
+            year       = paper.get("year",          None)
+            abstract   = paper.get("abstract",      None)
+            url        = paper.get("url",           None)
+            ID         = paper.get("paperId",       None)
+            externalID = paper.get("externalIds",   None)
+            pdf        = paper.get("openAccessPdf", None)
 
+            if abstract is None:
+                continue
+            else:
+                papers_analyzed += 1
+            
             # string with paper information
-            paper_str = f"""{idx+state['literature']['num_papers']}. {title} ({year})\nAuthors: {authors}\nAbstract: {abstract}\nURL: {url}\n\n"""
+            paper_str = f"""{papers_analyzed+state['literature']['num_papers']}. {title} ({year})\nAuthors: {authors}\nAbstract: {abstract}\nURL: {url}"""
+
+            # extract arXiv link, if any
+            if externalID:
+                arXiv = externalID.get("ArXiv", None)
+                if arXiv:
+                    arXiv_pdf  = f"https://arxiv.org/pdf/{arXiv}"
+                    arXiv_pdf2 = f"http://arxiv.org/pdf/{arXiv}" #sometimes the pdf url has https and sometimes http. Use both to avoid duplication.
+                    paper_str = f"{paper_str}\narXiv link: {arXiv_pdf}"
+
+            # extract pdf link, if any
+            if pdf:
+                pdf = pdf.get('url', None)
+                if pdf and pdf!=arXiv_pdf and pdf!=arXiv_pdf2:
+                    paper_str = f"{paper_str}\npdf: {pdf}"
             
             # put these papers in the literature.log
+            paper_str = f"{paper_str}\n\n"
             with open(f"{state['files']['literature_log']}", 'a') as f:
                 f.write(paper_str)
 
@@ -102,13 +127,13 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
     else:
         papers_str.append("No papers found with the query.\n")
 
-    total_papers_found = state['literature']['num_papers'] + min(len(papers), 10)
+    total_papers_found = state['literature']['num_papers'] + papers_analyzed
     print('Total papers analyzed', total_papers_found)
     
     return {"literature": {**state['literature'], 'papers': papers_str, "num_papers":total_papers_found}}
 
 
-def SSAPI(query, limit=10) -> list:
+def SSAPI(query, keys, limit=10) -> list:
     """
     Search for papers similar to the given query using Semantic Scholar API.
 
@@ -126,16 +151,20 @@ def SSAPI(query, limit=10) -> list:
     
     params = {"query": query,
               "limit": limit,
-              "fields": "title,authors,year,abstract,url"}
+              "fields": "title,authors,year,abstract,url,paperId,externalIds,openAccessPdf"}
 
-    # Conditionally include headers if API_KEY is available
-    #if keys.SEMANTIC_SCHOLAR:
-    #    response = requests.get(BASE_URL, headers={"x-api-key": keys.SEMANTIC_SCHOLAR},
-    #                            params=params)
-    #else:
-
+    # For each query, call Semantic Scholar a maximum of 200 times.
+    # When no Semantic Scholar key is present, the system may return an error
     for _ in tqdm(range(200), desc="Calling Semantic Scholar", unit="try"):
-        response = requests.get(BASE_URL, params=params)
+
+        # Conditionally include headers if API_KEY is available
+        if keys.SEMANTIC_SCHOLAR:
+            response = requests.get(BASE_URL,
+                                    headers={"x-api-key": keys.SEMANTIC_SCHOLAR},
+                                    params=params)
+        else:
+            response = requests.get(BASE_URL, params=params)
+            
         if response.status_code==200:
             return response.json()
         else:
@@ -146,6 +175,19 @@ def SSAPI(query, limit=10) -> list:
         return []
 
 
+def get_paper_details(results):
+    """
+    This function will return details of a set of papers
+
+    Args:
+       results: a semantic scholar search result
+    """
+
+    
+    
+
+    
+    
 def literature_summary(state: GraphState, config: RunnableConfig):
     """
     This agent will take all messages from previous iterations and write a summary of the findings
