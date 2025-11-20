@@ -175,18 +175,6 @@ def SSAPI(query, keys, limit=10) -> list:
         return []
 
 
-def get_paper_details(results):
-    """
-    This function will return details of a set of papers
-
-    Args:
-       results: a semantic scholar search result
-    """
-
-    
-    
-
-    
     
 def literature_summary(state: GraphState, config: RunnableConfig):
     """
