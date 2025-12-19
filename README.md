@@ -25,7 +25,7 @@ Denario is a multiagent system designed to be a scientific research assistant. D
 
 ## Last updates
 
-- December 7, 2025 - [Cmbagent](https://github.com/CMBAgents/cmbagent) the research analysis backend of Denario won a **first place award** at the **NeurIPS 2025 [Fair Universe Competition](https://fair-universe.lbl.gov/)**. 
+- December 7, 2025 - [Cmbagent](https://github.com/CMBAgents/cmbagent), the research analysis backend of Denario, won a **first place award** at the **NeurIPS 2025 [Fair Universe Competition](https://fair-universe.lbl.gov/)**. 
 
 
 
