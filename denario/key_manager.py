@@ -9,7 +9,10 @@ Classes/Functions:
         - __setitem__(key: str, value: str) -> None (line 36)
 --- END AUTO-GENERATED DOCSTRING ---
 """
+
 import os
+import re
+from pathlib import Path
 from pydantic import BaseModel
 from dotenv import load_dotenv
 
@@ -25,14 +28,92 @@ class KeyManager(BaseModel):
     def get_keys_from_env(self) -> None:
         load_dotenv()
         self.OPENAI = os.getenv("OPENAI_API_KEY")
-        self.GEMINI = os.getenv("GOOGLE_API_KEY")
+
+        # Priority:
+        # 0. ~/.gemini_key (User's specific key file)
+        # 1. ~/.bashrc
+        # 2. GEMINI_API_KEY (Env)
+        # 3. GOOGLE_API_KEY (Env)
+
+        gemini_key = None
+
+        # 0. Try to read from ~/.gemini_key
+        try:
+            gemini_key_path = Path.home() / ".gemini_key"
+            if gemini_key_path.exists():
+                with open(gemini_key_path, "r") as f:
+                    content = f.read().strip()
+                    # Remove quotes if present
+                    content = content.strip("\"'")
+                    if content:
+                        gemini_key = content
+                        print(
+                            f"Loaded GEMINI_API_KEY from .gemini_key: {gemini_key[:5]}..."
+                        )
+        except Exception as e:
+            print(f"Failed to read Gemini key from .gemini_key: {e}")
+
+        # 1. Try to read from ~/.bashrc if not found
+        if not gemini_key:
+            try:
+                bashrc_path = Path.home() / ".bashrc"
+                if bashrc_path.exists():
+                    with open(bashrc_path, "r") as f:
+                        content = f.read()
+                        # Look for export GEMINI_API_KEY=...
+                        match = re.search(
+                            r'export\s+GEMINI_API_KEY=["\']?([^"\'\s]+)["\']?', content
+                        )
+                        if match:
+                            gemini_key = match.group(1)
+                            print(
+                                f"Loaded GEMINI_API_KEY from .bashrc: {gemini_key[:5]}..."
+                            )
+            except Exception as e:
+                print(f"Failed to read Gemini key from .bashrc: {e}")
+
+        # 2. If not in bashrc, try env GEMINI_API_KEY
+        if not gemini_key:
+            gemini_key = os.getenv("GEMINI_API_KEY")
+
+        # 3. If still not found, try GOOGLE_API_KEY
+        if not gemini_key:
+            gemini_key = os.getenv("GOOGLE_API_KEY")
+
+        if gemini_key:
+            self.GEMINI = gemini_key
+            # Update env var for libraries that rely on it
+            os.environ["GOOGLE_API_KEY"] = gemini_key
+        else:
+            self.GEMINI = None
+
         # not strictly needed
         self.ANTHROPIC = os.getenv("ANTHROPIC_API_KEY")
         # only for citations
         self.PERPLEXITY = os.getenv("PERPLEXITY_API_KEY")
         # only for fast semantic scholar
         self.SEMANTIC_SCHOLAR = os.getenv("SEMANTIC_SCHOLAR_KEY")
-        self.WOLFRAM_APP_ID = os.getenv("WOLFRAM_APP_ID")
+
+        # Wolfram Alpha
+        wolfram_key = None
+        try:
+            wolfram_key_path = Path.home() / ".wolfram_app_id"
+            if wolfram_key_path.exists():
+                with open(wolfram_key_path, "r") as f:
+                    content = f.read().strip()
+                    content = content.strip("\"'")
+                    if content:
+                        wolfram_key = content
+                        print(
+                            f"Loaded WOLFRAM_APP_ID from .wolfram_app_id: {wolfram_key[:4]}..."
+                        )
+        except Exception as e:
+            print(f"Failed to read Wolfram key from .wolfram_app_id: {e}")
+
+        if wolfram_key:
+            self.WOLFRAM_APP_ID = wolfram_key
+        else:
+            self.WOLFRAM_APP_ID = os.getenv("WOLFRAM_APP_ID")
 
     def __getitem__(self, key: str) -> str:
         return getattr(self, key)
