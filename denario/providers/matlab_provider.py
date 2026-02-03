@@ -399,20 +399,19 @@ end
     def _convert_to_matlab_solve(self, query: str) -> str:
         """Convert query to MATLAB solve syntax."""
         # Simple conversion for basic equations
-        # Example: "solve x^2 + 2*x + 1 = 0" -> "syms x; solve(x^2 + 2*x + 1 ==
-        # 0, x)"
+        # Example: "solve x^2 + 2*x + 1 = 0" -> "syms('x'); solve(x^2 + 2*x + 1 == 0, x)"
         if '=' in query:
             equation = query.split('solve')[1].strip()
             if '=' in equation:
                 left, right = equation.split('=', 1)
                 left = left.strip()
                 right = right.strip()
-                return f"syms x; solve({left} == {right}, x)"
-        return f"syms x; solve({query}, x)"
+                return f"syms('x'); solve({left} == {right}, x)"
+        return f"syms('x'); solve({query}, x)"
 
     def _convert_to_matlab_integral(self, query: str) -> str:
         """Convert query to MATLAB integral syntax."""
-        # Example: "integrate x^2 from 0 to 1" -> "syms x; int(x^2, x, 0, 1)"
+        # Example: "integrate x^2 from 0 to 1" -> "syms('x'); int(x^2, x, 0, 1)"
         if 'from' in query and 'to' in query:
             parts = query.split()
             expr = parts[1]  # x^2
@@ -420,21 +419,21 @@ end
             to_idx = parts.index('to')
             lower = parts[from_idx + 1]
             upper = parts[to_idx + 1]
-            return f"syms x; int({expr}, x, {lower}, {upper})"
+            return f"syms('x'); int({expr}, x, {lower}, {upper})"
         else:
             # Indefinite integral
             expr = query.replace('integrate', '').replace('int', '').strip()
-            return f"syms x; int({expr}, x)"
+            return f"syms('x'); int({expr}, x)"
 
     def _convert_to_matlab_diff(self, query: str) -> str:
         """Convert query to MATLAB diff syntax."""
-        # Example: "derivative of x^3" -> "syms x; diff(x^3, x)"
+        # Example: "derivative of x^3" -> "syms('x'); diff(x^3, x)"
         if 'of' in query:
             expr = query.split('of')[1].strip()
-            return f"syms x; diff({expr}, x)"
+            return f"syms('x'); diff({expr}, x)"
         else:
             expr = query.replace('derivative', '').replace('diff', '').strip()
-            return f"syms x; diff({expr}, x)"
+            return f"syms('x'); diff({expr}, x)"
 
     def _convert_to_matlab_eig(self, query: str) -> str:
         """Convert query to MATLAB eig syntax."""
@@ -453,12 +452,12 @@ end
 
     def _convert_to_matlab_optimize(self, query: str) -> str:
         """Convert query to MATLAB optimization syntax."""
-        # Example: "optimize x^2 + 2*x + 1" -> "syms x; f = x^2 + 2*x + 1;
+        # Example: "optimize x^2 + 2*x + 1" -> "syms('x'); f = x^2 + 2*x + 1;
         # fminunc(@(x) x^2 + 2*x + 1, 0)"
         if 'optimize' in query:
             expr = query.replace('optimize', '').strip()
-            return f"syms x; f = {expr}; fminunc(@(x) {expr}, 0)"
-        return f"syms x; fminunc(@(x) {query}, 0)"
+            return f"syms('x'); f = {expr}; fminunc(@(x) {expr}, 0)"
+        return f"syms('x'); fminunc(@(x) {query}, 0)"
 
     def _convert_to_matlab_plot(self, query: str) -> str:
         """Convert query to MATLAB plot syntax."""
