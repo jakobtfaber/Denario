@@ -33,9 +33,9 @@ Critisms:
 
 Respond in the following format:
 
-\\begin{{IDEA}}
+\\begin{IDEA}
 <IDEA>
-\\end{{IDEA}}
+\\end{IDEA}
 
 In <IDEA>, put the idea together with its description. Try to be brief in the description. Do not explain how you have addressed any criticism.
 """)]
@@ -57,9 +57,9 @@ Current idea:
 
 Respond in the following format:
 
-\\begin{{CRITIC}}
+\\begin{CRITIC}
 <CRITIC>
-\\end{{CRITIC}}
+\\end{CRITIC}
 
 In <CRITIC>, put your criticism to the idea. Try to be brief in the description.
 """)]
@@ -73,6 +73,7 @@ def methods_fast_prompt(state):
 Follow these instructions:
 - generate a detailed description of the methodology that will be used to perform the research project.
 - The description should clearly outline the steps, techniques, and rationale derived from the exploratory data analysis (EDA).
+- If EDA is performed, include relevant results from the EDA in the form of key statistics or tables (do not include references to plots, or generated files here).
 - The focus should be strictly on the methods and workflow for this specific project to be performed. **do not include** any discussion of future directions, future work, project extensions, or limitations.
 - The description should be written as if it were a senior researcher explaining to her research assistant how to perform the research necessary for this project.
 - Just provide the methods, do not add a sentence at the beginning saying showing your thinking process
@@ -91,9 +92,9 @@ Idea:
 
 Respond in this format:
 
-\\begin{{METHODS}}
+\\begin{METHODS}
 <METHODS>
-\\end{{METHODS}}
+\\end{METHODS}
 
 In <METHODS> put the methods you have generated.
 """)]
@@ -188,9 +189,9 @@ def summary_literature_prompt(state):
 
 **Respond in exactly this format**:
 
-\\begin{{SUMMARY}}
+\\begin{SUMMARY}
 <SUMMARY>
-\\end{{SUMMARY}}
+\\end{SUMMARY}
 
 In <SUMMARY> place the summary you have generated.
 """)]
@@ -206,13 +207,8 @@ def reviewer_fast_prompt(state):
         for image_b64 in state['referee']['images']
     ]
 
-<<<<<<< HEAD
-    prompt = [
-        {"type":"text", "text": """You are a scientific referee. Below, you can find a scientific paper written in latex. Your task is to read and understand the paper. Next write a detailed report about the good/interesting aspects of the paper but also bad things, failures...etc. For the bad things, please provide comments on what would be needed to do in order to improve it. Note that you may be reviewing an AI-generated paper, so the author may not be human, and keywords may be missing. No need to mention those. 
-=======
     prompt = [{
         "type": "text", "text": f"""You are a scientific referee. Below, you can find a scientific paper written in latex. Your task is to read and understand the paper. Next write a detailed report about the good/interesting aspects of the paper but also bad things, failures...etc. For the bad things, please provide comments on what would be needed to do in order to improve it. Note that you may be reviewing an AI-generated paper, so the author may not be human, and keywords may be missing. No need to mention those.
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
 - Find all flaws in the paper
 - Find things that may not be done correctly
@@ -223,9 +219,9 @@ def reviewer_fast_prompt(state):
 Try to judge whether the paper will be worth a publication or not. Give a score from 0 (a very bad paper) to 9 (an amazing paper). For bad papers, give a low score.
 
 **Respond in exactly this format**:
-\\begin{{REVIEW}}
+\\begin{REVIEW}
 <REVIEW>
-\\end{{REVIEW}}     
+\\end{REVIEW}
 
 In <REVIEW>, put your report.
     """}] + image_parts
