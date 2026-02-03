@@ -46,7 +46,6 @@ import time
 import os
 import shutil
 from pathlib import Path
-<<<<<<< HEAD
 from PIL import Image 
 import cmbagent
 
@@ -61,11 +60,6 @@ from .experiment import Experiment
 from .paper_agents.agents_graph import build_graph
 from .utils import llm_parser, input_check, check_file_paths, in_notebook
 from .langgraph_agents.agents_graph import build_lg_graph
-=======
-from PIL import Image
-
-os.environ["CMBAGENT_DEBUG"] = "false"
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 from cmbagent import preprocess_task
 
 class Denario:
@@ -83,15 +77,9 @@ class Denario:
         clear_project_dir: Clear all files in project directory when initializing if `True`.
     """
 
-<<<<<<< HEAD
     def __init__(self,
                  research: Research | None = None,
                  project_dir: str | None = None, 
-=======
-    def __init__(self, input_data: Research | None = None,
-                 params={},
-                 project_dir: str | None = None,
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
                  clear_project_dir: bool = False,
                  ):
 
@@ -110,14 +98,9 @@ class Denario:
             os.makedirs(project_dir, exist_ok=True)
         self.project_dir = project_dir
 
-<<<<<<< HEAD
         self._setup_input_files()
 
         self.plots_folder = os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER)
-=======
-        self.plots_folder = os.path.join(
-            self.project_dir, INPUT_FILES, PLOTS_FOLDER)
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         # Ensure the folder exists
         os.makedirs(self.plots_folder, exist_ok=True)
 
@@ -125,7 +108,6 @@ class Denario:
         self.keys = KeyManager()
         self.keys.get_keys_from_env()
 
-<<<<<<< HEAD
         self.run_in_notebook = in_notebook()
 
         self.set_all()
@@ -134,19 +116,12 @@ class Denario:
         input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
         
         # If directory exists and want to clear it, remove it and all its contents
-=======
-    def _setup_input_files(self) -> None:
-        input_files_dir = os.path.join(self.project_dir, INPUT_FILES)
-
-        # If directory exists, remove it and all its contents
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         if os.path.exists(input_files_dir) and self.clear_project_dir:
             shutil.rmtree(input_files_dir)
 
         # Create fresh input_files directory
         os.makedirs(input_files_dir, exist_ok=True)
 
-<<<<<<< HEAD
     def reset(self) -> None:
         """Reset Research object"""
 
@@ -174,11 +149,6 @@ class Denario:
         return field
 
     def set_data_description(self, data_description: str | None = None) -> None:
-=======
-    def set_data_description(
-            self,
-            data_description: str | None = None) -> None:
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         """
         Set the description of the data and tools to be used by the agents.
 
@@ -233,20 +203,9 @@ class Denario:
             self.set_plots,
         ):
             try:
-<<<<<<< HEAD
                 setter()
             except FileNotFoundError:
                 pass
-=======
-                with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
-                    data_description = f.read()
-                data_description = data_description.replace(
-                    "{path_to_project_data}", str(
-                        self.project_dir) + "/project_data/")
-            except FileNotFoundError:
-                raise FileNotFoundError(
-                    "Please provide an input string or markdown file with the data description.")
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
     #---
     # Printers
@@ -259,12 +218,7 @@ class Denario:
             from IPython.display import display, Markdown
             display(Markdown(content))
         else:
-<<<<<<< HEAD
             print(content)
-=======
-            raise ValueError(
-                "Data description must be a string, a path to a markdown file or None if you want to load data description from input_files/data_description.md")
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
     def show_data_description(self) -> None:
         """Show the data description set by the `set_data_description` method."""
@@ -293,12 +247,12 @@ class Denario:
 
         if isinstance(self.research.keywords, dict):
             # Handle dict format (AAS keywords with URLs)
-            keyword_list = "\n".join(
+            keyword_list = "\\n".join(
                                 [f"- [{keyword}]({self.research.keywords[keyword]})" for keyword in self.research.keywords]
                             )
         else:
             # Handle list format (UNESCO keywords)
-            keyword_list = "\n".join([f"- {keyword}" for keyword in self.research.keywords])
+            keyword_list = "\\n".join([f"- {keyword}" for keyword in self.research.keywords])
         
         self.printer(keyword_list)
 
@@ -364,18 +318,6 @@ class Denario:
             
         print(f"Enhanced text written to: {os.path.join(input_files_dir, DESCRIPTION_FILE)}")
 
-<<<<<<< HEAD
-=======
-
-    def show_data_description(self) -> None:
-        """Show the data description set by the `set_data_description` method."""
-
-        # display(Markdown(self.research.data_description))
-        print(self.research.data_description)
-
-    # TODO: some code duplication with set_idea, get_idea could call set_idea
-    # internally after generating ideas
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
     def get_idea(self,
                  mode = "fast",
                  llm: LLM | str = models["gemini-2.0-flash"],
@@ -437,13 +379,9 @@ class Denario:
         idea_hater_model = llm_parser(idea_hater_model)
         planner_model = llm_parser(planner_model)
         plan_reviewer_model = llm_parser(plan_reviewer_model)
-<<<<<<< HEAD
         orchestration_model = llm_parser(orchestration_model)
         formatter_model = llm_parser(formatter_model)
         
-=======
-
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         if self.research.data_description == "":
             with open(os.path.join(self.project_dir, INPUT_FILES, DESCRIPTION_FILE), 'r') as f:
                 self.research.data_description = f.read()
@@ -507,7 +445,6 @@ class Denario:
         }
 
         # Run the graph
-<<<<<<< HEAD
         graph.invoke(input_state, config) # type: ignore
         
         # Read the generated idea from file and update self.research
@@ -515,9 +452,6 @@ class Denario:
         if os.path.exists(f_idea):
             with open(f_idea, 'r', encoding='utf-8') as f:
                 self.research.idea = f.read()
-=======
-        graph.invoke(input_state, config)
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
         # End timer and report duration in minutes and seconds
         end_time = time.time()
@@ -525,12 +459,6 @@ class Denario:
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
         print(f"Idea generated in {minutes} min {seconds} sec.")
-<<<<<<< HEAD
-=======
-
-    def set_idea(self, idea: str = None) -> None:
-        """Manually set an idea, either directly from a string or providing the path of a markdown file with the idea."""
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
     def check_idea(self,
                    mode : str = 'semantic_scholar',
@@ -540,7 +468,6 @@ class Denario:
         """
         Use Futurehouse or Semantic Scholar to check the idea against previous literature
 
-<<<<<<< HEAD
         Args:
             mode: either 'futurehouse' or 'semantic_scholar'
             llm: the LLM model to be used
@@ -554,20 +481,6 @@ class Denario:
             return self.check_idea_futurehouse()
 
         elif mode == 'semantic_scholar':
-=======
-        idea = input_check(idea)
-
-        self.research.idea = idea
-
-        with open(os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE), 'w') as f:
-            f.write(idea)
-
-        self.research.idea = idea
-
-    def show_idea(self) -> None:
-        """Show the provided or generated idea by the `set_idea` or `get_idea` methods."""
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
-
             return self.check_idea_semantic_scholar(llm=llm, max_iterations=max_iterations, verbose=verbose)
         
         else:
@@ -611,7 +524,7 @@ class Denario:
         answer = answer.split("</DESIRED_RESPONSE_FORMAT>")[1]
 
         # prepend " Has anyone worked on or explored the following idea?" to the answer
-        answer = "Has anyone worked on or explored the following idea?\n" + answer
+        answer = "Has anyone worked on or explored the following idea?\\n" + answer
 
         ## save the response into {INPUT_FILES}/{LITERATURE_FILE}
         with open(os.path.join(self.project_dir, INPUT_FILES, LITERATURE_FILE), 'w') as f:
@@ -628,14 +541,9 @@ class Denario:
         Check with the literature if an idea is original or not.
 
         Args:
-<<<<<<< HEAD
            llm: the LLM model to be used
            max_iterations: maximum number of iterations to check the idea
            verbose: whether to stream the LLM response 
-=======
-           - llm: the LLM model to be used
-           - verbose: whether to stream the LLM response
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         """
 
         # Start timer
@@ -670,13 +578,8 @@ class Denario:
 
         # Run the graph
         try:
-<<<<<<< HEAD
             graph.invoke(input_state, config) # type: ignore
             
-=======
-            graph.invoke(input_state, config)
-
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
             # End timer and report duration in minutes and seconds
             end_time = time.time()
             elapsed_time = end_time - start_time
@@ -689,7 +592,6 @@ class Denario:
             print(f'Error: {e}')
             return "Error occurred during literature check"
 
-<<<<<<< HEAD
         # Read and return the generated literature content
         try:
             literature_file = os.path.join(self.project_dir, INPUT_FILES, LITERATURE_FILE)
@@ -698,8 +600,6 @@ class Denario:
         except FileNotFoundError:
             return "Literature file not found"
         
-=======
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
     def get_method(self,
                    mode = "fast",
                    llm: LLM | str = models["gemini-2.0-flash"],
@@ -826,7 +726,6 @@ class Denario:
         }
 
         # Run the graph
-<<<<<<< HEAD
         graph.invoke(input_state, config) # type: ignore
         
         # Read the generated methods from file and update self.research
@@ -834,36 +733,13 @@ class Denario:
         if os.path.exists(f_method):
             with open(f_method, 'r', encoding='utf-8') as f:
                 self.research.methodology = f.read()
-=======
-        graph.invoke(input_state, config)
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
         # End timer and report duration in minutes and seconds
         end_time = time.time()
         elapsed_time = end_time - start_time
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
-<<<<<<< HEAD
         print(f"Methods generated in {minutes} min {seconds} sec.")  
-=======
-        print(f"Methods generated in {minutes} min {seconds} sec.")
-
-    def set_method(self, method: str = None) -> None:
-        """Manually set methods, either directly from a string or providing the path of a markdown file with the methods."""
-
-        method = input_check(method)
-
-        self.research.methodology = method
-
-        with open(os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE), 'w') as f:
-            f.write(method)
-
-    def show_method(self) -> None:
-        """Show the provided or generated methods by `set_method` or `get_method`."""
-
-        # display(Markdown(self.research.methodology))
-        print(self.research.methodology)
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
     def get_results(self,
                     involved_agents: List[str] = ['engineer', 'researcher'],
@@ -952,48 +828,8 @@ class Denario:
             self.project_dir, INPUT_FILES, RESULTS_FILE)
         with open(results_path, 'w') as f:
             f.write(self.research.results)
-<<<<<<< HEAD
     
     def get_keywords(self, input_text: str, n_keywords: int = 5, kw_type: str = 'unesco') -> None:
-=======
-
-    def set_results(self, results: str = None) -> None:
-        """Manually set the results, either directly from a string or providing the path of a markdown file with the results."""
-
-        results = input_check(results)
-
-        self.research.results = results
-
-        with open(os.path.join(self.project_dir, INPUT_FILES, RESULTS_FILE), 'w') as f:
-            f.write(results)
-
-    def set_plots(self, plots: list[str] | list[Image.Image]) -> None:
-        """Manually set the plots from their path."""
-
-        for i, plot in enumerate(plots):
-            if isinstance(plot, str):
-                plot_path = Path(plot)
-                img = Image.open(plot_path)
-                plot_name = str(plot_path.name)
-            else:
-                img = plot
-                plot_name = f"plot_{i}.png"
-
-            img.save(
-                os.path.join(
-                    self.project_dir,
-                    INPUT_FILES,
-                    PLOTS_FOLDER,
-                    plot_name))
-
-    def show_results(self) -> None:
-        """Show the obtained results."""
-
-        # display(Markdown(self.research.results))
-        print(self.research.results)
-
-    def get_keywords(self, input_text: str, n_keywords: int = 5) -> None:
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         """
         Get keywords from input text using cmbagent.
 
@@ -1005,26 +841,10 @@ class Denario:
         Returns:
             dict: Dictionary mapping keywords to their URLs
         """
-<<<<<<< HEAD
         
         keywords = cmbagent.get_keywords(input_text, n_keywords = n_keywords, kw_type = kw_type, api_keys = self.keys)
         self.research.keywords = keywords # type: ignore
         print('keywords: ', self.research.keywords)
-=======
-
-        aas_keywords = cmbagent.get_keywords(
-            input_text, n_keywords=n_keywords, api_keys=self.keys)
-        self.research.keywords = aas_keywords
-
-    def show_keywords(self) -> None:
-        """Show the AAS keywords."""
-
-        AAS_keyword_list = "\n".join(
-            [f"- [{keyword}]({self.research.keywords[keyword]})" for keyword in self.research.keywords]
-        )
-        # display(Markdown(AAS_keyword_list))
-        print(AAS_keyword_list)
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
     def get_paper(self,
                   journal: Journal = Journal.NONE,
@@ -1082,42 +902,24 @@ class Denario:
         }
 
         # Run the graph
-<<<<<<< HEAD
         asyncio.run(graph.ainvoke(input_state, config)) # type: ignore
         
-=======
-        asyncio.run(graph.ainvoke(input_state, config))
-
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         # End timer and report duration in minutes and seconds
         end_time = time.time()
         elapsed_time = end_time - start_time
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
-<<<<<<< HEAD
         print(f"Paper written in {minutes} min {seconds} sec.")    
 
     def referee(self,
                 llm: LLM | str = models["gemini-2.5-flash"],
                 verbose=False) -> None:
-=======
-        print(f"Paper written in {minutes} min {seconds} sec.")
-
-    def referee_fast(self,
-                     llm: LLM | str = models["gemini-2.5-flash"],
-                     verbose=False) -> None:
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         """
         Review a paper, producing a report providing feedback on the quality of the articled and aspects to be improved.
 
         Args:
-<<<<<<< HEAD
            llm: the LLM model to be used
            verbose: whether to stream the LLM response 
-=======
-           - llm: the LLM model to be used
-           - verbose: whether to stream the LLM response
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         """
 
         # Start timer
@@ -1149,34 +951,20 @@ class Denario:
 
         # Run the graph
         try:
-<<<<<<< HEAD
             graph.invoke(input_state, config) # type: ignore
             
-=======
-            graph.invoke(input_state, config)
-
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
             # End timer and report duration in minutes and seconds
             end_time = time.time()
             elapsed_time = end_time - start_time
             minutes = int(elapsed_time // 60)
             seconds = int(elapsed_time % 60)
             print(f"Paper reviewed in {minutes} min {seconds} sec.")
-<<<<<<< HEAD
             
         except FileNotFoundError as e:
             print('Denario failed to provide a review for the paper. Ensure that a paper in the `paper` folder ex')
             print(f'Error: {e}')
         
     def research_pilot(self, data_description: str | None = None) -> None:
-=======
-
-        except Exception as e:
-            print('Denario failed to provide a review the paper')
-            print(f'Error: {e}')
-
-    def research_pilot(self, data_description: str = None) -> None:
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         """Full run of Denario. It calls the following methods sequentially:
         ```
         set_data_description(data_description)

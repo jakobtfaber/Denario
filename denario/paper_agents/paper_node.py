@@ -26,31 +26,12 @@ from pathlib import Path
 from tqdm import tqdm
 import asyncio
 from functools import partial
-<<<<<<< HEAD
 import fitz  # PyMuPDF
 import cmbagent
 
 from .parameters import GraphState
 from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
 from .tools import json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text
-=======
-# PyMuPDF disabled: PDF inputs not supported in this build
-# try:
-#     import fitz  # PyMuPDF
-#     HAS_PYMUPDF = True
-# except ImportError:
-#     HAS_PYMUPDF = False
-#     # Fallback to alternative PDF processing
-#     import subprocess
-#     import os
-import cmbagent.cmbagent as cmbagent
-import sys
-
-from .parameters import GraphState
-from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean_section_prompt, conclusions_prompt, introduction_prompt, introduction_reflection, keyword_prompt, methods_prompt, plot_prompt, references_prompt, refine_results_prompt, results_prompt, cmbagent_keywords_prompt
-from .tools import json_parser, json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text, LLM_call_with_tools
-from ..tools import create_wolfram_tool
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex, fix_percent
 from ..config import INPUT_FILES
@@ -107,13 +88,8 @@ def keywords_node(state: GraphState, config: RunnableConfig):
             ################ CMB Agent keywords ###############
             # Extract keywords
             PROMPT = cmbagent_keywords_prompt(state)
-<<<<<<< HEAD
             keywords = cmbagent.get_keywords(PROMPT, n_keywords = 8, api_keys = state['keys'])
         
-=======
-            keywords = cmbagent.get_keywords(PROMPT, n_keywords=8)
-
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
             # Extract keys and join them with a comma.
             keywords = ", ".join(keywords.keys())
             ###################################################
@@ -146,11 +122,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
                 if len(keywords) >= state['params']['num_keywords']:
                     break
             else:
-<<<<<<< HEAD
                 print("Failed to get the keywords. ",end="",flush=True)
-=======
-                print("Failed to get the keywords ", end="", flush=True)
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
                 keywords = [""]
                 state['params']['num_keywords'] = 0
                 # Create empty keywords file to allow compilation to proceed
@@ -173,22 +145,10 @@ def keywords_node(state: GraphState, config: RunnableConfig):
         else:
             print("(Skipping keyword compilation due to failure)")
 
-<<<<<<< HEAD
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
     print(" |  done ",end='')
     print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
     #print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
-=======
-    minutes, seconds = divmod(time.time() - state['time']['start'], 60)
-    print(f" |  done ", end='')
-    print(
-        f"{
-            state['tokens']['ti']} {
-            state['tokens']['to']} [{
-                int(minutes)}m {
-                    int(seconds)}s]")
-    # print(f"  Selected keywords: {keywords} {state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
     return {'paper': {**state['paper'], 'Keywords': keywords},
             'tokens': state['tokens']}
@@ -226,7 +186,6 @@ def abstract_node(state: GraphState, config: RunnableConfig):
             except Exception:
                 time.sleep(2)
         else:
-<<<<<<< HEAD
             fail_message = '''Tried 3 times but failed to extract the abstract. Recommendations:
                                 - Run the paper writing module again
                                 - If still fails, try using a more power LLM, e.g. gemini-2.5-pro
@@ -234,15 +193,6 @@ def abstract_node(state: GraphState, config: RunnableConfig):
             print(fail_message)
             raise RuntimeError("LLM failed to produce valid JSON after 3 attempts.")
     
-=======
-            print(
-                f'''Tried 3 times but failed to extract the abstract. Recommendations:
-- Run the paper writing module again
-- If still fails, try using a more power LLM, e.g. gemini-2.5-pro''')
-            raise RuntimeError(
-                "LLM failed to produce valid JSON after 3 attempts.")
-
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         # perform self-reflections
         for i in range(1):
 
@@ -272,7 +222,6 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     save_paper(state, state['files']['Paper_v1'])
 
     # print some information
-<<<<<<< HEAD
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
     print(" |  done ",end='')
     print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
@@ -280,20 +229,6 @@ def abstract_node(state: GraphState, config: RunnableConfig):
     return {'paper':{**state['paper'],
                      'Title':    state['paper']['Title'],
                      'Abstract': state['paper']['Abstract']},
-=======
-    minutes, seconds = divmod(time.time() - state['time']['start'], 60)
-    print(f" |  done ", end='')
-    print(
-        f"{
-            state['tokens']['ti']} {
-            state['tokens']['to']} [{
-                int(minutes)}m {
-                    int(seconds)}s]")
-
-    return {'paper': {**state['paper'],
-                      'Title': state['paper']['Title'],
-                      'Abstract': state['paper']['Abstract']},
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
             'tokens': state['tokens']}
 
 
@@ -389,20 +324,9 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
     save_paper(state, state['files']['Paper_v1'])
 
     # print some information
-<<<<<<< HEAD
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
     print(" |  done ",end='')
     print(f"{state['tokens']['ti']} {state['tokens']['to']} [{int(minutes)}m {int(seconds)}s]")
-=======
-    minutes, seconds = divmod(time.time() - state['time']['start'], 60)
-    print(f" |  done ", end='')
-    print(
-        f"{
-            state['tokens']['ti']} {
-            state['tokens']['to']} [{
-                int(minutes)}m {
-                    int(seconds)}s]")
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
     # return updated state
     return {

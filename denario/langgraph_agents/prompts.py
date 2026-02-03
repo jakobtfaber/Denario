@@ -206,13 +206,8 @@ def reviewer_fast_prompt(state):
         for image_b64 in state['referee']['images']
     ]
 
-<<<<<<< HEAD
     prompt = [
         {"type":"text", "text": """You are a scientific referee. Below, you can find a scientific paper written in latex. Your task is to read and understand the paper. Next write a detailed report about the good/interesting aspects of the paper but also bad things, failures...etc. For the bad things, please provide comments on what would be needed to do in order to improve it. Note that you may be reviewing an AI-generated paper, so the author may not be human, and keywords may be missing. No need to mention those. 
-=======
-    prompt = [{
-        "type": "text", "text": f"""You are a scientific referee. Below, you can find a scientific paper written in latex. Your task is to read and understand the paper. Next write a detailed report about the good/interesting aspects of the paper but also bad things, failures...etc. For the bad things, please provide comments on what would be needed to do in order to improve it. Note that you may be reviewing an AI-generated paper, so the author may not be human, and keywords may be missing. No need to mention those.
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
 - Find all flaws in the paper
 - Find things that may not be done correctly
