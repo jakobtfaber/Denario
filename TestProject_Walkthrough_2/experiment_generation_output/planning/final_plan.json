@@ -1,0 +1,36 @@
+{
+    "sub_tasks": [
+        {
+            "bullet_points": [
+                "Implement the governing equation for the damped harmonic oscillator in Python.",
+                "Define the non-linear damping coefficient as \\( b(x) = b_0 + b_1 x^2 \\).",
+                "Set up the simulation parameters, including ranges for mass, spring constant, and non-linear damping coefficients.",
+                "Include comments in the code to enhance readability and maintainability."
+            ],
+            "sub_task": "Set up the simulation environment and define the governing equations for the simple harmonic oscillator with non-linear damping.",
+            "sub_task_agent": "engineer"
+        },
+        {
+            "bullet_points": [
+                "Run the numerical integration using the Runge-Kutta method to solve the differential equation.",
+                "Implement error handling for the numerical integration process to catch and log any issues.",
+                "Store the time series data for displacement and velocity for each simulation.",
+                "Save the simulation parameters used for each run alongside the results.",
+                "Measure the period of oscillation by identifying peaks in the displacement data."
+            ],
+            "sub_task": "Execute the simulations for various combinations of mass, spring constant, and non-linear damping coefficients.",
+            "sub_task_agent": "engineer"
+        },
+        {
+            "bullet_points": [
+                "Analyze the compiled data to interpret the effects of non-linear damping on the period of oscillation.",
+                "Discuss qualitative and quantitative results, including key statistics and interpretations of the plots.",
+                "Include a section on the limitations of the study to provide context for the results.",
+                "Compare the results with existing literature on linear damping to highlight the significance of the findings.",
+                "Reference the generated plots and summarize the findings for inclusion in the final report."
+            ],
+            "sub_task": "Write the full Results section of the report based on the simulation outcomes.",
+            "sub_task_agent": "researcher"
+        }
+    ]
+}

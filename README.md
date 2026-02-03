@@ -138,7 +138,7 @@ cd Denario
 Create and activate a virtual environment
 
 ```bash
-python3 -m venv Denario_env
+python -m venv Denario_env
 source Denario_env/bin/activate
 ```
 

@@ -1,3 +1,4 @@
+import os
 import re
 from pathlib import Path
 import cmbagent
@@ -46,6 +47,10 @@ class Experiment:
         self.api_keys = keys
 
         self.experiment_dir = create_work_dir(work_dir, "experiment")
+        
+        # Ensure planning/data directory exists as cmbagent might expect it
+        planning_data_dir = os.path.join(self.experiment_dir, "planning", "data")
+        os.makedirs(planning_data_dir, exist_ok=True)
 
         involved_agents_str = ', '.join(involved_agents)
 
@@ -70,34 +75,39 @@ class Experiment:
         TODO: improve docstring
         """
 
-        print(f"Engineer model: {self.engineer_model}")
-        print(f"Researcher model: {self.researcher_model}")
-        print(f"Planner model: {self.planner_model}")
-        print(f"Plan reviewer model: {self.plan_reviewer_model}")
-        print(f"Max n attempts: {self.max_n_attempts}")
-        print(f"Max n steps: {self.max_n_steps}")
-        print(f"Restart at step: {self.restart_at_step}")
-        print(f"Hardware constraints: {self.hardware_constraints}")
+        # Run the experiment
+        print(f"Running experiment with {self.max_n_steps} steps and {self.max_n_attempts} attempts per step.")
+        
+        # Ensure planning/data directory exists right before execution
+        planning_data_dir = os.path.join(self.experiment_dir, "planning", "data")
+        os.makedirs(planning_data_dir, exist_ok=True)
 
-        results = cmbagent.planning_and_control_context_carryover(data_description,
-                            n_plan_reviews = 1,
-                            max_n_attempts = self.max_n_attempts,
-                            max_plan_steps = self.max_n_steps,
-                            max_rounds_control = 500,
-                            engineer_model = self.engineer_model,
-                            researcher_model = self.researcher_model,
-                            planner_model = self.planner_model,
-                            plan_reviewer_model = self.plan_reviewer_model,
-                            plan_instructions=self.planner_append_instructions,
-                            researcher_instructions=self.researcher_append_instructions,
-                            engineer_instructions=self.engineer_append_instructions,
-                            work_dir = self.experiment_dir,
-                            api_keys = self.api_keys,
-                            restart_at_step = self.restart_at_step,
-                            hardware_constraints = self.hardware_constraints,
-                            default_llm_model = self.orchestration_model,
-                            default_formatter_model = self.formatter_model
-                            )
+        try:
+            results = cmbagent.planning_and_control_context_carryover(data_description,
+                                n_plan_reviews = 1,
+                                max_n_attempts = self.max_n_attempts,
+                                max_plan_steps = self.max_n_steps,
+                                max_rounds_control = 500,
+                                engineer_model = self.engineer_model,
+                                researcher_model = self.researcher_model,
+                                planner_model = self.planner_model,
+                                plan_reviewer_model = self.plan_reviewer_model,
+                                plan_instructions=self.planner_append_instructions,
+                                researcher_instructions=self.researcher_append_instructions,
+                                engineer_instructions=self.engineer_append_instructions,
+                                work_dir = self.experiment_dir,
+                                api_keys = self.api_keys,
+                                restart_at_step = self.restart_at_step,
+                                hardware_constraints = self.hardware_constraints,
+                                default_llm_model = self.orchestration_model,
+                                default_formatter_model = self.formatter_model
+                                )
+        except Exception as e:
+            print(f"Experiment execution failed: {e}")
+            # Try to recover partial results if possible, or raise a more informative error
+            # But we must ensure downstream code doesn't crash on missing keys
+            raise RuntimeError(f"CMBAgent failed to complete the experiment: {e}")
+
         chat_history = results['chat_history']
         final_context = results['final_context']
         
