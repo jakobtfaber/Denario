@@ -11,19 +11,12 @@ from .prompts.idea import idea_planner_prompt
 from .key_manager import KeyManager
 import cmbagent.cmbagent as cmbagent
 import re
-<<<<<<< HEAD
 from pathlib import Path
 import cmbagent
 
 from .key_manager import KeyManager
 from .prompts.idea import idea_planner_prompt
 from .utils import create_work_dir, get_task_result
-=======
-import os
-os.environ["ASTROPILOT_DISABLE_DISPLAY"] = "false"
-os.environ["CMBAGENT_GUI_MODE"] = "true"
-
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
 class Idea:
     """
@@ -56,7 +49,6 @@ class Idea:
                  formatter_model = "o3-mini",
                 ):
         
-<<<<<<< HEAD
 =======
         if work_dir is None:
             raise ValueError("workdir must be provided")
@@ -78,10 +70,6 @@ class Idea:
 <<<<<<< HEAD
         
     def develop_idea(self, data_description: str) -> str:
-=======
-
-    def develop_idea(self, data_description: str):
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         """
         Develops an idea based on the data description.
 
@@ -106,19 +94,9 @@ class Idea:
         chat_history = results['chat_history']
 
         try:
-<<<<<<< HEAD
             task_result = get_task_result(chat_history,'idea_maker_nest')
         except Exception as e:
             raise e
-=======
-            for obj in chat_history[::-1]:
-                if obj['name'] == 'idea_maker_nest':
-                    result = obj['content']
-                    break
-            task_result = result
-        except BaseException:
-            task_result = None
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 
         pattern = r'\*\*Ideas\*\*\s*\n- Idea 1:'
         replacement = "Project Idea:"

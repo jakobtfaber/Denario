@@ -15,20 +15,12 @@ from dotenv import load_dotenv
 
 
 class KeyManager(BaseModel):
-<<<<<<< HEAD
     ANTHROPIC: str | None = ""
     GEMINI: str | None = ""
     OPENAI: str | None = ""
     PERPLEXITY: str | None = ""
     SEMANTIC_SCHOLAR: str | None = ""
-=======
-    ANTHROPIC: str = ""
-    GEMINI: str = ""
-    OPENAI: str = ""
-    PERPLEXITY: str = ""
-    SEMANTIC_SCHOLAR: str = ""
-    WOLFRAM_APP_ID: str = ""
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
+    WOLFRAM_APP_ID: str | None = ""
 
     def get_keys_from_env(self) -> None:
         load_dotenv()

@@ -7,20 +7,7 @@
     --- END AUTO-GENERATED DOCSTRING ---
 """
 import os
-<<<<<<< HEAD
 import fitz  # PyMuPDF
-=======
-import argparse
-# PyMuPDF disabled: PDF inputs not supported in this build
-# try:
-#     import fitz  # PyMuPDF
-#     HAS_PYMUPDF = True
-# except ImportError:
-#     HAS_PYMUPDF = False
-#     # Fallback to alternative PDF processing
-#     import subprocess
-#     import os
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
 import base64
 
 
