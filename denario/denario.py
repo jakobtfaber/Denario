@@ -56,11 +56,11 @@ class Denario:
             os.makedirs(project_dir, exist_ok=True)
         self.project_dir = project_dir
 
+        self._setup_input_files()
+
         self.plots_folder = os.path.join(self.project_dir, INPUT_FILES, PLOTS_FOLDER)
         # Ensure the folder exists
         os.makedirs(self.plots_folder, exist_ok=True)
-
-        self._setup_input_files()
 
         # Get keys from environment if they exist
         self.keys = KeyManager()
@@ -374,7 +374,7 @@ class Denario:
             llm: the LLM model to be used
             verbose: whether to stream the LLM response
         """
-
+        
         # Start timer
         start_time = time.time()
         config = {"configurable": {"thread_id": "1"}, "recursion_limit":100}
@@ -404,6 +404,12 @@ class Denario:
         # Run the graph
         graph.invoke(input_state, config) # type: ignore
         
+        # Read the generated idea from file and update self.research
+        f_idea = os.path.join(self.project_dir, INPUT_FILES, IDEA_FILE)
+        if os.path.exists(f_idea):
+            with open(f_idea, 'r', encoding='utf-8') as f:
+                self.research.idea = f.read()
+
         # End timer and report duration in minutes and seconds
         end_time = time.time()
         elapsed_time = end_time - start_time
@@ -678,6 +684,12 @@ class Denario:
         # Run the graph
         graph.invoke(input_state, config) # type: ignore
         
+        # Read the generated methods from file and update self.research
+        f_method = os.path.join(self.project_dir, INPUT_FILES, METHOD_FILE)
+        if os.path.exists(f_method):
+            with open(f_method, 'r', encoding='utf-8') as f:
+                self.research.methodology = f.read()
+
         # End timer and report duration in minutes and seconds
         end_time = time.time()
         elapsed_time = end_time - start_time

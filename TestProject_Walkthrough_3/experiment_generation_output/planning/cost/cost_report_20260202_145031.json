@@ -1,0 +1,74 @@
+[
+  {
+    "Agent": "reviewer response formatter",
+    "Cost ($)": 0.0001818,
+    "Prompt Tokens": 328.0,
+    "Completion Tokens": 221.0,
+    "Total Tokens": 549.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "planner",
+    "Cost ($)": 0.00145635,
+    "Prompt Tokens": 6201.0,
+    "Completion Tokens": 877.0,
+    "Total Tokens": 7078.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "plan reviewer",
+    "Cost ($)": 0.00056025,
+    "Prompt Tokens": 2823.0,
+    "Completion Tokens": 228.0,
+    "Total Tokens": 3051.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "terminator",
+    "Cost ($)": 0.000438,
+    "Prompt Tokens": 2916.0,
+    "Completion Tokens": 1.0,
+    "Total Tokens": 2917.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "plan setter",
+    "Cost ($)": 0.0001848,
+    "Prompt Tokens": 1188.0,
+    "Completion Tokens": 11.0,
+    "Total Tokens": 1199.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "planner response formatter",
+    "Cost ($)": 0.0006945,
+    "Prompt Tokens": 1654.0,
+    "Completion Tokens": 744.0,
+    "Total Tokens": 2398.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "plan recorder",
+    "Cost ($)": 0.00090495,
+    "Prompt Tokens": 1925.0,
+    "Completion Tokens": 1027.0,
+    "Total Tokens": 2952.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "review recorder",
+    "Cost ($)": 0.00018735,
+    "Prompt Tokens": 305.0,
+    "Completion Tokens": 236.0,
+    "Total Tokens": 541.0,
+    "Model": "gpt-4o-mini-2024-07-18"
+  },
+  {
+    "Agent": "Total",
+    "Cost ($)": 0.004607999999999999,
+    "Prompt Tokens": 17340.0,
+    "Completion Tokens": 3345.0,
+    "Total Tokens": 20685.0,
+    "Model": NaN
+  }
+]

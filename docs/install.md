@@ -15,7 +15,7 @@ Given that Denario could install packages and run code, we recommend to run it w
 Using `venv`:
 
 ```bash
-python3 -m venv Denario_env
+python -m venv Denario_env
 ```
 
 Activate the virtual environment with

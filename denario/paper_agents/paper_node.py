@@ -36,7 +36,7 @@ def keywords_node(state: GraphState, config: RunnableConfig):
             ################ CMB Agent keywords ###############
             # Extract keywords
             PROMPT = cmbagent_keywords_prompt(state)
-            keywords = cmbagent.get_keywords(PROMPT, n_keywords = 8)
+            keywords = cmbagent.get_keywords(PROMPT, n_keywords = 8, api_keys = state['keys'])
         
             # Extract keys and join them with a comma.
             keywords = ", ".join(keywords.keys())
@@ -67,9 +67,12 @@ def keywords_node(state: GraphState, config: RunnableConfig):
                 if len(keywords)>=state['params']['num_keywords']:
                     break
             else:
-                print("Failed to get the keywords ",end="",flush=True)
+                print("Failed to get the keywords. ",end="",flush=True)
                 keywords = [""]
                 state['params']['num_keywords'] = 0
+                # Create empty keywords file to allow compilation to proceed
+                # but we print a newline to avoid confusing checkmark
+                print("")
 
             # take a random subset
             keywords = random.sample(keywords, state['params']['num_keywords'])
@@ -80,7 +83,12 @@ def keywords_node(state: GraphState, config: RunnableConfig):
 
         # write results to temporary file
         temp_file(state, f_temp, 'write', keywords)
-        compile_tex_document(state, f_temp, state['files']['Temp'])
+        
+        # Only compile if we actually got keywords, otherwise skip compilation to avoid misleading checkmarks
+        if state['params']['num_keywords'] > 0:
+            compile_tex_document(state, f_temp, state['files']['Temp'])
+        else:
+            print("(Skipping keyword compilation due to failure)")
 
     minutes, seconds = divmod(time.time()-state['time']['start'], 60)
     print(" |  done ",end='')
