@@ -10,7 +10,7 @@ from langchain_core.runnables import RunnableConfig
 from langchain_core.messages import HumanMessage
 
 from ..paper_agents.tools import extract_latex_block, LLM_call_stream, clean_section
-from ..tools import create_wolfram_tool
+from ..tools import create_math_tool
 from .prompts import methods_fast_prompt
 from .parameters import GraphState
 
@@ -19,14 +19,14 @@ def methods_fast(state: GraphState, config: RunnableConfig):
 
     print('Generating methods...', end="", flush=True)
 
-    # Initialize Wolfram Alpha tool
-    wolfram_tool = create_wolfram_tool(enable_hitl=False)
+    # Initialize Math Orchestrator tool
+    math_tool = create_math_tool()
 
     # Get the LLM instance for tool usage
     llm = state['llm']['llm']
 
     # Bind the tool to the LLM
-    llm_with_tools = llm.bind_tools([wolfram_tool])
+    llm_with_tools = llm.bind_tools([math_tool])
 
     PROMPT = methods_fast_prompt(state)
 
