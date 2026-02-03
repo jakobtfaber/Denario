@@ -4,10 +4,12 @@ import urllib.request
 import urllib.parse
 import json
 import warnings
+import hashlib
 
 # ... other imports ...
 from pathlib import Path
 from .llm import LLM, models
+from .key_manager import KeyManager
 
 
 def input_check(str_input: str) -> str:
@@ -130,12 +132,33 @@ def in_notebook():
 
 
 class WolframAlphaClient:
-    def __init__(self, app_id=None, enable_hitl=False):
+    def __init__(self, app_id=None, enable_hitl=False, cache_dir=None):
         self.app_id = app_id
+        if not self.app_id:
+            try:
+                keys = KeyManager()
+                keys.get_keys_from_env()
+                self.app_id = keys.WOLFRAM_APP_ID
+            except Exception as e:
+                print(f"Failed to load Wolfram App ID from KeyManager: {e}")
+
         self.enable_hitl = enable_hitl
         self.base_url = "http://api.wolframalpha.com/v2/query"
+        self.cache_dir = cache_dir
+        if self.cache_dir:
+            os.makedirs(self.cache_dir, exist_ok=True)
 
     def query(self, query, use_cache=True):
+        if use_cache and self.cache_dir:
+            try:
+                query_hash = hashlib.md5(query.encode()).hexdigest()
+                cache_file = os.path.join(self.cache_dir, f"{query_hash}.json")
+                if os.path.exists(cache_file):
+                    with open(cache_file, "r") as f:
+                        return json.load(f)
+            except Exception as e:
+                print(f"Cache read error: {e}")
+
         if not self.app_id:
             return {"queryresult": {"success": False, "error": "No App ID provided"}}
 
@@ -157,7 +180,18 @@ class WolframAlphaClient:
                         }
                     }
                 data = response.read()
-                return json.loads(data)
+                result = json.loads(data)
+
+                if use_cache and self.cache_dir and result.get("queryresult", {}).get("success"):
+                    try:
+                        query_hash = hashlib.md5(query.encode()).hexdigest()
+                        cache_file = os.path.join(self.cache_dir, f"{query_hash}.json")
+                        with open(cache_file, "w") as f:
+                            json.dump(result, f)
+                    except Exception as e:
+                        print(f"Cache write error: {e}")
+                
+                return result
         except Exception as e:
             return {"queryresult": {"success": False, "error": str(e)}}
 
