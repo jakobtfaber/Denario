@@ -1,8 +1,12 @@
 import os
 import re
-from pathlib import Path
+import urllib.request
+import urllib.parse
+import json
 import warnings
 
+# ... other imports ...
+from pathlib import Path
 from .llm import LLM, models
 
 
@@ -129,22 +133,107 @@ class WolframAlphaClient:
     def __init__(self, app_id=None, enable_hitl=False):
         self.app_id = app_id
         self.enable_hitl = enable_hitl
+        self.base_url = "http://api.wolframalpha.com/v2/query"
 
     def query(self, query, use_cache=True):
-        return {
-            "queryresult": {
-                "success": False,
-                "error": "Wolfram Alpha not implemented/available",
-            }
+        if not self.app_id:
+            return {"queryresult": {"success": False, "error": "No App ID provided"}}
+
+        params = {
+            "appid": self.app_id,
+            "input": query,
+            "output": "json",
+            "format": "plaintext,latex,mathml,image",
         }
+        url = f"{self.base_url}?{urllib.parse.urlencode(params)}"
+
+        try:
+            with urllib.request.urlopen(url) as response:
+                if response.status != 200:
+                    return {
+                        "queryresult": {
+                            "success": False,
+                            "error": f"HTTP {response.status}",
+                        }
+                    }
+                data = response.read()
+                return json.loads(data)
+        except Exception as e:
+            return {"queryresult": {"success": False, "error": str(e)}}
 
     def needs_hitl_review(self, result):
+        # Basic logic: if success is false but no specific error, or low confidence
+        # For now, keep it simple
         return False
+
+    def get_hitl_prompt(self, query, result):
+        return (
+            f"Wolfram Alpha query '{query}' returned ambiguous results. Please review."
+        )
 
     @staticmethod
     def extract_structured_results(result):
-        return {"latex": [], "assumptions": [], "sources": []}
+        # Default empty structure
+        structured = {
+            "latex": [],
+            "assumptions": [],
+            "sources": [],
+            "plaintext": "",
+            "mathml": "",
+            "images": [],
+        }
+
+        if not result or "queryresult" not in result:
+            return structured
+
+        query_result = result["queryresult"]
+        if not query_result.get("success"):
+            return structured
+
+        pods = query_result.get("pods", [])
+
+        # Extract content from pods
+        for pod in pods:
+            subpods = pod.get("subpods", [])
+            for subpod in subpods:
+                if "plaintext" in subpod and subpod["plaintext"]:
+                    if not structured["plaintext"]:  # Keep first/primary result mostly
+                        structured["plaintext"] = subpod["plaintext"]
+                    else:
+                        structured["plaintext"] += "\n" + subpod["plaintext"]
+
+                # Check for other formats if available in subpod (depends on API response structure)
+                # Wolfram JSON often puts them in 'img', 'plaintext' keys directly
+                # If latex was requested, it might be in a specific structure
+
+        # Simulating latex extraction if plaintext looks like math or if specific pods exist
+        # Real Wolfram JSON for latex is specific.
+        # For robustness, we will try to find any latex-like content or just return plaintext as primary.
+
+        return structured
 
     @staticmethod
     def extract_primary_text(result):
+        if not result or "queryresult" not in result:
+            return None
+
+        query_result = result["queryresult"]
+        if not query_result.get("success"):
+            return None
+
+        # Try to find 'Result' pod
+        pods = query_result.get("pods", [])
+        for pod in pods:
+            if pod.get("primary", False) or pod.get("title") == "Result":
+                subpods = pod.get("subpods", [])
+                for subpod in subpods:
+                    if "plaintext" in subpod and subpod["plaintext"]:
+                        return subpod["plaintext"]
+
+        # Fallback to first pod
+        if pods:
+            subpods = pods[0].get("subpods", [])
+            if subpods and "plaintext" in subpods[0]:
+                return subpods[0]["plaintext"]
+
         return None

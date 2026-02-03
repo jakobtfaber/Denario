@@ -275,7 +275,21 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
             PROMPT = prompt_fn(state)
 
             # Initialize Wolfram Alpha tool for mathematical computations
-            wolfram_tool = create_wolfram_tool(enable_hitl=True)
+            if 'wolfram' not in state:
+                try:
+                    # Pass app_id from keys if available
+                    app_id = state['keys'].api_keys.get('WOLFRAM_APP_ID') if hasattr(state['keys'], 'api_keys') else None
+                    # If KeyManager structure is different, try generic access or assume it manages env vars
+                    # KeyManager usually loads keys into attributes or a dictionary. 
+                    # Looking at KeyManager source (read earlier), it stores keys in self.api_keys dict.
+                    
+                    wolfram_tool = create_wolfram_tool(app_id=app_id, enable_hitl=True)
+                    state['wolfram'] = wolfram_tool
+                except Exception as e:
+                    print(f"Failed to create Wolfram tool: {e}")
+                    # Fallback to dummy or None to prevent crash
+                    state['wolfram'] = None
+            wolfram_tool = state['wolfram']
 
             # Get the LLM instance and bind tools
             llm = state['llm']['llm']
@@ -292,6 +306,20 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
                     PROMPT, state, llm_with_tools)
             else:
                 state, result = LLM_call(PROMPT, state)
+
+            # Check for empty result
+            if not result or not result.strip():
+                print(f" (Empty response from LLM, retrying {attempt+1}/3)", end="", flush=True)
+                
+                # Fallback: try without tools if tools were used and failed
+                if section_name in ['Methods', 'Results', 'Introduction']:
+                     print(" (Fallback to no-tools)", end="", flush=True)
+                     state, result = LLM_call(PROMPT, state)
+
+                if not result or not result.strip():
+                    time.sleep(5)
+                    continue
+
             section_text = extract_latex_block(state, result, section_name)
             state['paper'][section_name] = section_text
 
@@ -320,6 +348,10 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
                 state, fixed = fix_latex(state, f_temp)
                 if fixed:  # if fixed=True it means it fixed the error and compiled properly
                     break
+
+    # Check if section was generated
+    if section_name not in state['paper'] or not state['paper'][section_name]:
+        raise RuntimeError(f"Failed to generate {section_name} after 3 attempts.")
 
     # Save paper
     save_paper(state, state['files']['Paper_v1'])

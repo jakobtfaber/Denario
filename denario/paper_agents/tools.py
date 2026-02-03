@@ -227,7 +227,10 @@ def extract_latex_block(state: GraphState, text: str, block: str) -> str:
         # Use str(item) to ensure all list elements can be joined
         text = "".join([str(item) for item in text])
 
-    pattern = rf"\\begin{{{block}}}(.*?)\\end{{{block}}}"
+    # Allow optional single or double quotes around the block name, and whitespace
+    pattern = (
+        rf"\\begin{{\s*['\"]?{block}['\"]?\s*}}(.*?)\\end{{\s*['\"]?{block}['\"]?\s*}}"
+    )
     match = re.search(pattern, text, re.DOTALL)
 
     if match:
@@ -240,8 +243,8 @@ def extract_latex_block(state: GraphState, text: str, block: str) -> str:
     # try to fix it using fixed
     try:
         return fixer(state, block)
-    except ValueError:
-        raise ValueError(f"Failed to extract {block}")
+    except ValueError as e:
+        raise ValueError(f"Failed to extract {block}: {str(e)}")
 
 
 def fixer(state: GraphState, section_name):
@@ -258,15 +261,17 @@ def fixer(state: GraphState, section_name):
     # result = llm.invoke(PROMPT).content
 
     # Extract caption
-    pattern = rf"\\begin{{{section_name}}}(.*?)\\end{{{section_name}}}"
+    # Allow optional single or double quotes around the block name, and whitespace
+    pattern = rf"\\begin{{\s*['\"]?{section_name}['\"]?\s*}}(.*?)\\end{{\s*['\"]?{section_name}['\"]?\s*}}"
     match = re.search(pattern, result, re.DOTALL)
     if match:
         return match.group(1).strip()
     else:
         with open(state["files"]["Error"], "w", encoding="utf-8") as f:
             f.write(result)
-        print("Fixer failed to extract block")
-        sys.exit()
+        # Raise ValueError instead of sys.exit to allow better error handling/reporting
+        error_sample = result[:100].replace("\n", " ") + "..."
+        raise ValueError(f"Fixer failed to extract block from result: {error_sample}")
 
 
 def LaTeX_checker(state, text):

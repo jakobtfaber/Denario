@@ -33,6 +33,11 @@ gemini25pro = LLM(name="gemini-2.5-pro",
                   temperature=0.7)
 """`gemini-2.5-pro` model."""
 
+gemini3propreview = LLM(name="gemini-3-pro-preview",
+                        max_output_tokens=65536,
+                        temperature=0.7)
+"""`gemini-3-pro-preview` model."""
+
 o3mini = LLM(name="o3-mini-2025-01-31",
              max_output_tokens=100000,
              temperature=None)
@@ -92,6 +97,7 @@ models : Dict[str, LLM] = {
                             "gemini-2.0-flash" : gemini20flash,
                             "gemini-2.5-flash" : gemini25flash,
                             "gemini-2.5-pro" : gemini25pro,
+                            "gemini-3-pro-preview" : gemini3propreview,
                             "o3-mini" : o3mini,
                             "gpt-4o" : gpt4o,
                             "gpt-4.1" : gpt41,

@@ -157,6 +157,7 @@ In <INTRODUCTION>, place the introduction of the paper. Please, follow these gui
 - Do not create subsections
 - Do not add citations
 - Do not create commands, e.g. \MBH
+- **Do not put quotes around the section name inside \\begin{{...}}**
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTeX.
 """)]
@@ -198,6 +199,7 @@ In <INTRODUCTION>, place the new Introduction of the paper. Follow these guideli
 - Do not create subsections
 - Do not add citations
 - Do not create commands, e.g. \MBH
+- **Do not put quotes around the section name inside \\begin{{...}}**
 
 Please make sure the introduction reads smoothly and is well-motivated. If you use equations, please write them in LaTex.
 """)]
@@ -208,7 +210,7 @@ def methods_prompt(state):
     return [SystemMessage(content=f"""You are a {state['writer']}"""), HumanMessage(
         content=rf"""Given the below paper title, abstract, introduction, and methods, write the methods section for the paper. Describe in detail each of the methods and techniques use in the paper.
 
-IMPORTANT: Use the Wolfram Alpha tool for any mathematical computations, unit conversions, physical constants, or equation solving. This will ensure mathematical accuracy and proper scientific notation.
+You may use the Wolfram Alpha tool for any mathematical computations, unit conversions, physical constants, or equation solving if needed.
 
 Paper title:
 {state['paper']['Title']}
@@ -239,6 +241,7 @@ Follow these guidelines:
 - Do not write subsections titles in capital letters
 - The first letter of subsection titles should be in capital
 - The text you write, is going to be placed inside a section of a LaTeX paper. Thus, you can create subsections and subsubsections, but not sections.
+- **Do not put quotes around the section name inside \\begin{{...}}**
 """)]
 
 
@@ -247,7 +250,7 @@ def results_prompt(state):
     return [SystemMessage(content="""You are a {state['writer']}"""), HumanMessage(
         content=rf"""Given the paper title, abstract, introduction, and short results below, write the results section for a scientific paper. Describe in detail the results obtained and try to intepret them
 
-IMPORTANT: Use the Wolfram Alpha tool for any statistical analysis, mathematical computations, unit conversions, or data interpretation. This will ensure mathematical accuracy and proper scientific notation.
+You may use the Wolfram Alpha tool for any statistical analysis, mathematical computations, unit conversions, or data interpretation if needed.
 
 Paper title:
 {state['paper']['Title']}
@@ -283,8 +286,9 @@ Follow these guidelines:
 - The first letter of subsection titles should be in capital
 - You can create subsections and subsubsections, but **you cannot create sections**
 - You can summarize the results at the end, but do not write a conclusions subsection as there will be a conclusions section written later on
-- The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{aastex631}  . Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
+- The text you write will be placed inside a 2-columns LaTeX document that start with \\documentclass[twocolumn]{{aastex631}}  . Thus, for long equations and wide tables, either use the full paper width or write the equations and table so that they occupy a single column.
 - Try to connect the text written with the one in the introduction and methods
+- **Do not put quotes around the section name inside \\begin{{...}}**
 """)]
 
 
@@ -295,13 +299,14 @@ def refine_results_prompt(state):
 Your task is to rewrite the text to make it more coherent with the figures and their captions. Follow these rules:
 
 - **Do not remove any figures. All figures must remain in the section**
-- Add appropriate LaTeX references to the figures using Figure \ref{fig:...}  syntax
+- Add appropriate LaTeX references to the figures using Figure \ref{{fig:...}}  syntax
 - Modify or reorganize the text to improve clarity and flow
 - Reorder figures and paragraphs only if it improves the clarity of the text
 - Do not remove technical or scientific content
 - Write the text in LaTeX
 - **Do not write subsections titles in capital letters**
 - The first letter of subsection titles should be in capital
+- **Do not put quotes around the section name inside \\begin{{...}}**
 
 Results section:
 {state['paper']['Results']}
@@ -454,9 +459,9 @@ You may:
 - Take into account that citations inside figures or tables will raise LaTeX errors
 - If citations are inside tables or figures, move them outside them.
 - For instance for this piece,
-\[A = Bx^2 + C \citep{gallo2019}  \]
+\[A = Bx^2 + C \citep{{gallo2019}}  \]
 LaTeX will raise an error because the citation is inside the equation. To deal with this, you need to move the citation outside the equation like this:
-\[A = Bx^2 + C\] \citep{gallo2019}
+\[A = Bx^2 + C\] \citep{{gallo2019}}
 
 
 Do **not**:
@@ -548,11 +553,9 @@ Text:
 
 Respond in this format:
 
-\\begin{
-                {section_name}}
+\\begin{{{section_name}}}
 <{section_name}>
-\\end{
-                {section_name}}
+\\end{{{section_name}}}
 
 In <{section_name}> put the extracted text. In the extracted text, do not include any of the following lines
 
@@ -566,6 +569,7 @@ In <{section_name}> put the extracted text. In the extracted text, do not includ
 \\end{{document}}
 ```
 
+**Ensure the section tags do NOT have quotes. Use standard LaTeX format: \\begin{{{section_name}}} ... \\end{{{section_name}}}**
 """)]
 
 
