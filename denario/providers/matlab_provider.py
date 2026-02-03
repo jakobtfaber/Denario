@@ -434,13 +434,13 @@ end
 
     def _convert_to_matlab_diff(self, query: str) -> str:
         """Convert query to MATLAB diff syntax."""
-        # Example: "derivative of x^3" -> "syms('x'); diff(x^3, x)"
+        # Example: "derivative of x^3" -> "char(diff(x^3, x))"
         if 'of' in query:
             expr = query.split('of')[1].strip()
-            return f"syms('x'); diff({expr}, x)"
+            return f"char(diff({expr}, x))"
         else:
             expr = query.replace('derivative', '').replace('diff', '').strip()
-            return f"syms('x'); diff({expr}, x)"
+            return f"char(diff({expr}, x))"
 
     def _convert_to_matlab_eig(self, query: str) -> str:
         """Convert query to MATLAB eig syntax."""
@@ -459,12 +459,11 @@ end
 
     def _convert_to_matlab_optimize(self, query: str) -> str:
         """Convert query to MATLAB optimization syntax."""
-        # Example: "optimize x^2 + 2*x + 1" -> "syms('x'); f = x^2 + 2*x + 1;
-        # fminunc(@(x) x^2 + 2*x + 1, 0)"
+        # Example: "optimize x^2 + 2*x + 1" -> "fminunc(@(x) x^2 + 2*x + 1, 0)"
         if 'optimize' in query:
             expr = query.replace('optimize', '').strip()
-            return f"syms('x'); f = {expr}; fminunc(@(x) {expr}, 0)"
-        return f"syms('x'); fminunc(@(x) {query}, 0)"
+            return f"fminunc(@(x) {expr}, 0)"
+        return f"fminunc(@(x) {query}, 0)"
 
     def _convert_to_matlab_plot(self, query: str) -> str:
         """Convert query to MATLAB plot syntax."""
