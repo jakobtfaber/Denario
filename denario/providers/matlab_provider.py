@@ -371,15 +371,15 @@ end
         if 'solve' in query_lower or '=' in query_lower:
             # Convert to MATLAB solve syntax
             matlab_query = self._convert_to_matlab_solve(query)
-            return lambda: self.engine.eval(matlab_query)
+            return lambda: self._run_symbolic_query(matlab_query)
         elif 'integrate' in query_lower or 'int' in query_lower:
             # Convert to MATLAB int syntax
             matlab_query = self._convert_to_matlab_integral(query)
-            return lambda: self.engine.eval(matlab_query)
+            return lambda: self._run_symbolic_query(matlab_query)
         elif 'derivative' in query_lower or 'diff' in query_lower:
             # Convert to MATLAB diff syntax
             matlab_query = self._convert_to_matlab_diff(query)
-            return lambda: self.engine.eval(matlab_query)
+            return lambda: self._run_symbolic_query(matlab_query)
         elif 'eigen' in query_lower or 'eigenvalue' in query_lower:
             # Convert to MATLAB eig syntax
             matlab_query = self._convert_to_matlab_eig(query)
@@ -387,7 +387,7 @@ end
         elif 'optimize' in query_lower or 'minimize' in query_lower or 'maximize' in query_lower:
             # Convert to MATLAB optimization syntax
             matlab_query = self._convert_to_matlab_optimize(query)
-            return lambda: self.engine.eval(matlab_query)
+            return lambda: self._run_symbolic_query(matlab_query)
         elif 'plot' in query_lower or 'graph' in query_lower:
             # Convert to MATLAB plot syntax
             matlab_query = self._convert_to_matlab_plot(query)
@@ -396,22 +396,29 @@ end
             # Direct evaluation
             return lambda: self.engine.eval(query)
 
+    def _run_symbolic_query(self, matlab_expr: str):
+        """Run a symbolic query ensuring variables are defined."""
+        # Ensure x is defined as symbolic
+        self.engine.eval("syms('x')", nargout=0)
+        return self.engine.eval(matlab_expr)
+
+
     def _convert_to_matlab_solve(self, query: str) -> str:
         """Convert query to MATLAB solve syntax."""
         # Simple conversion for basic equations
-        # Example: "solve x^2 + 2*x + 1 = 0" -> "syms('x'); solve(x^2 + 2*x + 1 == 0, x)"
+        # Example: "solve x^2 + 2*x + 1 = 0" -> "char(solve(x^2 + 2*x + 1 == 0, x))"
         if '=' in query:
             equation = query.split('solve')[1].strip()
             if '=' in equation:
                 left, right = equation.split('=', 1)
                 left = left.strip()
                 right = right.strip()
-                return f"syms('x'); solve({left} == {right}, x)"
-        return f"syms('x'); solve({query}, x)"
+                return f"char(solve({left} == {right}, x))"
+        return f"char(solve({query}, x))"
 
     def _convert_to_matlab_integral(self, query: str) -> str:
         """Convert query to MATLAB integral syntax."""
-        # Example: "integrate x^2 from 0 to 1" -> "syms('x'); int(x^2, x, 0, 1)"
+        # Example: "integrate x^2 from 0 to 1" -> "char(int(x^2, x, 0, 1))"
         if 'from' in query and 'to' in query:
             parts = query.split()
             expr = parts[1]  # x^2
@@ -419,11 +426,11 @@ end
             to_idx = parts.index('to')
             lower = parts[from_idx + 1]
             upper = parts[to_idx + 1]
-            return f"syms('x'); int({expr}, x, {lower}, {upper})"
+            return f"char(int({expr}, x, {lower}, {upper}))"
         else:
             # Indefinite integral
             expr = query.replace('integrate', '').replace('int', '').strip()
-            return f"syms('x'); int({expr}, x)"
+            return f"char(int({expr}, x))"
 
     def _convert_to_matlab_diff(self, query: str) -> str:
         """Convert query to MATLAB diff syntax."""
