@@ -321,8 +321,15 @@ def LLM_call_with_tools(prompt, state, llm_with_tools):
     This function calls the LLM with tools and update tokens
     """
     message = llm_with_tools.invoke(prompt)
-    input_tokens = message.usage_metadata['input_tokens']
-    output_tokens = message.usage_metadata['output_tokens']
+    
+    # Handle missing usage_metadata
+    if hasattr(message, 'usage_metadata') and message.usage_metadata:
+        input_tokens = message.usage_metadata.get('input_tokens', 0)
+        output_tokens = message.usage_metadata.get('output_tokens', 0)
+    else:
+        input_tokens = 0
+        output_tokens = 0
+        
     if output_tokens > state['llm']['max_output_tokens']:
         print('WARNING!! Max output tokens reach!')
     state['tokens']['ti'] += input_tokens

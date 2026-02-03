@@ -7,16 +7,14 @@
             - develop_idea(data_description: str) (line 65)
     --- END AUTO-GENERATED DOCSTRING ---
 """
-from .prompts.idea import idea_planner_prompt
-from .key_manager import KeyManager
-import cmbagent.cmbagent as cmbagent
+import cmbagent
 import re
 from pathlib import Path
-import cmbagent
 
 from .key_manager import KeyManager
 from .prompts.idea import idea_planner_prompt
 from .utils import create_work_dir, get_task_result
+import cmbagent.cmbagent as cmbagent
 
 class Idea:
     """
@@ -49,12 +47,6 @@ class Idea:
                  formatter_model = "o3-mini",
                 ):
         
-=======
-        if work_dir is None:
-            raise ValueError("workdir must be provided")
-
-        self.idea_dir = os.path.join(work_dir, "idea_generation_output")
->>>>>>> 88373a30590704ac30cc9794e11c9da2ffcfc402
         self.idea_maker_model = idea_maker_model
         self.idea_hater_model = idea_hater_model
         self.planner_model = planner_model
@@ -67,7 +59,6 @@ class Idea:
 
         # Set prompt
         self.planner_append_instructions = idea_planner_prompt
-<<<<<<< HEAD
         
     def develop_idea(self, data_description: str) -> str:
         """
