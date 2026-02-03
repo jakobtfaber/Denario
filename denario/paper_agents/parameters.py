@@ -103,3 +103,5 @@ class GraphState(TypedDict):
     time: TIME
     writer: str  #determines who is writing the paper. E.g. astrophysicists, biologist
     params: PARAMS #parameters of model
+    math_tool: Any # Tool for mathematical computations (MATLAB/Wolfram)
+    wolfram: Any # Legacy field for backward compatibility

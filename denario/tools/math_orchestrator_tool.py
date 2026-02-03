@@ -26,6 +26,10 @@ class MathOrchestratorTool(BaseModel):
     )
     orchestrator: PremiumMathematicalOrchestrator = Field(default_factory=PremiumMathematicalOrchestrator)
 
+    model_config = {
+        "arbitrary_types_allowed": True
+    }
+
     def _run(self, query: str) -> str:
         """Use the tool."""
         try:
@@ -56,6 +60,10 @@ def create_math_tool(config: Optional[dict] = None) -> BaseTool:
             "or Wolfram Alpha as needed."
         )
         orchestrator: PremiumMathematicalOrchestrator = Field(default_factory=lambda: PremiumMathematicalOrchestrator(config))
+
+        model_config = {
+            "arbitrary_types_allowed": True
+        }
 
         def _run(self, query: str) -> str:
             try:

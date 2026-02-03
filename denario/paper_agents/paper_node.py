@@ -34,7 +34,7 @@ from .prompts import abstract_prompt, abstract_reflection, caption_prompt, clean
 from .tools import json_parser3, LaTeX_checker, clean_section, extract_latex_block, LLM_call, temp_file, check_images_in_text, LLM_call_with_tools
 from .literature import process_tex_file_with_references
 from .latex import compile_latex, save_paper, save_bib, process_bib_file, compile_tex_document, fix_latex, fix_percent
-from ..tools import create_wolfram_tool
+from ..tools import create_math_tool
 from ..config import INPUT_FILES
 
 
@@ -274,32 +274,28 @@ def section_node(state: GraphState, config: RunnableConfig, section_name: str,
             # --- Step 1: Prompt and parse section with Wolfram Alpha tools ---
             PROMPT = prompt_fn(state)
 
-            # Initialize Wolfram Alpha tool for mathematical computations
-            if 'wolfram' not in state:
+            # Initialize Math Orchestrator tool for mathematical computations
+            if 'math_tool' not in state:
                 try:
-                    # Pass app_id from keys if available
-                    app_id = state['keys'].api_keys.get('WOLFRAM_APP_ID') if hasattr(state['keys'], 'api_keys') else None
-                    # If KeyManager structure is different, try generic access or assume it manages env vars
-                    # KeyManager usually loads keys into attributes or a dictionary. 
-                    # Looking at KeyManager source (read earlier), it stores keys in self.api_keys dict.
-                    
-                    wolfram_tool = create_wolfram_tool(app_id=app_id, enable_hitl=True)
-                    state['wolfram'] = wolfram_tool
+                    # Create the premium math tool that orchestrates MATLAB and Wolfram
+                    math_tool = create_math_tool()
+                    state['math_tool'] = math_tool
+                    state['wolfram'] = math_tool # For compatibility
                 except Exception as e:
-                    print(f"Failed to create Wolfram tool: {e}")
+                    print(f"Failed to create Math tool: {e}")
                     # Fallback to dummy or None to prevent crash
-                    state['wolfram'] = None
-            wolfram_tool = state['wolfram']
+                    state['math_tool'] = None
+            math_tool = state['math_tool']
 
             # Get the LLM instance and bind tools
             llm = state['llm']['llm']
-            llm_with_tools = llm.bind_tools([wolfram_tool])
+            llm_with_tools = llm.bind_tools([math_tool])
 
             # Force regeneration for mathematical sections to ensure Wolfram
-            # Alpha usage
+            # Alpha/MATLAB usage
             if section_name in ['Methods', 'Results', 'Introduction']:
                 print(
-                    f" (Using Wolfram Alpha for {section_name})",
+                    f" (Using Math Orchestrator for {section_name})",
                     end="",
                     flush=True)
                 state, result = LLM_call_with_tools(
