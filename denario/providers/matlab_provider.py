@@ -392,6 +392,12 @@ end
             # Convert to MATLAB plot syntax
             matlab_query = self._convert_to_matlab_plot(query)
             return lambda: self.engine.eval(matlab_query)
+        elif 'signal processing' in query_lower:
+            matlab_query = self._convert_to_matlab_signal_processing(query)
+            return lambda: self.engine.eval(matlab_query)
+        elif 'statistics' in query_lower:
+            matlab_query = self._convert_to_matlab_statistics(query)
+            return lambda: self.engine.eval(matlab_query)
         else:
             # Direct evaluation
             return lambda: self.engine.eval(query)
@@ -401,6 +407,26 @@ end
         # Ensure x is defined as symbolic
         self.engine.eval("syms('x')", nargout=0)
         return self.engine.eval(matlab_expr)
+
+    def _convert_to_matlab_signal_processing(self, query: str) -> str:
+        # Example: "signal processing of [1,2,3,4,5]" -> "fft([1,2,3,4,5])"
+        import re
+        matrix_match = re.search(r'\[.*?\]', query)
+        if matrix_match:
+            matrix = matrix_match.group()
+            return f"fft({matrix})"
+        return "fft([1, 2, 3, 4, 5])"
+
+    def _convert_to_matlab_statistics(self, query: str) -> str:
+        # Example: "statistics of [1,2,3,4,5]" -> "mean([1,2,3,4,5])"
+        import re
+        matrix_match = re.search(r'\[.*?\]', query)
+        if matrix_match:
+            matrix = matrix_match.group()
+            # Return mean and std as a string
+            return f"sprintf('Mean: %f, Std: %f', mean({matrix}), std({matrix}))"
+        return "sprintf('Mean: %f, Std: %f', mean([1,2,3,4,5]), std([1,2,3,4,5]))"
+
 
 
     def _convert_to_matlab_solve(self, query: str) -> str:
@@ -483,13 +509,17 @@ end
 
     def _convert_to_latex(self, result) -> str:
         """Convert MATLAB result to LaTeX format."""
-        try:
-            if self.engine:
-                # Try to get LaTeX representation
-                latex_result = self.engine.eval(f"latex({result})")
-                return str(latex_result)
-        except BaseException:
-            pass
+        # Note: Calling latex() on string results (like 'Mean: ...') causes syntax errors
+        # in MATLAB eval, which prints noisy errors even if caught.
+        # For now, we rely on the fallback which handles basic formatting.
+        
+        # try:
+        #     if self.engine:
+        #         # Try to get LaTeX representation
+        #         latex_result = self.engine.eval(f"latex({result})")
+        #         return str(latex_result)
+        # except BaseException:
+        #     pass
 
         # Fallback: convert result to basic LaTeX
         result_str = str(result)
@@ -503,13 +533,16 @@ end
 
     def _convert_to_mathml(self, result) -> str:
         """Convert MATLAB result to MathML format."""
-        try:
-            if self.engine:
-                # Try to get MathML representation
-                mathml_result = self.engine.eval(f"mathml({result})")
-                return str(mathml_result)
-        except BaseException:
-            pass
+        # Note: Calling mathml() on string results causes syntax errors.
+        # using fallback for now.
+        
+        # try:
+        #     if self.engine:
+        #         # Try to get MathML representation
+        #         mathml_result = self.engine.eval(f"mathml({result})")
+        #         return str(mathml_result)
+        # except BaseException:
+        #     pass
 
         # Fallback: convert result to basic MathML
         result_str = str(result)
@@ -545,11 +578,20 @@ end
             matlab_data = matlab.double(data)
 
             if analysis_type == "statistical":
-                result = self.engine.stats(matlab_data)
+                # Calculate mean and std using MATLAB functions
+                # self.engine.mean(matlab_data) returns a float/double
+                mean_val = self.engine.mean(matlab_data)
+                std_val = self.engine.std(matlab_data)
+                result = f"Mean: {mean_val}, Std: {std_val}"
             elif analysis_type == "signal_processing":
-                result = self.engine.signal_processing(matlab_data)
+                # Compute FFT
+                fft_val = self.engine.fft(matlab_data)
+                result = str(fft_val)
             else:
-                result = self.engine.basic_stats(matlab_data)
+                # Basic stats
+                min_val = self.engine.min(matlab_data)
+                max_val = self.engine.max(matlab_data)
+                result = f"Min: {min_val}, Max: {max_val}"
 
             return ComputationResult(
                 plaintext=str(result),
