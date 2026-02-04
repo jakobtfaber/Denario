@@ -69,9 +69,19 @@ def LLM_call_stream(prompt, state):
     full_content = ""
     state["tokens"]["i"] = 0
     state["tokens"]["o"] = 0
+    
+    # Debug print to verify stream start
+    if state["llm"]["stream_verbose"]:
+        print("\n[DEBUG] Starting stream...", flush=True)
+
     with open(output_file_path, "a") as f:
         for chunk in state["llm"]["llm"].stream(prompt):
             text = chunk.content
+            
+            # Debug print for chunk
+            # if state["llm"]["stream_verbose"]:
+            #    print(f"[C:{len(text)}]", end="", flush=True)
+
             f.write(text)
             f.flush()  # Immediate file write
             if state["llm"]["stream_verbose"]:
