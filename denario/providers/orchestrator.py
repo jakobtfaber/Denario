@@ -316,7 +316,18 @@ class PremiumMathematicalOrchestrator:
                 'derivative',
                 'limit',
                 'series',
-                'integral']): # Added 'integral' keyword
+                'integral',
+                'simplify',
+                'expand',
+                'factor',
+                'taylor',
+                'maclaurin',
+                'laplace',
+                'inverse',
+                'sum',
+                'product',
+                'antiderivative',
+                'diff']):
             domain = "symbolic_math" # New domain for explicit symbolic requests
         elif any(
             keyword in query_lower for keyword in [
