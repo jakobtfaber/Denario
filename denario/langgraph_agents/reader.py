@@ -26,14 +26,23 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
     #########################################
     # set the LLM
     # Strict enforcement of Gemini-3 models
+    # Ensure Vertex AI global location is set
+    try:
+        import vertexai
+        vertexai.init(location="global")
+    except ImportError:
+        pass
+
     if 'gemini-3-flash' in state['llm']['model']:
-        state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-3-flash",
+        state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-3-flash-preview",
                                                 temperature=state['llm']['temperature'],
-                                                google_api_key=state["keys"].GEMINI)
+                                                google_api_key=state["keys"].GEMINI,
+                                                convert_system_message_to_human=True) # Helps with some Vertex models
     elif 'gemini-3-pro-preview' in state['llm']['model']:
         state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-3-pro-preview",
                                                 temperature=state['llm']['temperature'],
-                                                google_api_key=state["keys"].GEMINI)
+                                                google_api_key=state["keys"].GEMINI,
+                                                convert_system_message_to_human=True)
     else:
         # Fallback to defaults based on task type
         # Use Pro for complex tasks, Flash for lighter ones
@@ -41,12 +50,14 @@ def preprocess_node(state: GraphState, config: RunnableConfig):
              print(f"Warning: Model '{state['llm']['model']}' not supported. Defaulting to gemini-3-pro-preview.")
              state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-3-pro-preview",
                                                 temperature=state['llm']['temperature'],
-                                                google_api_key=state["keys"].GEMINI)
+                                                google_api_key=state["keys"].GEMINI,
+                                                convert_system_message_to_human=True)
         else:
-             print(f"Warning: Model '{state['llm']['model']}' not supported. Defaulting to gemini-3-flash.")
-             state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-3-flash",
+             print(f"Warning: Model '{state['llm']['model']}' not supported. Defaulting to gemini-3-flash-preview.")
+             state['llm']['llm'] = ChatGoogleGenerativeAI(model="gemini-3-flash-preview",
                                                 temperature=state['llm']['temperature'],
-                                                google_api_key=state["keys"].GEMINI)
+                                                google_api_key=state["keys"].GEMINI,
+                                                convert_system_message_to_human=True)
     #########################################
 
     #########################################
