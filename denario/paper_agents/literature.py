@@ -66,7 +66,7 @@ Your answer should be the input text populated with references. You should not a
 - **Do not add citations inside tables or figures**
 - Separate the different paragraphs, figures, and tables. Do not create a single long paragraph with all the text.
 
-Your answear should not have the formating marks <TEXT> and </TEXT>, just the text.
+Your answer should not have the formatting marks <TEXT> and </TEXT>, just the text.
     """
     payload = {
     "model": 'sonar-reasoning-pro',

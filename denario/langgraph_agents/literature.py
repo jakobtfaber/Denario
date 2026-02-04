@@ -13,12 +13,11 @@ from langchain_core.runnables import RunnableConfig
 from .parameters import GraphState
 from .prompts import novelty_prompt, summary_literature_prompt
 from ..paper_agents.tools import extract_latex_block, LLM_call_stream, json_parser3
+from ..providers.ads_provider import ADSProvider
 import time, sys
 import requests
 from tqdm import tqdm
 
-
-    
 # This node determines if an idea is novel or not. It may also ask for literature search
 def novelty_decider(state: GraphState, config: RunnableConfig):
     """
@@ -28,6 +27,8 @@ def novelty_decider(state: GraphState, config: RunnableConfig):
     print(f"\nAddressing idea novelty: round {state['literature']['iteration']}")
 
     # check if idea is novel or not
+    # Use Perplexity Reasoning model if available for deeper check (simulated via prompt/tool)
+    # The prompt should ideally be updated to ask for reasoning.
     PROMPT = novelty_prompt(state)
 
     # Try for three times in case it fails 
@@ -78,17 +79,45 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
     This agent will search for papers given the search query and return the list of found ones
     """
     
-    # search papers given the query
-    results = SSAPI(state['literature']['query'], state['keys'], limit=20)
+    query = state['literature']['query']
+    
+    # 1. Search Semantic Scholar
+    results_ss = SSAPI(query, state['keys'], limit=10)
+    papers = results_ss.get("data", [])
+    total_papers = results_ss.get("total", 0)
 
-    total_papers = results.get("total", []) #total number of relevant papers found
-    papers       = results.get("data",  []) #the actual data of the retrieved papers
+    # 2. Search ADS if key is available and query seems relevant (or always if enabled)
+    if state['keys'].ADS_API_KEY:
+        print("Querying ADS...")
+        try:
+            ads_provider = ADSProvider(state['keys'].ADS_API_KEY)
+            ads_docs = ads_provider.search(query, rows=10)
+            
+            # Convert ADS docs to normalized format to append to papers
+            for doc in ads_docs:
+                # Basic de-duplication could happen here based on title/DOI
+                
+                # Format authors
+                authors_list = [{"name": a} for a in doc.get('author', [])[:5]] # Limit authors
+                
+                papers.append({
+                    "title": doc.get('title', [''])[0],
+                    "year": doc.get('year'),
+                    "abstract": doc.get('abstract'),
+                    "url": f"https://ui.adsabs.harvard.edu/abs/{doc.get('bibcode')}/abstract",
+                    "authors": authors_list,
+                    "source": "ADS"
+                })
+            total_papers += len(ads_docs)
+            print(f"Found {len(ads_docs)} papers from ADS")
+        except Exception as e:
+            print(f"ADS search failed: {e}")
 
     # A list with the idx, title, abstract, and url of the found papers. To be passed to the other agent
     papers_str = []
     papers_analyzed = 0
     if papers:
-        print(f"Found {total_papers} potentially relevant papers")
+        print(f"Found {total_papers} potentially relevant papers (Total)")
 
         # do a loop over the papers
         for idx, paper in enumerate(papers, start=0):
@@ -102,6 +131,7 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
             ID         = paper.get("paperId",       None)
             externalID = paper.get("externalIds",   None)
             pdf        = paper.get("openAccessPdf", None)
+            source     = paper.get("source", "SemanticScholar")
 
             if abstract is None:
                 continue
@@ -109,7 +139,8 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
                 papers_analyzed += 1
             
             # string with paper information
-            paper_str = f"""{papers_analyzed+state['literature']['num_papers']}. {title} ({year})\nAuthors: {authors}\nAbstract: {abstract}\nURL: {url}"""
+            paper_str = f"""{papers_analyzed+state['literature']['num_papers']}. [{source}] {title} ({year})\nAuthors: {authors}\nAbstract: {abstract}\nURL: {url}"""
+
 
             # extract arXiv link, if any
             if externalID:

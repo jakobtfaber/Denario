@@ -320,13 +320,13 @@ class Denario:
 
     def get_idea(self,
                  mode = "fast",
-                 llm: LLM | str = models["gemini-2.0-flash"],
-                 idea_maker_model: LLM | str = models["gpt-4o"],
-                 idea_hater_model: LLM | str = models["o3-mini"],
-                 planner_model: LLM | str = models["gpt-4o"],
-                 plan_reviewer_model: LLM | str = models["o3-mini"],
-                 orchestration_model: LLM | str = models["gpt-4.1"],
-                 formatter_model: LLM | str = models["o3-mini"],
+                 llm: LLM | str = models["gemini-3-flash"],
+                 idea_maker_model: LLM | str = models["gemini-3-pro-preview"],
+                 idea_hater_model: LLM | str = models["gemini-3-pro-preview"],
+                 planner_model: LLM | str = models["gemini-3-flash"],
+                 plan_reviewer_model: LLM | str = models["gemini-3-pro-preview"],
+                 orchestration_model: LLM | str = models["gemini-3-flash"],
+                 formatter_model: LLM | str = models["gemini-3-flash"],
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md`.
 
@@ -356,12 +356,12 @@ class Denario:
             raise ValueError("Mode must be either 'fast' or 'cmbagent'")
 
     def get_idea_cmagent(self,
-                    idea_maker_model: LLM | str = models["gpt-4o"],
-                    idea_hater_model: LLM | str = models["o3-mini"],
-                    planner_model: LLM | str = models["gpt-4o"],
-                    plan_reviewer_model: LLM | str = models["o3-mini"],
-                    orchestration_model: LLM | str = models["gpt-4.1"],
-                    formatter_model: LLM | str = models["o3-mini"],
+                    idea_maker_model: LLM | str = models["gemini-3-pro-preview"],
+                    idea_hater_model: LLM | str = models["gemini-3-pro-preview"],
+                    planner_model: LLM | str = models["gemini-3-flash"],
+                    plan_reviewer_model: LLM | str = models["gemini-3-pro-preview"],
+                    orchestration_model: LLM | str = models["gemini-3-flash"],
+                    formatter_model: LLM | str = models["gemini-3-flash"],
                 ) -> None:
         """Generate an idea making use of the data and tools described in `data_description.md` with the cmbagent backend.
         
@@ -405,7 +405,7 @@ class Denario:
         self.idea = idea
 
     def get_idea_fast(self,
-                      llm: LLM | str = models["gemini-2.0-flash"],
+                      llm: LLM | str = models["gemini-3-flash"],
                       iterations: int = 4,
                       verbose=False,
                       ) -> None:
@@ -462,7 +462,7 @@ class Denario:
 
     def check_idea(self,
                    mode : str = 'semantic_scholar',
-                   llm: LLM | str = models["gemini-2.5-flash"],
+                   llm: LLM | str = models["gemini-3-flash"],
                    max_iterations: int = 7,
                    verbose=False) -> str:
         """
@@ -533,7 +533,7 @@ class Denario:
         return answer
 
     def check_idea_semantic_scholar(self,
-                        llm: LLM | str = models["gemini-2.5-flash"],
+                        llm: LLM | str = models["gemini-3-flash"],
                         max_iterations: int = 7,
                         verbose=False,
                         ) -> str:
@@ -545,6 +545,7 @@ class Denario:
            max_iterations: maximum number of iterations to check the idea
            verbose: whether to stream the LLM response 
         """
+
 
         # Start timer
         start_time = time.time()
@@ -602,12 +603,12 @@ class Denario:
         
     def get_method(self,
                    mode = "fast",
-                   llm: LLM | str = models["gemini-2.0-flash"],
-                   method_generator_model: LLM | str = models["gpt-4o"],
-                   planner_model: LLM | str = models["gpt-4o"],
-                   plan_reviewer_model: LLM | str = models["o3-mini"],
-                   orchestration_model: LLM | str = models["gpt-4.1"],
-                   formatter_model: LLM | str = models["o3-mini"],
+                   llm: LLM | str = models["gemini-3-flash"],
+                   method_generator_model: LLM | str = models["gemini-3-pro-preview"],
+                   planner_model: LLM | str = models["gemini-3-flash"],
+                   plan_reviewer_model: LLM | str = models["gemini-3-pro-preview"],
+                   orchestration_model: LLM | str = models["gemini-3-flash"],
+                   formatter_model: LLM | str = models["gemini-3-flash"],
                    verbose = False,
                    ) -> None:
         """
@@ -637,11 +638,11 @@ class Denario:
             raise ValueError("Mode must be either 'fast' or 'cmbagent'")
 
     def get_method_cmbagent(self,
-                            method_generator_model: LLM | str = models["gpt-4o"],
-                            planner_model: LLM | str = models["gpt-4o"],
-                            plan_reviewer_model: LLM | str = models["o3-mini"],
-                            orchestration_model: LLM | str = models["gpt-4.1"],
-                            formatter_model: LLM | str = models["o3-mini"],
+                            method_generator_model: LLM | str = models["gemini-3-pro-preview"],
+                            planner_model: LLM | str = models["gemini-3-flash"],
+                            plan_reviewer_model: LLM | str = models["gemini-3-pro-preview"],
+                            orchestration_model: LLM | str = models["gemini-3-flash"],
+                            formatter_model: LLM | str = models["gemini-3-flash"],
                             ) -> None:
         """
         Generate the methods to be employed making use of the data and tools described in `data_description.md` and the idea in `idea.md`.
@@ -685,7 +686,7 @@ class Denario:
             f.write(methododology)
 
     def get_method_fast(self,
-                        llm: LLM | str = models["gemini-2.0-flash"],
+                        llm: LLM | str = models["gemini-3-flash"],
                         verbose=False,
                         ) -> None:
         """
@@ -743,16 +744,16 @@ class Denario:
 
     def get_results(self,
                     involved_agents: List[str] = ['engineer', 'researcher'],
-                    engineer_model: LLM | str = models["gpt-4.1"],
-                    researcher_model: LLM | str = models["o3-mini"],
+                    engineer_model: LLM | str = models["gemini-3-pro-preview"],
+                    researcher_model: LLM | str = models["gemini-3-pro-preview"],
                     restart_at_step: int = -1,
                     hardware_constraints: str | None = None,
-                    planner_model: LLM | str = models["gpt-4o"],
-                    plan_reviewer_model: LLM | str = models["o3-mini"],
+                    planner_model: LLM | str = models["gemini-3-flash"],
+                    plan_reviewer_model: LLM | str = models["gemini-3-pro-preview"],
                     max_n_attempts: int = 10,
                     max_n_steps: int = 6,   
-                    orchestration_model: LLM | str = models["gpt-4.1"],
-                    formatter_model: LLM | str = models["o3-mini"],
+                    orchestration_model: LLM | str = models["gemini-3-flash"],
+                    formatter_model: LLM | str = models["gemini-3-flash"],
                     ) -> None:
         """
         Compute the results making use of the methods, idea and data description.
@@ -848,7 +849,7 @@ class Denario:
 
     def get_paper(self,
                   journal: Journal = Journal.NONE,
-                  llm: LLM | str = models["gemini-2.5-flash"],
+                  llm: LLM | str = models["gemini-3-pro-preview"],
                   writer: str = 'scientist',
                   cmbagent_keywords: bool = False,
                   add_citations=True,
@@ -912,7 +913,7 @@ class Denario:
         print(f"Paper written in {minutes} min {seconds} sec.")    
 
     def referee(self,
-                llm: LLM | str = models["gemini-2.5-flash"],
+                llm: LLM | str = models["gemini-3-flash"],
                 verbose=False) -> None:
         """
         Review a paper, producing a report providing feedback on the quality of the articled and aspects to be improved.
