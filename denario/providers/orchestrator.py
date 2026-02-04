@@ -225,6 +225,7 @@ class PremiumMathematicalOrchestrator:
             'knowledge_queries': 'wolfram_alpha',
             'real_time_data': 'wolfram_alpha',
             'unit_conversion': 'wolfram_alpha',
+            'symbolic_math': 'wolfram_alpha', # New explicit routing
             'visualization': 'python_scienceplots' # Explicit routing
         }
 
@@ -309,6 +310,14 @@ class PremiumMathematicalOrchestrator:
         # Determine domain
         domain = "general"
         if any(
+            keyword in query_lower for keyword in [
+                'integrate',
+                'solve',
+                'derivative',
+                'limit',
+                'series']):
+            domain = "symbolic_math" # New domain for explicit symbolic requests
+        elif any(
             keyword in query_lower for keyword in [
                 'signal',
                 'fft',
