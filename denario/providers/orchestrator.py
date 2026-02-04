@@ -315,7 +315,8 @@ class PremiumMathematicalOrchestrator:
                 'solve',
                 'derivative',
                 'limit',
-                'series']):
+                'series',
+                'integral']): # Added 'integral' keyword
             domain = "symbolic_math" # New domain for explicit symbolic requests
         elif any(
             keyword in query_lower for keyword in [
