@@ -217,3 +217,7 @@ DenarioPaperPage/
 DenarioExamplePapers/
 HFDenario/
 .mkdocs.yml.swp
+
+
+#Ignore cursor AI rules
+.cursor/rules/codacy.mdc
