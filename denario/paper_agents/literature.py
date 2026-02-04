@@ -17,6 +17,7 @@ import requests
 from typing import List, Tuple
 
 from ..key_manager import KeyManager
+from ..providers.ads_provider import ADSProvider
 
 def _execute_query(payload, keys: KeyManager):
     """
@@ -197,12 +198,14 @@ def _extract_paragraphs_from_tex_content(tex_content: str) -> dict:
 
     return paragraph_lines
 
-def _arxiv_url_to_bib(citations: List[str]) -> Tuple[List[str], List[str]]:
+def _arxiv_url_to_bib(citations: List[str], keys: KeyManager) -> Tuple[List[str], List[str]]:
     """
     Given a list of arXiv URLs, returns BibTeX keys and entries.
+    Prioritizes ADS API for BibTeX generation if available.
 
     Args:
         citations (List[str]): List of arXiv URLs (abs, pdf, or html variants allowed).
+        keys (KeyManager): KeyManager instance for accessing ADS API key.
 
     Returns:
         Tuple[List[str], List[str]]:
@@ -211,9 +214,47 @@ def _arxiv_url_to_bib(citations: List[str]) -> Tuple[List[str], List[str]]:
     """
     bib_keys = []
     bib_strs = []
+    
+    # Initialize ADS provider if key is available
+    ads_provider = None
+    if keys.ADS_API_KEY:
+        try:
+            ads_provider = ADSProvider(keys.ADS_API_KEY)
+        except Exception as e:
+            print(f"Failed to initialize ADS provider: {e}")
 
     for url in citations:
+        
+        # Try ADS first if provider is available
+        bib_key = None
+        bib_str = None
+        
+        if ads_provider:
+            match_id = re.search(r'(\d{4}\.\d+)', url)
+            if match_id:
+                arxiv_id = match_id.group(1)
+                try:
+                    # 1. Find ADS Bibcode
+                    bibcode = ads_provider.get_bibcode_from_arxiv(arxiv_id)
+                    if bibcode:
+                        # 2. Export BibTeX
+                        ads_bib = ads_provider.export_bibtex([bibcode])
+                        if ads_bib:
+                            # Extract key from the exported BibTeX
+                            match = re.match(r'@[\w]+\{([^,]+),', ads_bib.strip())
+                            if match:
+                                bib_key = match.group(1)
+                                bib_str = ads_bib.strip()
+                except Exception as e:
+                    print(f"ADS fetch failed for {url}: {e}")
 
+        # If ADS succeeded, append and continue
+        if bib_key and bib_str:
+            bib_keys.append(bib_key)
+            bib_strs.append(bib_str)
+            continue
+
+        # Fallback to arXiv scraping
         try:
             # Convert URL to bibtex url (e.g., from /abs/ or /html/ to /bibtex/)
             bib_url = re.sub(r'\b(abs|html|pdf)\b', 'bibtex', url)
@@ -291,7 +332,7 @@ def _replace_grouped_citations(content: str, bib_keys: List[str]) -> str:
     pattern = r'(?:\[\d+\])+'
     return re.sub(pattern, replacer, content)
 
-def _replace_references_with_cite(content: str, citations: List[str], bibtex_file_str: str) -> Tuple[str, str]:
+def _replace_references_with_cite(content: str, citations: List[str], bibtex_file_str: str, keys: KeyManager) -> Tuple[str, str]:
     """
     Replaces numeric reference markers like [1] in the content with LaTeX-style `\\citep{...}`,
     and appends corresponding BibTeX entries to the bibtex string.
@@ -300,13 +341,14 @@ def _replace_references_with_cite(content: str, citations: List[str], bibtex_fil
         content (str): A paragraph of text containing references like [1], [2], etc. (1-indexed).
         citations (List[str]): A list of arXiv URLs corresponding to the reference numbers. (0-indexed).
         bibtex_file_str (str): A string representing the contents of a .bib file.
+        keys (KeyManager): KeyManager instance for accessing ADS API key.
 
     Returns:
         Tuple[str, str]:
             - The updated content with [N] replaced by `\\citep{BibTeXKey}`.
             - The updated BibTeX string with new entries appended.
     """
-    bib_keys, bib_strs = _arxiv_url_to_bib(citations)
+    bib_keys, bib_strs = _arxiv_url_to_bib(citations, keys)
 
     # Replace all references with \citep{bibkey}
     content = _replace_grouped_citations(content, bib_keys)

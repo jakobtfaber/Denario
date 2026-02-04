@@ -14,6 +14,7 @@ from .parameters import GraphState
 from .prompts import novelty_prompt, summary_literature_prompt
 from ..paper_agents.tools import extract_latex_block, LLM_call_stream, json_parser3
 from ..providers.ads_provider import ADSProvider
+from ..providers.pdf_provider import PDFProvider
 import time, sys
 import requests
 from tqdm import tqdm
@@ -30,6 +31,35 @@ def novelty_decider(state: GraphState, config: RunnableConfig):
     # Use Perplexity Reasoning model if available for deeper check (simulated via prompt/tool)
     # The prompt should ideally be updated to ask for reasoning.
     PROMPT = novelty_prompt(state)
+
+    # Search ADS if available
+    ads_papers_context = ""
+    if state['keys'].ADS_API_KEY and state['literature']['iteration'] > 0:
+        try:
+             # Only search if we have a query from previous iteration or generate one
+             search_query = state['literature'].get('query', '')
+             if not search_query:
+                 # If no query yet, maybe use a snippet of the idea or data desc?
+                 # For now, let's rely on the loop's 'query' field being populated after round 0
+                 pass
+             else:
+                ads_provider = ADSProvider(state['keys'].ADS_API_KEY)
+                # Quick check for top 3 papers
+                ads_docs = ads_provider.search(search_query, rows=3)
+                if ads_docs:
+                    ads_papers_context = "\n\n[ADS Quick Search Results]:\n"
+                    for doc in ads_docs:
+                        ads_papers_context += f"- {doc.get('title', [''])[0]} ({doc.get('year')}) - {doc.get('bibcode')}\n"
+                        ads_papers_context += f"  Abstract: {doc.get('abstract', '')[:300]}...\n"
+        except Exception as e:
+            print(f"Novelty check ADS lookup failed: {e}")
+            
+    # Inject ADS context into prompt if found
+    if ads_papers_context:
+        # We append this to the 'messages' or context part of the state temporarily or 
+        # modify the prompt. Since we can't easily modify the prompt function without 
+        # changing signatures, we append to the 'messages' which is printed in the prompt.
+        state['literature']['messages'] += ads_papers_context
 
     # Try for three times in case it fails 
     for _ in tqdm(range(5), desc="Analyzing novelty", unit="try"):
@@ -67,6 +97,15 @@ def novelty_decider(state: GraphState, config: RunnableConfig):
         # Get the value of the "Query" field
         print('Decision made: query')
         print(f'Query: {query}')
+        
+        # If we have an ADS key, let's try to fetch the full text of the most relevant paper found so far
+        # to assist the next search or novelty check
+        # This is a heuristic: if the LLM says "query", it means it's not sure. 
+        # Deep reading the best candidate might help.
+        if state['keys'].ADS_API_KEY and len(state['literature'].get('papers', [])) > 0:
+             # Logic to fetch full text could be added here or in the semantic_scholar node
+             pass
+
         return {"literature": {**state['literature'], "reason": reason, "messages": messages,
                                "decision": decision, "query": query, "iteration": iteration,
                                'next_agent': "semantic_scholar"}}
@@ -106,7 +145,9 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
                     "abstract": doc.get('abstract'),
                     "url": f"https://ui.adsabs.harvard.edu/abs/{doc.get('bibcode')}/abstract",
                     "authors": authors_list,
-                    "source": "ADS"
+                    "source": "ADS",
+                    "bibcode": doc.get('bibcode'),
+                    "arxiv_id": next((eid for eid in doc.get('identifier', []) if 'arxiv' in eid.lower()), None)
                 })
             total_papers += len(ads_docs)
             print(f"Found {len(ads_docs)} papers from ADS")
@@ -116,6 +157,10 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
     # A list with the idx, title, abstract, and url of the found papers. To be passed to the other agent
     papers_str = []
     papers_analyzed = 0
+    
+    # PDF Provider for full text extraction
+    pdf_provider = PDFProvider()
+
     if papers:
         print(f"Found {total_papers} potentially relevant papers (Total)")
 
@@ -132,6 +177,7 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
             externalID = paper.get("externalIds",   None)
             pdf        = paper.get("openAccessPdf", None)
             source     = paper.get("source", "SemanticScholar")
+            arxiv_id   = paper.get("arxiv_id", None) # From ADS logic above
 
             if abstract is None:
                 continue
@@ -146,6 +192,7 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
             if externalID:
                 arXiv = externalID.get("ArXiv", None)
                 if arXiv:
+                    arxiv_id = arXiv # Update if found here
                     arXiv_pdf  = f"https://arxiv.org/pdf/{arXiv}"
                     arXiv_pdf2 = f"http://arxiv.org/pdf/{arXiv}" #sometimes the pdf url has https and sometimes http. Use both to avoid duplication.
                     paper_str = f"{paper_str}\narXiv link: {arXiv_pdf}"
@@ -156,6 +203,17 @@ def semantic_scholar(state: GraphState, config: RunnableConfig):
                 if pdf and pdf!=arXiv_pdf and pdf!=arXiv_pdf2:
                     paper_str = f"{paper_str}\npdf: {pdf}"
             
+            # DEEP ANALYSIS: Fetch full text for top 1-2 papers if available via arXiv
+            if idx < 2 and arxiv_id:
+                try:
+                    print(f"  Fetching full text for {title[:30]}... (arXiv:{arxiv_id})")
+                    full_text = pdf_provider.get_manuscript_text(arxiv_id)
+                    # Truncate to avoid context overflow, but keep enough for analysis
+                    truncated_text = full_text[:15000] 
+                    paper_str = f"{paper_str}\n\n[FULL TEXT EXCERPT]:\n{truncated_text}\n[END EXCERPT]"
+                except Exception as e:
+                    print(f"  Failed to fetch full text: {e}")
+
             # put these papers in the literature.log
             paper_str = f"{paper_str}\n\n"
             with open(f"{state['files']['literature_log']}", 'a') as f:

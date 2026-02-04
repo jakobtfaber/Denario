@@ -12,11 +12,50 @@ from langchain_core.runnables import RunnableConfig
 from ..paper_agents.tools import extract_latex_block, LLM_call_stream, clean_section
 from .prompts import idea_maker_prompt, idea_hater_prompt
 from .parameters import GraphState
+from ..paper_agents.literature import _execute_query
 
+def perform_deep_research(query: str, keys) -> str:
+    """
+    Perform deep research on a topic using Perplexity.
+    """
+    if not keys.PERPLEXITY:
+        return "No Perplexity API key available for deep research."
+        
+    print(f"Performing deep research on: {query[:50]}...")
+    
+    payload = {
+        "model": "sonar-reasoning-pro",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a senior scientific researcher. Provide a comprehensive summary of the state-of-the-art relevant to the query. Focus on recent advancements, open problems, and key papers. Be dense and technical."
+            },
+            {
+                "role": "user",
+                "content": query
+            }
+        ],
+        "temperature": 0.1
+    }
+    
+    try:
+        response = _execute_query(payload, keys)
+        return response["choices"][0]["message"]["content"]
+    except Exception as e:
+        print(f"Deep research failed: {e}")
+        return "Deep research unavailable due to error."
 
 def idea_maker(state: GraphState, config: RunnableConfig):
 
     print(f"Maker (iteration {state['idea']['iteration']+1})")
+    
+    # Perform Deep Research in the first iteration or if context is missing
+    if state['idea']['iteration'] == 0 or 'research_context' not in state['idea']:
+        # Extract a search query from the data description (naive approach: use first 200 chars)
+        # Ideally, we would ask an LLM to generate a query, but for now we use the description summary
+        search_query = f"State of the art research for: {state['data_description'][:300]}"
+        research_context = perform_deep_research(search_query, state['keys'])
+        state['idea']['research_context'] = research_context
     
     PROMPT = idea_maker_prompt(state)
     state, result = LLM_call_stream(PROMPT, state)

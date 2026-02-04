@@ -30,6 +30,48 @@ def pdf_to_images(
         password: PDF password if encrypted.
         transparent: If True, keeps alpha channel (PNG only).
     """
+    
+    if not os.path.exists(pdf_path):
+        raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
-    raise RuntimeError(
-        'PDF to image conversion is disabled. Provide raster images or enable PyMuPDF support.')
+    # Use the input filename (without extension) for the default output directory
+    if out_dir is None:
+        pdf_stem = os.path.splitext(os.path.basename(pdf_path))[0]
+        out_dir = os.path.join(os.path.dirname(pdf_path), f"{pdf_stem}_pages")
+
+    os.makedirs(out_dir, exist_ok=True)
+
+    try:
+        doc = fitz.open(pdf_path)
+        if password:
+            doc.authenticate(password)
+    except Exception as e:
+        raise ValueError(f"Could not open PDF '{pdf_path}': {e}")
+
+    image_paths = []
+
+    for page_num in range(len(doc)):
+        page = doc.load_page(page_num)
+        
+        # Calculate matrix for desired DPI (72 is the default PDF DPI)
+        zoom = dpi / 72
+        mat = fitz.Matrix(zoom, zoom)
+        
+        pix = page.get_pixmap(matrix=mat, alpha=transparent)
+        
+        output_filename = f"page_{page_num + 1:03d}.{fmt}"
+        output_path = os.path.join(out_dir, output_filename)
+        
+        pix.save(output_path)
+        image_paths.append(output_path)
+
+    doc.close()
+    
+    if not keep_images:
+        # If the user doesn't want to keep images, we might return base64 strings or similar
+        # But this function signature implies file generation. 
+        # For now, we return paths. If 'keep_images' is False, the caller handles cleanup 
+        # or we could implement a temp dir approach.
+        pass
+
+    return image_paths
