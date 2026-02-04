@@ -24,6 +24,7 @@ class KeyManager(BaseModel):
     PERPLEXITY: str | None = ""
     SEMANTIC_SCHOLAR: str | None = ""
     WOLFRAM_APP_ID: str | None = ""
+    ADS_API_KEY: str | None = ""
 
     def get_keys_from_env(self) -> None:
         load_dotenv()
@@ -114,6 +115,27 @@ class KeyManager(BaseModel):
             self.WOLFRAM_APP_ID = wolfram_key
         else:
             self.WOLFRAM_APP_ID = os.getenv("WOLFRAM_APP_ID")
+
+        # ADS API Key
+        ads_key = None
+        try:
+            ads_key_path = Path.home() / ".ads_key"
+            if ads_key_path.exists():
+                with open(ads_key_path, "r") as f:
+                    content = f.read().strip()
+                    content = content.strip("\"'")
+                    if content:
+                        ads_key = content
+                        print(
+                            f"Loaded ADS_API_KEY from .ads_key: {ads_key[:4]}..."
+                        )
+        except Exception as e:
+            print(f"Failed to read ADS key from .ads_key: {e}")
+
+        if ads_key:
+            self.ADS_API_KEY = ads_key
+        else:
+            self.ADS_API_KEY = os.getenv("ADS_API_KEY")
 
     def __getitem__(self, key: str) -> str:
         return getattr(self, key)
