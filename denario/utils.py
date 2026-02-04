@@ -33,6 +33,9 @@ def llm_parser(llm: LLM | str) -> LLM:
     """Get the LLM instance from a string."""
 
     if isinstance(llm, str):
+        # [BATCH FIX] Force all Gemini models to gemini-3-flash-preview
+        if "gemini" in llm:
+            llm = "gemini-3-flash-preview"
         try:
             llm = models[llm]
         except KeyError:
