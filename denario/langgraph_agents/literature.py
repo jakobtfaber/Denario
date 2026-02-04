@@ -282,6 +282,34 @@ def literature_summary(state: GraphState, config: RunnableConfig):
     """
     This agent will take all messages from previous iterations and write a summary of the findings
     """
+    
+    # DEFENSIVE VALIDATION: Handle zero-paper case explicitly
+    papers_found = state['literature'].get('num_papers', 0)
+    
+    if papers_found == 0:
+        # Write a simple, factual summary without calling the LLM
+        # This prevents any possibility of hallucination
+        text = f"""No relevant papers were found in the literature search.
+
+**Search Queries Attempted:**
+{state['literature']['messages']}
+
+**Assessment:**
+The idea can be considered novel based on the absence of directly matching literature in the databases searched (Semantic Scholar and ADS). However, this novelty assessment is based on search limitations rather than comprehensive evidence. The lack of results may indicate:
+1. The idea addresses a genuinely unexplored area
+2. The search queries were too specific or used terminology not common in the literature
+3. Relevant work exists but is not indexed in the databases queried
+
+**Recommendation:** Consider broader manual literature review or alternative search strategies to validate novelty."""
+        
+        # Write to file
+        with open(f"{state['files']['literature']}", 'w') as f:
+            f.write(f"Idea {state['literature']['decision']}\n\n")
+            f.write(text)
+        
+        print(text)
+        print(f"done {state['tokens']['ti']} {state['tokens']['to']}")
+        return state
 
     # generate the summary
     PROMPT = summary_literature_prompt(state)    

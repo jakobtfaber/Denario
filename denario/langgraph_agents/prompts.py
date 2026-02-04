@@ -215,9 +215,26 @@ Respond in the following format:
 
 
 def summary_literature_prompt(state):
+    # CRITICAL VALIDATION: Check if any papers were actually found
+    papers_found = state['literature'].get('num_papers', 0) > 0
+    
+    if papers_found:
+        # Original instruction when papers exist
+        citation_instruction = """In your summary include the most similar and relevant found papers and their links and discuss what is similar but also what is different."""
+    else:
+        # ANTI-HALLUCINATION instruction when no papers found
+        citation_instruction = """**CRITICAL**: No papers were found in the literature search despite multiple query attempts. 
+        
+In your summary:
+- State clearly that no directly relevant literature was identified
+- List the search queries that were attempted
+- Explain why the idea may still be considered novel based on the absence of matching literature
+- **DO NOT cite specific papers, authors, or fabricate references**
+- **DO NOT invent URLs or arxiv links**
+- Base your assessment solely on the search process and the queries used"""
 
     return [HumanMessage(
-        content=f"""We have some data and an idea to carry out with it. We have been searching the literature to find similar papers and to determine if the idea is novel or not. Below you can find the data description, the idea, and the iterations performed. Given this, please write a summary stating why the idea can be considered novel or not not novel. In your summary include the most similar and relevant found papers and theirs links and discuss what is similar but also what is different.
+        content=f"""We have some data and an idea to carry out with it. We have been searching the literature to find similar papers and to determine if the idea is novel or not. Below you can find the data description, the idea, and the iterations performed. Given this, please write a summary stating why the idea can be considered novel or not not novel. {citation_instruction}
 
 **Data description**:
 {state['data_description']}
