@@ -5,6 +5,7 @@ import os
 import subprocess
 from .base import MathematicalProvider, ComputationResult, ComputationError
 from .matlab_provider import MATLABProvider
+from .python_provider import PythonProvider
 
 
 class QueryAnalysis:
@@ -39,7 +40,7 @@ class PremiumMathematicalOrchestrator:
             'matlab': {
                 'symbolic': 6,
                 'numeric': 10,
-                'visualization': 10,
+                'visualization': 8, # Downgraded in favor of Python/SciencePlots
                 'knowledge': 4,
                 'optimization': 10,
                 'differential_equations': 8,
@@ -63,6 +64,20 @@ class PremiumMathematicalOrchestrator:
                 'signal_processing': 4,
                 'linear_algebra': 7,
                 'statistics': 6
+            },
+            'python_scienceplots': {
+                'symbolic': 2,
+                'numeric': 9,
+                'visualization': 10, # Highest score for visualization
+                'knowledge': 0,
+                'optimization': 8,
+                'differential_equations': 6,
+                'number_theory': 4,
+                'algebra': 4,
+                'calculus': 4,
+                'signal_processing': 9,
+                'linear_algebra': 9,
+                'statistics': 9
             }
         }
 
@@ -209,11 +224,17 @@ class PremiumMathematicalOrchestrator:
             'linear_algebra': 'matlab',
             'knowledge_queries': 'wolfram_alpha',
             'real_time_data': 'wolfram_alpha',
-            'unit_conversion': 'wolfram_alpha'
+            'unit_conversion': 'wolfram_alpha',
+            'visualization': 'python_scienceplots' # Explicit routing
         }
 
     def _initialize_providers(self):
         """Initialize available mathematical computation providers."""
+
+        # Python Provider (Always enabled, high priority for visualization)
+        self.providers['python_scienceplots'] = PythonProvider(
+            work_dir=self.config.get('python', {}).get('work_dir', '/tmp/denario_plots')
+        )
 
         # MATLAB provider (supports docker backend)
         if self.config.get('matlab', {}).get('enabled', True):
@@ -294,6 +315,8 @@ class PremiumMathematicalOrchestrator:
                 'filter',
                 'spectrum']):
             domain = "signal_processing"
+        elif any(keyword in query_lower for keyword in ['plot', 'visualize', 'graph', 'chart', 'figure']):
+             domain = "visualization"
         elif any(keyword in query_lower for keyword in ['statistics', 'mean', 'variance', 'correlation']):
             domain = "statistics"
         elif any(keyword in query_lower for keyword in ['optimize', 'minimize', 'maximize']):
