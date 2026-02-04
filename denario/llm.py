@@ -18,6 +18,16 @@ class LLM(BaseModel):
     temperature: float | None
     """Temperature of the model."""
 
+gemini25flash = LLM(name="gemini-2.5-flash",
+                    max_output_tokens=65536,
+                    temperature=0.7)
+"""`gemini-2.5-flash` model (used as default for fast generation in DenarioApp)."""
+
+gemini25pro = LLM(name="gemini-2.5-pro",
+                  max_output_tokens=65536,
+                  temperature=0.7)
+"""`gemini-2.5-pro` model."""
+
 gemini3flash = LLM(name="gemini-3-flash-preview",
                    max_output_tokens=65536,
                    temperature=0.7)
@@ -28,8 +38,21 @@ gemini3propreview = LLM(name="gemini-3-pro-preview",
                         temperature=0.7)
 """`gemini-3-pro-preview` model."""
 
-models : Dict[str, LLM] = {
-                            "gemini-3-flash-preview" : gemini3flash,
-                            "gemini-3-pro-preview" : gemini3propreview,
-                           }
-"""Dictionary with the available models (Restricted to Gemini-3)."""
+# Models expected by DenarioApp (gpt-4o, claude-3.7-sonnet, etc.) — add if your env supports them
+gpt4o = LLM(name="gpt-4o", max_output_tokens=16384, temperature=0.7)
+gpt41 = LLM(name="gpt-4.1", max_output_tokens=16384, temperature=0.7)
+claude37sonnet = LLM(name="claude-3.7-sonnet", max_output_tokens=16384, temperature=0.7)
+o3mini = LLM(name="o3-mini", max_output_tokens=16384, temperature=0.7)
+
+models: Dict[str, LLM] = {
+    "gemini-2.0-flash": gemini25flash,  # alias for DenarioApp default; uses gemini-2.5-flash
+    "gemini-2.5-flash": gemini25flash,
+    "gemini-2.5-pro": gemini25pro,
+    "gemini-3-flash-preview": gemini3flash,
+    "gemini-3-pro-preview": gemini3propreview,
+    "gpt-4o": gpt4o,
+    "gpt-4.1": gpt41,
+    "claude-3.7-sonnet": claude37sonnet,
+    "o3-mini": o3mini,
+}
+"""Dictionary with the available models (DenarioApp defaults + Gemini-3)."""
