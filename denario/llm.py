@@ -18,10 +18,10 @@ class LLM(BaseModel):
     temperature: float | None
     """Temperature of the model."""
 
-gemini3flash = LLM(name="gemini-3-flash",
+gemini3flash = LLM(name="gemini-3-flash-preview",
                    max_output_tokens=65536,
                    temperature=0.7)
-"""`gemini-3-flash` model."""
+"""`gemini-3-flash-preview` model."""
 
 gemini3propreview = LLM(name="gemini-3-pro-preview",
                         max_output_tokens=65536,
@@ -29,7 +29,7 @@ gemini3propreview = LLM(name="gemini-3-pro-preview",
 """`gemini-3-pro-preview` model."""
 
 models : Dict[str, LLM] = {
-                            "gemini-3-flash" : gemini3flash,
+                            "gemini-3-flash-preview" : gemini3flash,
                             "gemini-3-pro-preview" : gemini3propreview,
                            }
 """Dictionary with the available models (Restricted to Gemini-3)."""
