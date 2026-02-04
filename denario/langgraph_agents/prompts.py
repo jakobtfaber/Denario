@@ -18,9 +18,30 @@ from langchain_core.messages import HumanMessage
 def idea_maker_prompt(state):
 
     return [HumanMessage(
-        content=rf"""Your goal is to generate a groundbreaking idea for a scientific paper. Generate a original idea given the data description. If available, take into account the criticism provided by another agent about the idea. Please stick to the guidelines mentioned in the data description.
+        content=rf"""Your goal is to generate a groundbreaking, deep, and scientifically rigorous idea for a scientific paper.
+        
+**PHASE 1: RESEARCH & SYNTHESIS**
+Before proposing an idea, you must understand the state-of-the-art.
+The system has performed a deep research scan on the topic. Use the provided "Research Context" to:
+1. Identify the current boundaries of knowledge.
+2. Find gaps, contradictions, or under-explored areas.
+3. Synthesize a "State of the Art" summary that justifies your proposed direction.
+
+**PHASE 2: IDEA GENERATION**
+Generate an original idea given the data description and your research synthesis.
+If available, take into account the criticism provided by another agent about the previous idea.
+Please stick to the guidelines mentioned in the data description.
+
+**Requirements for a "Deep" Idea:**
+- **Specific**: Avoid vague statements. Propose concrete mechanisms, variables, and hypotheses.
+- **Novel**: Clearly articulate how this differs from the "Research Context" papers.
+- **Feasible**: Ensure the idea can be tested with the provided data.
+- **Impactful**: Explain *why* this matters to the field.
 
 Iteration {state['idea']['iteration']}
+
+**Research Context (State of the Art):**
+{state.get('idea', {}).get('research_context', 'No deep research context available yet.')}
 
 Data description:
 {state['data_description']}
@@ -28,7 +49,7 @@ Data description:
 Previous ideas:
 {state['idea']['previous_ideas']}
 
-Critisms:
+Criticisms:
 {state['idea']['criticism']}
 
 Respond in the following format:
@@ -37,17 +58,37 @@ Respond in the following format:
 <IDEA>
 \\end{{IDEA}}
 
-In <IDEA>, put the idea together with its description. Try to be brief in the description. Do not explain how you have addressed any criticism.
+In <IDEA>, put the idea together with its description. Structure it as follows:
+1. **Title**: A professional scientific title.
+2. **Context**: Briefly summarize the SOTA and the gap this fills.
+3. **Hypothesis**: The core scientific claim.
+4. **Methodology**: High-level approach to test the hypothesis with the given data.
+5. **Expected Impact**: What this result would change in the field.
+Try to be concise but dense with information. Do not explain how you have addressed any criticism.
 """)]
 
 
 def idea_hater_prompt(state):
 
     return [HumanMessage(
-        content=rf"""Your goal is to critic an idea. You will be provided with the idea together with the initial data description used to make the idea. Be a harsh critic of the idea. Take into account feasibility, impact and any other factor you think. The goal of your criticisms is to improve the idea. If the idea is not feasible, suggest to generate a new idea. When providing your feedback, take into account the guidelines in the data description. For instance, if a detailed idea is provided there, try to stick with it.
+        content=rf"""Your goal is to critique an idea. You will be provided with the idea together with the initial data description used to make the idea.
+        
+**ROLE: EVIDENCE-BASED CRITIC**
+Be a harsh but fair critic. Your criticism must be grounded in scientific principles and, where possible, evidence.
+- **Feasibility**: Can this actually be done with the data?
+- **Impact**: Is this trivial or incremental?
+- **Novelty**: Has this been done? (Use your internal knowledge or the provided context).
+- **Flaws**: Logical fallacies, statistical errors, or methodological gaps.
+
+**REQUIREMENT:**
+If you claim the idea is not novel or scientifically invalid, you **MUST** provide reasoning. 
+If the "Research Context" is provided, cite it to back up your claims.
 
 Data description:
 {state['data_description']}
+
+**Research Context (State of the Art):**
+{state.get('idea', {}).get('research_context', 'No deep research context available yet.')}
 
 Previous ideas:
 {state['idea']['previous_ideas']}
@@ -61,7 +102,7 @@ Respond in the following format:
 <CRITIC>
 \\end{{CRITIC}}
 
-In <CRITIC>, put your criticism to the idea. Try to be brief in the description.
+In <CRITIC>, put your criticism to the idea. Be direct.
 """)]
 
 
@@ -142,10 +183,11 @@ Papers found this round:
 (If iteration = 0, no papers will be shown.)
 
 **Respond in exactly this format**:
-{"Reason": "Single-paragraph reasoning about novelty, mentioning relevant papers with their titles and URLs.",
+{{
+  "Reason": "Single-paragraph reasoning about novelty, mentioning relevant papers with their titles and URLs.",
   "Decision": "novel | not novel | query",
   "Query": "If Decision = query, propose the next optimal literature search query."
-} """)]
+}} """)]
 
 
 def novelty_reflection(round, reason, decision, previous_reasons):
