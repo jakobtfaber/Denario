@@ -66,6 +66,7 @@ def novelty_decider(state: GraphState, config: RunnableConfig):
         
         state, result = LLM_call_stream(PROMPT, state)
         try:
+            print(f"\n[DEBUG] LLM Response: {result[:500]}...") # Debug print
             result    = json_parser3(result)
             reason    = result["Reason"]
             decision  = result["Decision"]
@@ -73,7 +74,8 @@ def novelty_decider(state: GraphState, config: RunnableConfig):
             messages = f"{state['literature']['messages']}\nIteration {state['literature']['iteration']}\ndecision:{decision}\nreason:{reason}\n"
             iteration = state['literature']['iteration'] + 1
             break
-        except Exception:
+        except Exception as e:
+            print(f"\n[DEBUG] JSON Parse Failed: {e}")
             time.sleep(2)
 
     else:
