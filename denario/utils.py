@@ -111,12 +111,22 @@ def create_work_dir(work_dir: str | Path, name: str) -> Path:
 def get_task_result(chat_history, name: str):
     """Get task result from chat history"""
 
+    result = None
     for obj in chat_history[::-1]:
-        if obj["name"] == name:
-            result = obj["content"]
+        if isinstance(obj, dict) and obj.get("name") == name:
+            result = obj.get("content")
             break
-    task_result = result
-    return task_result
+    
+    if result is None:
+        # Fallback: check if the name is in the content or if there's any content at all
+        # This is a safety measure. 
+        for obj in chat_history[::-1]:
+             if isinstance(obj, dict) and name in str(obj.get("content", "")):
+                 return obj.get("content")
+        
+        raise ValueError(f"Task result for agent '{name}' not found in chat history. Targets: {[obj.get('name') for obj in chat_history if isinstance(obj, dict)]}")
+    
+    return result
 
 
 def in_notebook():
