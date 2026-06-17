@@ -221,3 +221,9 @@ HFDenario/
 
 #Ignore cursor AI rules
 .cursor/rules/codacy.mdc
+
+# --- consolidation additions ---
+*.fil
+.venv*/
+__pycache__/
+*.pyc

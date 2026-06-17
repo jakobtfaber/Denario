@@ -1,0 +1,5 @@
+services:
+  denario-plus:
+    ports:
+      - "7871:7860"
+      - "8091:8080"

@@ -1,0 +1,9 @@
+services:
+  denario:
+    # Base image ports:
+    # - UI: host 7870 -> container 7860
+    # - Proxy: host 8090 -> container 8080 (defined in base compose.yml)
+    ports:
+      - "7870:7860"  # UI
+      - "8090:8080"  # Proxy
+
