@@ -1,0 +1,30 @@
+# Exclude large/unneeded files from Docker context
+exports/
+
+# Local clones (avoid copying into image; source is cloned at build time)
+Denario/
+DenarioApp/
+
+# Git metadata
+.git/
+.gitignore
+.gitattributes
+
+# Env and secrets
+.env
+*.env
+
+# Python caches/venvs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# OS/editor and node leftovers
+.DS_Store
+.idea/
+.vscode/
+node_modules/
