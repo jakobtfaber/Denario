@@ -1,0 +1,72 @@
+services:
+  denario:
+    # Build the base image with proxy middleware
+    build:
+      context: .
+      args:
+        # Override with your fork and ref (branch/tag/commit)
+        DENARIO_REPO: https://github.com/AstroPilot-AI/DenarioApp.git
+        DENARIO_REF: master
+        # Optionally override the 'denario' Python package from a fork
+        # Note: prefer proxy aliases for experimental model names like 'gpt-5-mini'.
+        # DENARIO_PKG_REPO: https://github.com/yourname/Denario.git
+        # DENARIO_PKG_REF: your-branch-or-sha
+    image: denario:latest
+    ports:
+      - "7870:7860"   # Streamlit UI (host 7870)
+      - "8090:8080"   # TPM/RPM proxy (host 8090)
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: "/home/user/app"
+      PORT: "7860"
+      # Proxy model policy: default all OpenAI models to gpt-5-mini,
+      # allow explicit gpt-5 from the UI, and auto-fallback if context too large
+      MODEL_ALIAS_PREFIXES: '{"gpt-":"gpt-5-mini"}'
+      MODEL_ALIASES: '{"gpt-5":"gpt-5"}'
+      PRIMARY_MODEL: "gpt-5"
+      FALLBACK_MODEL: "gpt-5-mini"
+      PRIMARY_CTX_WINDOW: "128000"
+      # Proxy timeouts (seconds)
+      TIMEOUT_JSON_SECONDS: "180"
+      TIMEOUT_STREAM_SECONDS: "600"
+      TIMEOUT_GET_SECONDS: "45"
+      # Model remapping via proxy
+      # - FORCE_MODEL=gpt-4o-mini
+      # - MODEL_ALIASES=gpt-5-mini=gpt-4o-mini
+      # - MODEL_ALIAS_PREFIXES=gpt-5=gpt-4o-mini   # so 'gpt-5-mini' → 'gpt-4o-mini'
+      # Optional tuning (uncomment to override defaults)
+      # - RPM_BUDGET=60
+      # - TPM_BUDGET=80000
+      # - MAX_CONCURRENCY=4
+      # - CACHE_TTL_SECONDS=60
+    volumes:
+      - ./exports:/home/user/app/exports
+      - ./DenarioApp:/home/user/app/DenarioApp
+    restart: unless-stopped
+
+  denario-plus:
+    # Adds TeX (texlive), fonts, Ghostscript and Poppler utilities for Paper/PDF
+    build:
+      context: .
+      args:
+        # Override with your fork and ref (branch/tag/commit)
+        DENARIO_REPO: https://github.com/AstroPilot-AI/DenarioApp.git
+        DENARIO_REF: master
+        # Optionally override the 'denario' Python package from a fork
+        # Note: plus image inherits base package; rebuild base first.
+        # DENARIO_PKG_REPO: https://github.com/yourname/Denario.git
+        # DENARIO_PKG_REF: your-branch-or-sha
+      dockerfile: Dockerfile.addtools
+    image: denario-plus:latest
+    ports:
+      - "7871:7860"   # Streamlit UI (host 7871)
+      - "8091:8080"   # TPM/RPM proxy (host 8091)
+    env_file:
+      - .env
+    environment:
+      PYTHONPATH: "/home/user/app"
+      PORT: "7860"
+    volumes:
+      - ./exports:/home/user/app/exports
+    restart: unless-stopped

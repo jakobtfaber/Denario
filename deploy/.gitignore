@@ -1,0 +1,28 @@
+# Secrets and environment files
+.env
+*.env
+
+# Python cache and virtualenvs
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# OS/editor files
+.DS_Store
+.idea/
+.vscode/
+
+# Local exports and logs
+exports/
+*.log
+
+# Node leftovers (if any)
+node_modules/
+
+# Local clones of upstream repos (kept out of VCS)
+Denario/
+DenarioApp/

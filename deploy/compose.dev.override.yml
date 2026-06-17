@@ -1,0 +1,11 @@
+services:
+  denario-plus:
+    volumes:
+      - ./DenarioApp:/home/user/app/DenarioApp
+      - ./Denario/denario:/home/user/app/denario
+      - ./proxy:/home/user/app/proxy
+  denario:
+    volumes:
+      - ./DenarioApp:/home/user/app/DenarioApp
+      - ./Denario/denario:/home/user/app/denario
+      - ./proxy:/home/user/app/proxy
